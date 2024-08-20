@@ -99,7 +99,8 @@ class QBezier {
   onMouseMove(e) {
     if (this.dragging) {
       const { offsetX, offsetY } = e;
-      this.dragging.updatePosition(offsetX, offsetY);
+      const { left, top } = this.svg.getBoundingClientRect();
+      this.dragging.updatePosition(left + offsetX, top + offsetY);
       this.updatePath();
     }
   }
@@ -121,5 +122,6 @@ function getViewBoxString(viewBox) {
 }
 
 const svg = document.querySelector("svg");
+
 const bezier = new QBezier(svg, 50, 50, 150, 150, 250, 50);
-svg.setAttribute("viewBox", getViewBoxString(viewBox));
+// svg.setAttribute("viewBox", getViewBoxString(viewBox));
