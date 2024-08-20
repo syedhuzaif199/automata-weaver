@@ -97,10 +97,12 @@ class QBezier {
       const { offsetX, offsetY } = e;
       let x = 0,
         y = 0;
+      // width,
+      // height;
       if (svg.getAttribute("viewBox")) {
         [x, y] = svg.getAttribute("viewBox").split(" ").map(parseFloat);
       }
-      this.dragging.updatePosition(offsetX + x, offsetY + y);
+      this.dragging.updatePosition(offsetX * +x, offsetY + y);
       this.updatePath();
     }
   }

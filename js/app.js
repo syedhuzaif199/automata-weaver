@@ -1,22 +1,29 @@
+let scale = 1;
+
+const WIDTH = 800,
+  HEIGHT = 800;
+
+let viewbox = {
+  x: 0,
+  y: 0,
+  width: WIDTH,
+  height: HEIGHT,
+};
+
 function getViewBoxString(viewBox) {
   return `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`;
 }
 
-let panOffY = 0;
-let panOffX = 0;
-
 const svg = document.querySelector("svg");
-svg.setAttributeNS(
-  null,
-  "viewBox",
-  getViewBoxString({ x: 0, y: 0, width: 800, height: 800 })
-);
+svg.setAttributeNS(null, "viewBox", getViewBoxString(viewbox));
 
 const bezier = new QBezier(svg, 50, 50, 150, 150, 250, 50);
 
 let state = "default";
 
 svg.addEventListener("mousedown", (e) => {
+  const { offsetX, offsetY } = e;
+  console.log("offsetX", offsetX, "offsetY", offsetY);
   e.preventDefault();
   if (e.button === 1) {
     state = "panning";
@@ -27,18 +34,9 @@ svg.addEventListener("mousedown", (e) => {
 svg.addEventListener("mousemove", (e) => {
   if (state === "panning") {
     svg.style.cursor = "grabbing";
-    panOffX -= e.movementX;
-    panOffY -= e.movementY;
-    svg.setAttributeNS(
-      null,
-      "viewBox",
-      getViewBoxString({
-        x: panOffX,
-        y: panOffY,
-        width: 800,
-        height: 800,
-      })
-    );
+    viewbox.x -= e.movementX / scale;
+    viewbox.y -= e.movementY / scale;
+    svg.setAttributeNS(null, "viewBox", getViewBoxString(viewbox));
   }
 });
 
@@ -55,9 +53,9 @@ svg.addEventListener("mouseleave", () => {
 svg.addEventListener("wheel", (e) => {
   e.preventDefault();
   if (e.deltaY < 0) {
-    onZoomIn(e);
+    zoomInOnPoint(e);
   } else {
-    onZoomOut(e);
+    zoomOutOnPoint(e);
   }
 });
 
@@ -66,48 +64,72 @@ document.querySelector("#zoom-in").addEventListener("click", onZoomIn);
 document.querySelector("#zoom-out").addEventListener("click", onZoomOut);
 
 function onHomeClick(event) {
-  panOffX = 0;
-  panOffY = 0;
-  svg.setAttributeNS(
-    null,
-    "viewBox",
-    getViewBoxString({
-      x: panOffX,
-      y: panOffY,
-      width: 800,
-      height: 800,
-    })
-  );
+  viewbox = {
+    x: 0,
+    y: 0,
+    width: WIDTH,
+    height: HEIGHT,
+  };
+  scale = 1;
+  svg.setAttributeNS(null, "viewBox", getViewBoxString(viewbox));
 }
 
 function onZoomIn(event) {
-  const viewBox = svg.getAttribute("viewBox").split(" ");
-  const width = parseInt(viewBox[2]);
-  const height = parseInt(viewBox[3]);
-  svg.setAttributeNS(
-    null,
-    "viewBox",
-    getViewBoxString({
-      x: panOffX,
-      y: panOffY,
-      width: width - 50,
-      height: height - 50,
-    })
-  );
+  const [offsetX, offsetY] = [WIDTH / 2, HEIGHT / 2];
+  viewbox.x += offsetX / scale;
+  viewbox.y += offsetY / scale;
+
+  scale += 0.1;
+
+  viewbox.x -= offsetX / scale;
+  viewbox.y -= offsetY / scale;
+  viewbox.width = WIDTH / scale;
+  viewbox.height = HEIGHT / scale;
+
+  svg.setAttributeNS(null, "viewBox", getViewBoxString(viewbox));
 }
 
 function onZoomOut(event) {
-  const viewBox = svg.getAttribute("viewBox").split(" ");
-  const width = parseInt(viewBox[2]);
-  const height = parseInt(viewBox[3]);
-  svg.setAttributeNS(
-    null,
-    "viewBox",
-    getViewBoxString({
-      x: panOffX,
-      y: panOffY,
-      width: width + 50,
-      height: height + 50,
-    })
-  );
+  const [offsetX, offsetY] = [WIDTH / 2, HEIGHT / 2];
+  viewbox.x += offsetX / scale;
+  viewbox.y += offsetY / scale;
+
+  scale -= 0.1;
+
+  viewbox.x -= offsetX / scale;
+  viewbox.y -= offsetY / scale;
+  viewbox.width = WIDTH / scale;
+  viewbox.height = HEIGHT / scale;
+
+  svg.setAttributeNS(null, "viewBox", getViewBoxString(viewbox));
+}
+
+function zoomInOnPoint(event) {
+  const { offsetX, offsetY } = event;
+  viewbox.x += offsetX / scale;
+  viewbox.y += offsetY / scale;
+
+  scale += 0.1;
+
+  viewbox.x -= offsetX / scale;
+  viewbox.y -= offsetY / scale;
+  viewbox.width = WIDTH / scale;
+  viewbox.height = HEIGHT / scale;
+
+  svg.setAttributeNS(null, "viewBox", getViewBoxString(viewbox));
+}
+
+function zoomOutOnPoint(event) {
+  const { offsetX, offsetY } = event;
+  viewbox.x += offsetX / scale;
+  viewbox.y += offsetY / scale;
+
+  scale -= 0.1;
+
+  viewbox.x -= offsetX / scale;
+  viewbox.y -= offsetY / scale;
+  viewbox.width = WIDTH / scale;
+  viewbox.height = HEIGHT / scale;
+
+  svg.setAttributeNS(null, "viewBox", getViewBoxString(viewbox));
 }
