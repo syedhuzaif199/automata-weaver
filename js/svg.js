@@ -1,3 +1,196 @@
+import { clamp } from "./utils.js";
+
+let scale = 1;
+const MINSCALE = 0.25;
+const MAXSCALE = 4;
+
+let keyDown = null;
+let svg = null;
+let viewBox = null;
+
+let states = Object.freeze({
+  default: 0,
+  panning: 1,
+});
+let state = states.default;
+let action = null;
+
+let controlPoints = [];
+
+const actions = Object.freeze({
+  addState: 0,
+  addTransition: 1,
+  select: 2,
+});
+
+let WIDTH = 800;
+let HEIGHT = 800;
+
+export function setAction(ac) {
+  action = ac;
+}
+
+export function setKeyDown(key) {
+  keyDown = key;
+  if (keyDown === " ") {
+    svg.style.cursor = "grab";
+  } else {
+    svg.style.cursor = "default";
+  }
+}
+
+export function setupSVG(s, width, height) {
+  svg = s;
+  WIDTH = width;
+  HEIGHT = height;
+  viewBox = {
+    x: 0,
+    y: 0,
+    width,
+    height,
+  };
+  svg.setAttributeNS(null, "viewBox", getViewBoxString(viewBox));
+  svgAddEventListeners(svg);
+}
+
+export function getViewBoxString(viewBox) {
+  return `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`;
+}
+
+export function resetSVG() {
+  viewBox = {
+    x: 0,
+    y: 0,
+    width: WIDTH,
+    height: HEIGHT,
+  };
+  scale = 1;
+  svg.setAttributeNS(null, "viewBox", getViewBoxString(viewBox));
+}
+
+export function svgZoomIn() {
+  const [offsetX, offsetY] = [WIDTH / 2, HEIGHT / 2];
+  viewBox.x += offsetX / scale;
+  viewBox.y += offsetY / scale;
+
+  scale += 0.1;
+  scale = clamp(MINSCALE, MAXSCALE, scale);
+  viewBox.x -= offsetX / scale;
+  viewBox.y -= offsetY / scale;
+  viewBox.width = WIDTH / scale;
+  viewBox.height = HEIGHT / scale;
+
+  svg.setAttributeNS(null, "viewBox", getViewBoxString(viewBox));
+}
+
+export function svgZoomOut() {
+  const [offsetX, offsetY] = [WIDTH / 2, HEIGHT / 2];
+  viewBox.x += offsetX / scale;
+  viewBox.y += offsetY / scale;
+
+  scale -= 0.1;
+  scale = clamp(MINSCALE, MAXSCALE, scale);
+
+  viewBox.x -= offsetX / scale;
+  viewBox.y -= offsetY / scale;
+  viewBox.width = WIDTH / scale;
+  viewBox.height = HEIGHT / scale;
+
+  svg.setAttributeNS(null, "viewBox", getViewBoxString(viewBox));
+}
+
+function svgAddEventListeners(svg) {
+  svg.addEventListener("mousedown", (e) => svgOnMouseDown(e));
+  svg.addEventListener("mousemove", (e) => svgOnMouseMove(e));
+  svg.addEventListener("mouseup", () => svgOnMouseUp());
+  svg.addEventListener("mouseleave", () => svgOnMouseLeave());
+  svg.addEventListener("wheel", (e) => svgOnMouseWheel(e));
+}
+
+function svgOnMouseDown(e) {
+  const { offsetX, offsetY } = e;
+
+  console.log("offsetX", offsetX, "offsetY", offsetY);
+  e.preventDefault();
+
+  if (e.button === 1) {
+    state = states.panning;
+    svg.style.cursor = "grab";
+  } else if (e.button === 0) {
+    if (action == actions.addState) {
+      const cp = new ControlPoint(
+        svg,
+        offsetX / scale + viewBox.x,
+        offsetY / scale + viewBox.y
+      );
+      controlPoints.push(cp);
+    }
+    if (keyDown === " ") {
+      state = states.panning;
+    }
+  }
+}
+
+function svgOnMouseMove(e) {
+  if (state === states.panning) {
+    svg.style.cursor = "grabbing";
+    viewBox.x -= e.movementX / scale;
+    viewBox.y -= e.movementY / scale;
+    svg.setAttributeNS(null, "viewBox", getViewBoxString(viewBox));
+  }
+}
+
+function svgOnMouseUp(e) {
+  svg.style.cursor = "default";
+  state = states.default;
+}
+
+function svgOnMouseLeave() {
+  svg.style.cursor = "default";
+  state = states.default;
+}
+
+function svgOnMouseWheel(e) {
+  e.preventDefault();
+  if (keyDown === "Control") {
+    if (e.deltaY < 0) {
+      zoomInOnPoint(e);
+    } else {
+      zoomOutOnPoint(e);
+    }
+  }
+}
+
+function zoomInOnPoint(event) {
+  const { offsetX, offsetY } = event;
+  viewBox.x += offsetX / scale;
+  viewBox.y += offsetY / scale;
+
+  scale = clamp(MINSCALE, MAXSCALE, scale + 0.1);
+
+  viewBox.x -= offsetX / scale;
+  viewBox.y -= offsetY / scale;
+  viewBox.width = WIDTH / scale;
+  viewBox.height = HEIGHT / scale;
+
+  svg.setAttributeNS(null, "viewBox", getViewBoxString(viewBox));
+}
+
+function zoomOutOnPoint(event) {
+  const { offsetX, offsetY } = event;
+  viewBox.x += offsetX / scale;
+  viewBox.y += offsetY / scale;
+
+  scale = clamp(MINSCALE, MAXSCALE, scale - 0.1);
+
+  viewBox.x -= offsetX / scale;
+  viewBox.y -= offsetY / scale;
+  viewBox.width = WIDTH / scale;
+  viewBox.height = HEIGHT / scale;
+
+  svg.setAttributeNS(null, "viewBox", getViewBoxString(viewBox));
+}
+
 class ControlPoint {
   constructor(
     svg,
@@ -36,6 +229,10 @@ class ControlPoint {
     this.y = y;
     this.circle.setAttributeNS(null, "cx", this.x);
     this.circle.setAttributeNS(null, "cy", this.y);
+  }
+
+  contains(x, y) {
+    return Math.sqrt((x - this.x) ** 2 + (y - this.y) ** 2) < this.radius;
   }
 }
 
@@ -99,10 +296,12 @@ class QBezier {
         y = 0;
       // width,
       // height;
-      if (svg.getAttribute("viewBox")) {
-        [x, y] = svg.getAttribute("viewBox").split(" ").map(parseFloat);
+      if (this.svg.getAttribute("viewBox")) {
+        // [x, y] = this.svg.getAttribute("viewBox").split(" ").map(parseFloat);
+        x = viewBox.x;
+        y = viewBox.y;
       }
-      this.dragging.updatePosition(offsetX * +x, offsetY + y);
+      this.dragging.updatePosition(offsetX / scale + x, offsetY / scale + y);
       this.updatePath();
     }
   }
@@ -111,3 +310,5 @@ class QBezier {
     this.dragging = null;
   }
 }
+
+export { scale, actions, ControlPoint, QBezier };
