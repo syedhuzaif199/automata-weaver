@@ -1,5 +1,9 @@
 import { clamp } from "./utils.js";
 
+const CONTROL_POINT_SIZE = 50;
+
+const SVGNamespace = "http://www.w3.org/2000/svg";
+
 let scale = 1;
 const MINSCALE = 0.25;
 const MAXSCALE = 4;
@@ -16,6 +20,9 @@ let state = states.default;
 let action = null;
 
 let controlPoints = [];
+
+let selectedControlPoint = null;
+let arrowTransition = null;
 
 const actions = Object.freeze({
   addState: 0,
@@ -99,11 +106,15 @@ export function svgZoomOut() {
   svg.setAttributeNS(null, "viewBox", getViewBoxString(viewBox));
 }
 
+function screenToSVG(x, y) {
+  return { x: x / scale + viewBox.x, y: y / scale + viewBox.y };
+}
+
 function svgAddEventListeners(svg) {
   svg.addEventListener("mousedown", (e) => svgOnMouseDown(e));
   svg.addEventListener("mousemove", (e) => svgOnMouseMove(e));
-  svg.addEventListener("mouseup", () => svgOnMouseUp());
-  svg.addEventListener("mouseleave", () => svgOnMouseLeave());
+  svg.addEventListener("mouseup", (e) => svgOnMouseUp(e));
+  svg.addEventListener("mouseleave", (e) => svgOnMouseLeave(e));
   svg.addEventListener("wheel", (e) => svgOnMouseWheel(e));
 }
 
@@ -117,16 +128,26 @@ function svgOnMouseDown(e) {
     state = states.panning;
     svg.style.cursor = "grab";
   } else if (e.button === 0) {
-    if (action == actions.addState) {
+    if (keyDown === " ") {
+      state = states.panning;
+    } else if (action == actions.addState) {
       const cp = new ControlPoint(
         svg,
         offsetX / scale + viewBox.x,
         offsetY / scale + viewBox.y
       );
       controlPoints.push(cp);
-    }
-    if (keyDown === " ") {
-      state = states.panning;
+    } else if (action == actions.addTransition) {
+      const { x, y } = screenToSVG(offsetX, offsetY);
+      selectedControlPoint = controlPoints.find((cp) => cp.contains(x, y));
+      arrowTransition = createArrow(
+        selectedControlPoint.x,
+        selectedControlPoint.y,
+        x,
+        y
+      );
+      svg.appendChild(arrowTransition.arrowBody);
+      svg.appendChild(arrowTransition.arrowHead);
     }
   }
 }
@@ -137,15 +158,42 @@ function svgOnMouseMove(e) {
     viewBox.x -= e.movementX / scale;
     viewBox.y -= e.movementY / scale;
     svg.setAttributeNS(null, "viewBox", getViewBoxString(viewBox));
+  } else if (action == actions.addTransition && selectedControlPoint) {
+    const { offsetX, offsetY } = e;
+    const { x, y } = screenToSVG(offsetX, offsetY);
+    updateArrow(
+      arrowTransition,
+      selectedControlPoint.x,
+      selectedControlPoint.y,
+      x,
+      y
+    );
   }
 }
 
 function svgOnMouseUp(e) {
   svg.style.cursor = "default";
   state = states.default;
+  if (action == actions.addTransition && selectedControlPoint) {
+    const { offsetX, offsetY } = e;
+    const { x, y } = screenToSVG(offsetX, offsetY);
+    const cp = controlPoints.find((cp) => cp.contains(x, y));
+    if (cp) {
+      updateArrow(
+        arrowTransition,
+        selectedControlPoint.x,
+        selectedControlPoint.y,
+        cp.x,
+        cp.y
+      );
+    } else {
+      removeArrow(arrowTransition);
+    }
+    selectedControlPoint = null;
+  }
 }
 
-function svgOnMouseLeave() {
+function svgOnMouseLeave(e) {
   svg.style.cursor = "default";
   state = states.default;
 }
@@ -191,17 +239,71 @@ function zoomOutOnPoint(event) {
   svg.setAttributeNS(null, "viewBox", getViewBoxString(viewBox));
 }
 
+function calculateArrowMid(x1, y1, x2, y2) {
+  let d = Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2) / 4;
+  d = d * (x1 < x2 ? 1 : -1);
+  const theta = Math.atan((y2 - y1) / (x2 - x1));
+  const xm = (x1 + x2) / 2 - d * Math.sin(theta);
+  const ym = (y1 + y2) / 2 + d * Math.cos(theta);
+  return { xm, ym };
+}
+
+function createArrow(x1, y1, x2, y2) {
+  // Define the marker
+  const defs = document.createElementNS(SVGNamespace, "defs");
+  const marker = document.createElementNS(SVGNamespace, "marker");
+  marker.setAttribute("id", "arrowhead");
+  marker.setAttribute("markerWidth", "10");
+  marker.setAttribute("markerHeight", "10");
+  marker.setAttribute("refX", "10");
+  marker.setAttribute("refY", "5");
+  marker.setAttribute("orient", "auto");
+
+  const arrowHead = document.createElementNS(SVGNamespace, "polygon");
+  arrowHead.setAttribute("points", "0 0, 10 5, 0 10");
+  arrowHead.setAttribute("fill", "black");
+
+  marker.appendChild(arrowHead);
+  defs.appendChild(marker);
+  svg.appendChild(defs);
+
+  // Create the arrow body (line)
+  const arrowBody = document.createElementNS(SVGNamespace, "path");
+
+  const { xm, ym } = calculateArrowMid(x1, y1, x2, y2);
+
+  arrowBody.setAttribute("d", `M ${x1} ${y1} Q ${xm} ${ym} ${x2} ${y2}`);
+  arrowBody.setAttribute("fill", "none");
+  arrowBody.setAttribute("stroke", "black");
+  arrowBody.setAttribute("stroke-width", "2");
+  arrowBody.setAttribute("marker-end", "url(#arrowhead)");
+
+  return { arrowBody, arrowHead: defs };
+}
+
+function removeArrow(arrow) {
+  arrow.arrowBody.remove();
+  arrow.arrowHead.remove();
+}
+
+function updateArrow(arrow, x1, y1, x2, y2) {
+  const { arrowBody } = arrow;
+  const { xm, ym } = calculateArrowMid(x1, y1, x2, y2);
+
+  arrowBody.setAttribute("d", `M ${x1} ${y1} Q ${xm} ${ym} ${x2} ${y2}`);
+}
+
 class ControlPoint {
   constructor(
     svg,
     x,
     y,
-    radius = 10,
-    fill = "blue",
+    radius = CONTROL_POINT_SIZE,
+    fill = "none",
     stroke = "black",
     stroke_width = "1px"
   ) {
-    this.ns = "http://www.w3.org/2000/svg";
+    this.ns = SVGNamespace;
     this.x = x;
     this.y = y;
     this.radius = radius;
@@ -248,7 +350,7 @@ class QBezier {
     stroke = "red",
     stroke_width = "2px"
   ) {
-    this.ns = "http://www.w3.org/2000/svg";
+    this.ns = SVGNamespace;
     this.svg = svg;
     this.qBezier = document.createElementNS(this.ns, "path");
     this.svg.appendChild(this.qBezier);
