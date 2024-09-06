@@ -15,7 +15,6 @@ const WIDTH = 800,
 
 const svg = document.querySelector("svg");
 setupSVG(svg, WIDTH, HEIGHT);
-const bezier = new QBezier(svg, 50, 50, 150, 150, 250, 50);
 
 document.addEventListener("keydown", (e) => {
   setKeyDown(e.key);
@@ -57,14 +56,9 @@ function onSelectBtnClick(event) {
 }
 
 function addTransition() {
-  console.log("Transition");
-  Array.from(svg.children).forEach((element) => {
-    console.log(element);
-  });
   setAction(actions.addTransition);
 }
 
 function addState() {
-  console.log("Added state");
   setAction(actions.addState);
 }
