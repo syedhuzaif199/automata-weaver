@@ -1,7 +1,8 @@
 import { clamp } from "./utils.js";
 
 const CONTROL_POINT_SIZE = 50;
-
+const ARROW_HEAD_WIDTH = 7;
+const ARROW_HEAD_HEIGHT = 7;
 const SVGNamespace = "http://www.w3.org/2000/svg";
 
 let scale = 1;
@@ -21,7 +22,9 @@ let action = null;
 
 let controlPoints = [];
 
-let selectedControlPoint = null;
+let transitions = [];
+
+let startControlPoint = null;
 let arrowTransition = null;
 
 const actions = Object.freeze({
@@ -118,6 +121,61 @@ function svgAddEventListeners(svg) {
   svg.addEventListener("wheel", (e) => svgOnMouseWheel(e));
 }
 
+function addState(offsetX, offsetY) {
+  const cp = new ControlPoint(
+    svg,
+    offsetX / scale + viewBox.x,
+    offsetY / scale + viewBox.y
+  );
+  controlPoints.push(cp);
+}
+
+function startTransition(offsetX, offsetY) {
+  const { x, y } = screenToSVG(offsetX, offsetY);
+  startControlPoint = controlPoints.find((cp) => cp.contains(x, y));
+  if (!startControlPoint) {
+    return;
+  }
+  arrowTransition = createArrow(startControlPoint.x, startControlPoint.y, x, y);
+  svg.appendChild(arrowTransition.arrowBody);
+  svg.appendChild(arrowTransition.arrowHead);
+}
+
+function updateTransition(offsetX, offsetY) {
+  const { x, y } = screenToSVG(offsetX, offsetY);
+  updateArrow(arrowTransition, startControlPoint.x, startControlPoint.y, x, y);
+}
+
+function endTransition(offsetX, offsetY) {
+  const { x, y } = screenToSVG(offsetX, offsetY);
+  const endControlPoint = controlPoints.find((cp) => cp.contains(x, y));
+  if (!endControlPoint) {
+    removeArrow(arrowTransition);
+    return;
+  }
+  const doubleTransition = transitions.filter((element) => {
+    return (
+      element.start.x === startControlPoint.x &&
+      element.start.y === startControlPoint.y &&
+      element.end.x === endControlPoint.x &&
+      element.end.y === endControlPoint.y
+    );
+  });
+  if (doubleTransition.length === 0) {
+    updateArrow(
+      arrowTransition,
+      startControlPoint.x,
+      startControlPoint.y,
+      endControlPoint.x,
+      endControlPoint.y
+    );
+    transitions.push({ start: startControlPoint, end: endControlPoint });
+  } else {
+    removeArrow(arrowTransition);
+  }
+  startControlPoint = null;
+}
+
 function svgOnMouseDown(e) {
   const { offsetX, offsetY } = e;
 
@@ -131,23 +189,9 @@ function svgOnMouseDown(e) {
     if (keyDown === " ") {
       state = states.panning;
     } else if (action == actions.addState) {
-      const cp = new ControlPoint(
-        svg,
-        offsetX / scale + viewBox.x,
-        offsetY / scale + viewBox.y
-      );
-      controlPoints.push(cp);
+      addState(offsetX, offsetY);
     } else if (action == actions.addTransition) {
-      const { x, y } = screenToSVG(offsetX, offsetY);
-      selectedControlPoint = controlPoints.find((cp) => cp.contains(x, y));
-      arrowTransition = createArrow(
-        selectedControlPoint.x,
-        selectedControlPoint.y,
-        x,
-        y
-      );
-      svg.appendChild(arrowTransition.arrowBody);
-      svg.appendChild(arrowTransition.arrowHead);
+      startTransition(offsetX, offsetY);
     }
   }
 }
@@ -158,38 +202,18 @@ function svgOnMouseMove(e) {
     viewBox.x -= e.movementX / scale;
     viewBox.y -= e.movementY / scale;
     svg.setAttributeNS(null, "viewBox", getViewBoxString(viewBox));
-  } else if (action == actions.addTransition && selectedControlPoint) {
+  } else if (action == actions.addTransition && startControlPoint) {
     const { offsetX, offsetY } = e;
-    const { x, y } = screenToSVG(offsetX, offsetY);
-    updateArrow(
-      arrowTransition,
-      selectedControlPoint.x,
-      selectedControlPoint.y,
-      x,
-      y
-    );
+    updateTransition(offsetX, offsetY);
   }
 }
 
 function svgOnMouseUp(e) {
   svg.style.cursor = "default";
   state = states.default;
-  if (action == actions.addTransition && selectedControlPoint) {
+  if (action == actions.addTransition && startControlPoint) {
     const { offsetX, offsetY } = e;
-    const { x, y } = screenToSVG(offsetX, offsetY);
-    const cp = controlPoints.find((cp) => cp.contains(x, y));
-    if (cp) {
-      updateArrow(
-        arrowTransition,
-        selectedControlPoint.x,
-        selectedControlPoint.y,
-        cp.x,
-        cp.y
-      );
-    } else {
-      removeArrow(arrowTransition);
-    }
-    selectedControlPoint = null;
+    endTransition(offsetX, offsetY);
   }
 }
 
@@ -240,7 +264,7 @@ function zoomOutOnPoint(event) {
 }
 
 function calculateArrowMid(x1, y1, x2, y2) {
-  let d = Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2) / 4;
+  let d = CONTROL_POINT_SIZE * 1.5;
   d = d * (x1 < x2 ? 1 : -1);
   const theta = Math.atan((y2 - y1) / (x2 - x1));
   const xm = (x1 + x2) / 2 - d * Math.sin(theta);
@@ -253,14 +277,17 @@ function createArrow(x1, y1, x2, y2) {
   const defs = document.createElementNS(SVGNamespace, "defs");
   const marker = document.createElementNS(SVGNamespace, "marker");
   marker.setAttribute("id", "arrowhead");
-  marker.setAttribute("markerWidth", "10");
-  marker.setAttribute("markerHeight", "10");
-  marker.setAttribute("refX", "10");
-  marker.setAttribute("refY", "5");
+  marker.setAttribute("markerWidth", `${ARROW_HEAD_WIDTH}`);
+  marker.setAttribute("markerHeight", `${ARROW_HEAD_HEIGHT}`);
+  marker.setAttribute("refX", `${ARROW_HEAD_WIDTH}`);
+  marker.setAttribute("refY", `${ARROW_HEAD_HEIGHT / 2}`);
   marker.setAttribute("orient", "auto");
 
   const arrowHead = document.createElementNS(SVGNamespace, "polygon");
-  arrowHead.setAttribute("points", "0 0, 10 5, 0 10");
+  arrowHead.setAttribute(
+    "points",
+    `0 0, ${ARROW_HEAD_WIDTH} ${ARROW_HEAD_HEIGHT / 2}, 0 ${ARROW_HEAD_HEIGHT}`
+  );
   arrowHead.setAttribute("fill", "black");
 
   marker.appendChild(arrowHead);
@@ -270,12 +297,11 @@ function createArrow(x1, y1, x2, y2) {
   // Create the arrow body (line)
   const arrowBody = document.createElementNS(SVGNamespace, "path");
 
-  const { xm, ym } = calculateArrowMid(x1, y1, x2, y2);
+  updateArrow({ arrowBody }, x1, y1, x2, y2);
 
-  arrowBody.setAttribute("d", `M ${x1} ${y1} Q ${xm} ${ym} ${x2} ${y2}`);
   arrowBody.setAttribute("fill", "none");
   arrowBody.setAttribute("stroke", "black");
-  arrowBody.setAttribute("stroke-width", "2");
+  arrowBody.setAttribute("stroke-width", "2px");
   arrowBody.setAttribute("marker-end", "url(#arrowhead)");
 
   return { arrowBody, arrowHead: defs };
@@ -290,7 +316,30 @@ function updateArrow(arrow, x1, y1, x2, y2) {
   const { arrowBody } = arrow;
   const { xm, ym } = calculateArrowMid(x1, y1, x2, y2);
 
-  arrowBody.setAttribute("d", `M ${x1} ${y1} Q ${xm} ${ym} ${x2} ${y2}`);
+  const slope = (y2 - y1) / (x2 - x1);
+  const theta = Math.atan(slope) || 0;
+  const alpha = Math.PI / 6;
+  const fact = x1 < x2 ? 1 : -1;
+
+  const startx = x1 + fact * CONTROL_POINT_SIZE * Math.cos(theta + alpha);
+  const starty = y1 + fact * CONTROL_POINT_SIZE * Math.sin(theta + alpha);
+  const endx = x2 - fact * CONTROL_POINT_SIZE * Math.cos(theta - alpha);
+  const endy = y2 - fact * CONTROL_POINT_SIZE * Math.sin(theta - alpha);
+
+  if (x1 === x2 && y1 === y2) {
+    console.log("theta:", theta);
+    arrowBody.setAttribute(
+      "d",
+      `M ${startx} ${starty} A ${
+        0.5 * CONTROL_POINT_SIZE
+      } ${CONTROL_POINT_SIZE} 0 0 1 ${endx} ${endy}`
+    );
+  } else {
+    arrowBody.setAttribute(
+      "d",
+      `M ${startx} ${starty} Q ${xm} ${ym} ${endx} ${endy}`
+    );
+  }
 }
 
 class ControlPoint {
@@ -301,7 +350,7 @@ class ControlPoint {
     radius = CONTROL_POINT_SIZE,
     fill = "none",
     stroke = "black",
-    stroke_width = "1px"
+    stroke_width = "2px"
   ) {
     this.ns = SVGNamespace;
     this.x = x;
