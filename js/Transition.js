@@ -1,5 +1,3 @@
-import { Arrow } from "./Arrow.js";
-
 class Transition {
   constructor(svg, startControlPoint, endControlPoint, arrow) {
     this.svg = svg;
@@ -18,6 +16,17 @@ class Transition {
 
   removeFromSVG() {
     this.arrow.remove();
+  }
+
+  setText(text) {
+    this.arrow.setText(text);
+  }
+
+  setTextVisible(visible) {
+    this.arrow.setTextVisible(visible);
+  }
+  getCenter() {
+    return this.arrow.getCenter();
   }
 }
 

@@ -3,13 +3,15 @@ import { Arrow } from "./Arrow.js";
 import { ControlPoint } from "./ControlPoint.js";
 import { Transition } from "./Transition.js";
 
-const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
-
-const SELECTED_COLOR = "red";
-const UNSELECTED_COLOR = "black";
-
-const MINSCALE = 0.25;
-const MAXSCALE = 4;
+import {
+  SELECTED_COLOR,
+  UNSELECTED_COLOR,
+  MINSCALE,
+  MAXSCALE,
+  TEXT_SIZE,
+  CONTROL_POINT_SIZE,
+  TEXT_FONT,
+} from "./constants.js";
 
 const states = Object.freeze({
   default: 0,
@@ -21,6 +23,7 @@ const actions = Object.freeze({
   addState: 0,
   addTransition: 1,
   select: 2,
+  addText: 3,
 });
 
 const actionToCursor = {
@@ -59,6 +62,7 @@ class SVGHandler {
     this.selectionType = selectionTypes.none;
     this.states = states;
     this.actions = actions;
+    this.textField = this.createTextField();
 
     this.setupSVG();
   }
@@ -85,6 +89,22 @@ class SVGHandler {
     this.updateViewBox();
   }
 
+  updateTextBoxTransforms() {
+    if (this.isTextFieldVisible()) {
+      const { x, y } = this.selectedElement.getCenter();
+      const { x: screenX, y: screenY } = this.SVGToScreen({ x, y });
+      this.textField.style.left =
+        screenX - this.textField.style.width.replace("px", "") / 2 + "px";
+      this.textField.style.top =
+        screenY - this.textField.style.height.replace("px", "") / 2 + "px";
+      this.textField.style.width = 2 * CONTROL_POINT_SIZE * this.scale + "px";
+      this.textField.style.height = TEXT_SIZE * this.scale + "px";
+    }
+  }
+
+  getScale() {
+    return this.scale;
+  }
   zoomInOnPoint(event) {
     const { offsetX, offsetY } = event;
     this.viewBox.x += offsetX / this.scale;
@@ -154,6 +174,7 @@ class SVGHandler {
 
   updateViewBox() {
     this.svg.setAttribute("viewBox", this.getViewBoxString());
+    this.updateTextBoxTransforms();
   }
 
   getViewBoxString() {
@@ -172,6 +193,13 @@ class SVGHandler {
     };
   }
 
+  SVGToScreen({ x, y }) {
+    return {
+      x: (x - this.viewBox.x) * this.scale,
+      y: (y - this.viewBox.y) * this.scale,
+    };
+  }
+
   pan(dx, dy) {
     this.viewBox.x -= dx / this.scale;
     this.viewBox.y -= dy / this.scale;
@@ -181,9 +209,11 @@ class SVGHandler {
   setAction(action) {
     this.action = action;
     this.svg.style.cursor = actionToCursor[action];
+    // deselect any selected elements if any button other than select is pressed
     if (action !== actions.select) {
       this.deselect();
     }
+    this.hideTextField();
   }
 
   setKeyDown(key) {
@@ -198,18 +228,88 @@ class SVGHandler {
     this.svg.addEventListener("wheel", (e) => this.onMouseWheel(e));
   }
 
+  setSelectedElementText(text) {
+    if (this.selectionType !== selectionTypes.none) {
+      this.selectedElement.setText(text);
+    }
+  }
+
+  createTextField() {
+    const textField = document.createElement("input");
+    textField.setAttribute("type", "text");
+    textField.style.position = "absolute";
+    textField.style.visibility = "hidden";
+    textField.style.width = 2 * CONTROL_POINT_SIZE + "px";
+    textField.style.height = TEXT_SIZE + "px";
+    // set background transparent
+    textField.style.backgroundColor = "transparent";
+    textField.style.border = "none";
+    textField.style.outline = "none";
+    textField.style.fontSize = TEXT_SIZE + "px";
+    textField.style.fontFamily = TEXT_FONT;
+    textField.style.textAlign = "center";
+    document.body.appendChild(textField);
+    textField.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        const text = this.textField.value;
+        this.setSelectedElementText(text);
+        this.hideTextField();
+      }
+      if (e.key === "Escape") {
+        this.hideTextField();
+      }
+    });
+    return textField;
+  }
+
+  spawnTextField() {
+    console.log("Spawning Text Field");
+    this.textField.style.visibility = "visible";
+    const { x, y } = this.SVGToScreen(this.selectedElement.getCenter());
+    this.textField.style.left =
+      x - this.textField.style.width.replace("px", "") / 2 + "px";
+    this.textField.style.top =
+      y - this.textField.style.height.replace("px", "") / 2 + "px";
+    this.textField.focus();
+    this.selectedElement.setTextVisible(false);
+  }
+
+  isTextFieldVisible() {
+    return this.textField.style.visibility === "visible";
+  }
+
+  hideTextField() {
+    this.textField.style.visibility = "hidden";
+    this.textField.value = "";
+    if (this.selectedElement) {
+      this.selectedElement.setTextVisible(true);
+    }
+  }
+
+  handleDoubleClick(e) {
+    const { clientX, clientY } = e;
+    if (this.selectionType === selectionTypes.transition) {
+      this.spawnTextField(clientX, clientY);
+    } else if (this.selectionType === selectionTypes.controlPoint) {
+      this.spawnTextField(clientX, clientY);
+    }
+  }
+
   onMouseDown(e) {
     e.preventDefault();
-
     if (e.button === 1 || (e.button === 0 && this.keyDown === " ")) {
       this.changeState(states.panning);
       return;
     }
+    this.hideTextField();
 
     if (e.button === 0) {
       switch (this.action) {
         case actions.select:
           this.selectElement(e.offsetX, e.offsetY);
+          if (e.detail === 2) {
+            this.handleDoubleClick(e);
+          }
           break;
         case actions.addState:
           this.addState(e.offsetX, e.offsetY);
@@ -342,6 +442,8 @@ class SVGHandler {
       offsetY / this.scale + this.viewBox.y
     );
     this.controlPoints.push(cp);
+    this.selectElement(offsetX, offsetY);
+    this.spawnTextField();
   }
 
   startTransition(offsetX, offsetY) {
@@ -399,6 +501,9 @@ class SVGHandler {
           this.arrow
         )
       );
+      const screenPoint = this.SVGToScreen(this.arrow.getCenter());
+      this.selectElement(screenPoint.x, screenPoint.y);
+      this.spawnTextField();
     } else {
       this.arrow.remove();
     }

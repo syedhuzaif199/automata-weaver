@@ -1,10 +1,7 @@
 import { SVGHandler } from "./SVGHandler.js";
 
-const WIDTH = window.innerWidth,
-  HEIGHT = window.innerHeight;
-
 const svg = document.querySelector("svg");
-const svgHandler = new SVGHandler(svg, WIDTH, HEIGHT);
+const svgHandler = new SVGHandler(svg, window.innerWidth, window.innerHeight);
 
 document.addEventListener("keydown", (e) => {
   svgHandler.setKeyDown(e.key);
@@ -16,25 +13,32 @@ document.addEventListener("keyup", (e) => {
   svgHandler.setKeyDown(null);
 });
 
-document.querySelector("#home").addEventListener("click", onHomeClick);
-document.querySelector("#zoom-in").addEventListener("click", onZoomIn);
-document.querySelector("#zoom-out").addEventListener("click", onZoomOut);
-document
-  .querySelector("#add-transition")
-  .addEventListener("click", addTransition);
+const homeBtn = document.querySelector("#home");
+homeBtn.addEventListener("click", onHomeClick);
 
-document.querySelector("#add-state").addEventListener("click", addState);
-document
-  .querySelector("#select-button")
-  .addEventListener("click", onSelectBtnClick);
+const zoomInBtn = document.querySelector("#zoom-in");
+zoomInBtn.addEventListener("click", onZoomIn);
 
-document
-  .querySelector("#delete-button")
-  .addEventListener("click", onDeleteBtnClick);
+const zoomOutBtn = document.querySelector("#zoom-out");
+zoomOutBtn.addEventListener("click", onZoomOut);
 
-document.querySelector("#zoom-reset").addEventListener("click", onZoomReset);
+const addTransitionBtn = document.querySelector("#add-transition");
+addTransitionBtn.addEventListener("click", addTransition);
 
-document.querySelector("#menu-btn").addEventListener("click", onMenuBtnClick);
+const addStateBtn = document.querySelector("#add-state");
+addStateBtn.addEventListener("click", addState);
+
+const selectBtn = document.querySelector("#select-button");
+selectBtn.addEventListener("click", onSelectBtnClick);
+
+const deleteBtn = document.querySelector("#delete-button");
+deleteBtn.addEventListener("click", onDeleteBtnClick);
+
+const zoomResetBtn = document.querySelector("#zoom-reset");
+zoomResetBtn.addEventListener("click", onZoomReset);
+
+const menuBtn = document.querySelector("#menu-btn");
+menuBtn.addEventListener("click", onMenuBtnClick);
 
 function onHomeClick(event) {
   svgHandler.resetSVG();
@@ -42,14 +46,17 @@ function onHomeClick(event) {
 
 function onZoomIn(event) {
   svgHandler.zoomIn();
+  zoomResetBtn.innerHTML = parseInt(svgHandler.getScale() * 100) + "%";
 }
 
 function onZoomOut(event) {
   svgHandler.zoomOut();
+  zoomResetBtn.innerHTML = parseInt(svgHandler.getScale() * 100) + "%";
 }
 
 function onZoomReset(event) {
   svgHandler.resetZoom();
+  zoomResetBtn.innerHTML = parseInt(svgHandler.getScale() * 100) + "%";
 }
 
 function onSelectBtnClick(event) {
@@ -85,4 +92,8 @@ window.addEventListener("resize", () => {
 document.addEventListener("DOMContentLoaded", () => {
   const pane = document.querySelector("#menu-pane");
   pane.style.display = "none";
+});
+
+document.addEventListener("wheel", (e) => {
+  zoomResetBtn.innerHTML = parseInt(svgHandler.getScale() * 100) + "%";
 });
