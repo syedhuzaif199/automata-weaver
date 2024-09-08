@@ -123,6 +123,13 @@ class SVGHandler {
     this.updateViewBox();
   }
 
+  resetZoom() {
+    this.scale = 1;
+    this.viewBox.width = this.width;
+    this.viewBox.height = this.height;
+    this.updateViewBox();
+  }
+
   updateViewBox() {
     this.svg.setAttribute("viewBox", this.getViewBoxString());
   }
