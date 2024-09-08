@@ -1,3 +1,24 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --controls-bg: #ececf4;
+    --controls-btn-hover: #dfdfdf;
+    --controls-btn-active: #e0dfff;
+    --btn-width: 40px;
+    --btn-height: 40px;
+    --btn-img-width: 25px;
+    --btn-img-height: 25px;
+}
+
+.outer {
+    margin: 80px;
+
+}
+
 #svgcontainer {
     display: flex;
     justify-content: center;
@@ -12,8 +33,80 @@
 }
 
 .controls {
+    position: fixed;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 20px;
+    background-color: var(--controls-bg);
+    width: max-content;
+    border-radius: 10px;
+    padding: 2px;
+    margin: 20px;
+    box-shadow: 0px 2px 5px 0px #a5a5a5;   
+}
+
+.top-bar {
+    top: 0;
+    
+    left: 50%;
+    transform: translateX(-50%);
+
+}
+
+.right-bar {
+    right: 0;
+    top: 0;
+    flex-direction: column;
+}
+
+.zoom-controls-bar {
+    bottom: 0;
+    left: 0;
+    flex-direction: row;
+    padding: 0;
+
+}
+
+#zoom-in {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    margin: 0;
+}
+
+#zoom-out {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    margin: 0;
+}
+
+#zoom-reset {
+    border-radius: 0;
+    margin: 0;
+    width: calc(2*var(--btn-width));
+}
+
+.controls button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--btn-width);
+    height: var(--btn-height);
+    margin: 2px;
+    background-color: var(--controls-bg);
+    border-color: rgba(0, 0, 0, 0);
+    border-radius: 10px;
+}
+
+
+.controls button img {
+    width: var(--btn-img-width);
+    height: var(--btn-img-height);
+}
+.controls button:hover {
+    background-color: var(--controls-btn-hover)
+}
+
+.controls button:active {
+    background-color: var(--controls-btn-active);
+    color: white;
 }

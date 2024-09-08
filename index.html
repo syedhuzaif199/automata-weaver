@@ -3,18 +3,97 @@
   <head>
     <title>AutomataWeaver</title>
     <link rel="stylesheet" href="css/styles.css" />
-    <!-- <script src="./js/svg.js"></script> -->
   </head>
 
   <body>
     <div class="outer">
-      <div class="controls">
-        <button id="home">Home</button>
-        <button id="zoom-in">Zoom In</button>
-        <button id="zoom-out">Zoom Out</button>
-        <button id="add-state">State</button>
-        <button id="add-transition">Transition</button>
-        <button id="select-button">Select</button>
+      <div class="controls top-bar">
+        <button id="reset">
+          <img src="./assets/rewind.svg" alt="" width="35px" height="35px" />
+        </button>
+        <button id="previous">
+          <img
+            src="./assets/previous.svg"
+            alt="Previous"
+            width="25px"
+            height="25px"
+          />
+        </button>
+        <button id="play-pause">
+          <img
+            src="./assets/play.svg"
+            alt="Play/Pause"
+            width="25px"
+            height="25px"
+          />
+        </button>
+        <button id="next">
+          <img src="./assets/next.svg" alt="Next" width="35px" height="35px" />
+        </button>
+        <button id="fast-forward">
+          <img
+            src="./assets/fast-forward.svg"
+            alt="Fast Forward"
+            width="25px"
+            height="25px"
+          />
+        </button>
+      </div>
+      <div class="controls right-bar">
+        <button id="home">
+          <img src="./assets/home.svg" alt="Home" width="35px" height="35px" />
+        </button>
+        <button id="add-state">
+          <img
+            src="./assets/state.svg"
+            alt="State"
+            width="25px"
+            height="25px"
+          />
+        </button>
+        <button id="add-transition">
+          <img
+            src="./assets/transition.svg"
+            alt="Transition"
+            width="25px"
+            height="25px"
+          />
+        </button>
+        <button id="select-button">
+          <img
+            src="./assets/select.svg"
+            alt="Select"
+            width="25px"
+            height="25px"
+          />
+        </button>
+        <button id="delete-button">
+          <img
+            src="./assets/delete.svg"
+            alt="Delete"
+            width="25px"
+            height="25px"
+          />
+        </button>
+      </div>
+      <div class="controls zoom-controls-bar">
+        <button id="zoom-in">
+          <img
+            src="./assets/zoom-in.svg"
+            alt="Zoom In"
+            width="25px"
+            height="25px"
+          />
+        </button>
+        <button id="zoom-reset">100%</button>
+        <button id="zoom-out">
+          <img
+            src="./assets/zoom-out.svg"
+            alt="Zoom Out"
+            width="25px"
+            height="25px"
+          />
+        </button>
       </div>
       <div id="svgcontainer">
         <svg id="svgdisplay"></svg>
