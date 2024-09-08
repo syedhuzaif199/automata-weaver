@@ -1,29 +1,19 @@
-import {
-  setKeyDown,
-  setupSVG,
-  ControlPoint,
-  QBezier,
-  resetSVG,
-  svgZoomIn,
-  setAction,
-  actions,
-  svgZoomOut,
-} from "./svg.js";
+import { SVGHandler } from "./SVGHandler.js";
 
 const WIDTH = 800,
   HEIGHT = 800;
 
 const svg = document.querySelector("svg");
-setupSVG(svg, WIDTH, HEIGHT);
+const svgHandler = new SVGHandler(svg, WIDTH, HEIGHT);
 
 document.addEventListener("keydown", (e) => {
-  setKeyDown(e.key);
+  svgHandler.setKeyDown(e.key);
   console.log("keyPressed", e.key);
 });
 
 document.addEventListener("keyup", (e) => {
   e.preventDefault();
-  setKeyDown(null);
+  svgHandler.setKeyDown(null);
 });
 
 document.querySelector("#home").addEventListener("click", onHomeClick);
@@ -38,27 +28,43 @@ document
   .querySelector("#select-button")
   .addEventListener("click", onSelectBtnClick);
 
+document
+  .querySelector("#delete-button")
+  .addEventListener("click", onDeleteBtnClick);
+
+document.querySelector("#zoom-reset").addEventListener("click", onZoomReset);
+
 function onHomeClick(event) {
-  resetSVG();
+  svgHandler.resetSVG();
 }
 
 function onZoomIn(event) {
-  svgZoomIn();
+  svgHandler.zoomIn();
 }
 
 function onZoomOut(event) {
-  svgZoomOut();
+  svgHandler.zoomOut();
+}
+
+function onZoomReset(event) {
+  svgHandler.resetZoom();
 }
 
 function onSelectBtnClick(event) {
   console.log("Select Button Clicked");
-  setAction(actions.select);
+  svgHandler.setAction(svgHandler.actions.select);
 }
 
 function addTransition() {
-  setAction(actions.addTransition);
+  svgHandler.setAction(svgHandler.actions.addTransition);
 }
 
 function addState() {
-  setAction(actions.addState);
+  svgHandler.setAction(svgHandler.actions.addState);
+}
+
+function onDeleteBtnClick() {
+  console.log("Delete Button Clicked");
+
+  svgHandler.deleteSelected();
 }
