@@ -22,17 +22,13 @@
 
 }
 
-#svgcontainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-}
-
 #svgdisplay {
-    width: 800px;
-    height: 800px;
-    border: 2px solid #2e2e2e;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
 }
 
 .controls {
