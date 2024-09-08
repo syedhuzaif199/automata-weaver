@@ -1,6 +1,9 @@
-const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
-const CONTROL_POINT_SIZE = 50;
-
+import {
+  SVG_NAMESPACE,
+  CONTROL_POINT_SIZE,
+  TEXT_SIZE,
+  TEXT_FONT,
+} from "./constants.js";
 class ControlPoint {
   constructor(
     svg,
@@ -28,6 +31,15 @@ class ControlPoint {
     this.locked = false;
     this.svg = svg;
     this.svg.appendChild(this.circle);
+    this.text = document.createElementNS(SVG_NAMESPACE, "text");
+    this.text.setAttributeNS(null, "x", this.x);
+    this.text.setAttributeNS(null, "y", this.y);
+    this.text.style.fontSize = TEXT_SIZE + "px";
+    this.text.style.fontFamily = TEXT_FONT;
+    this.text.textContent = "";
+    this.text.setAttributeNS(null, "text-anchor", "middle");
+    this.text.setAttributeNS(null, "dominant-baseline", "middle");
+    this.svg.appendChild(this.text);
   }
 
   addEventListener(eventName, listener) {
@@ -39,6 +51,8 @@ class ControlPoint {
     this.y = y;
     this.circle.setAttributeNS(null, "cx", this.x);
     this.circle.setAttributeNS(null, "cy", this.y);
+    this.text.setAttributeNS(null, "x", this.x);
+    this.text.setAttributeNS(null, "y", this.y);
   }
 
   contains(x, y) {
@@ -47,6 +61,7 @@ class ControlPoint {
 
   removeFromSVG() {
     this.circle.remove();
+    this.text.remove();
   }
 
   setStrokeColor(color) {
@@ -55,6 +70,19 @@ class ControlPoint {
 
   setFillColor(color) {
     this.circle.setAttributeNS(null, "fill", color);
+  }
+
+  setText(text) {
+    // set the text content of the text element to the text argument
+    this.text.textContent = text;
+  }
+
+  setTextVisible(visible) {
+    this.text.style.visibility = visible ? "visible" : "hidden";
+  }
+
+  getCenter() {
+    return { x: this.x, y: this.y };
   }
 }
 
