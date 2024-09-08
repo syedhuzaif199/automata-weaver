@@ -7,6 +7,12 @@
 
   <body>
     <div class="outer">
+      <div class="input-box">
+        <label for="alphabet-text">Alphabet</label>
+        <input type="text" id="alphabet-text" placeholder="Space separated" />
+        <label for="input-text">Input</label>
+        <input type="text" id="input-text" placeholder="Space separated" />
+      </div>
       <div class="left-bar">
         <div class="controls menu-btn">
           <button id="menu-btn">
@@ -40,7 +46,7 @@
         </div>
       </div>
       <div class="controls top-bar">
-        <button id="reset">
+        <button id="rewind">
           <img src="./assets/rewind.svg" alt="" width="35px" height="35px" />
         </button>
         <button id="previous">
@@ -73,7 +79,7 @@
       </div>
       <div class="right-panel">
         <div class="controls right-bar">
-          <button id="add-state">
+          <button id="add-state" title="Add State (A)">
             <img
               src="./assets/state.svg"
               alt="State"
@@ -81,7 +87,7 @@
               height="25px"
             />
           </button>
-          <button id="add-transition">
+          <button id="add-transition" title="Add Transition (T)">
             <img
               src="./assets/transition.svg"
               alt="Transition"
@@ -89,7 +95,7 @@
               height="25px"
             />
           </button>
-          <button id="select-button">
+          <button id="select-button" title="Select Elements (S)">
             <img
               src="./assets/select.svg"
               alt="Select"
@@ -98,7 +104,16 @@
             />
           </button>
           <div class="separator vsep"></div>
-          <button id="delete-button">
+          <button id="flag-final-button" title="Flag as Final (F)">
+            <img
+              src="./assets/flag-final.svg"
+              alt="Flag Final"
+              width="25px"
+              height="25px"
+            />
+          </button>
+          <div class="separator vsep"></div>
+          <button id="delete-button" title="Delete Selected (D/Del)">
             <img
               src="./assets/delete.svg"
               alt="Delete"
