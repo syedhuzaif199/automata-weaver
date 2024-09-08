@@ -1,7 +1,7 @@
 import { SVGHandler } from "./SVGHandler.js";
 
-const WIDTH = 800,
-  HEIGHT = 800;
+const WIDTH = window.innerWidth,
+  HEIGHT = window.innerHeight;
 
 const svg = document.querySelector("svg");
 const svgHandler = new SVGHandler(svg, WIDTH, HEIGHT);
@@ -68,3 +68,8 @@ function onDeleteBtnClick() {
 
   svgHandler.deleteSelected();
 }
+
+window.addEventListener("resize", () => {
+  console.log("resize");
+  svgHandler.resizeSVG(window.innerWidth, window.innerHeight);
+});
