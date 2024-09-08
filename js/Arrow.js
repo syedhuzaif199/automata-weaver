@@ -1,7 +1,11 @@
-const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
-const CONTROL_POINT_SIZE = 50;
-const ARROW_HEAD_WIDTH = 7;
-const ARROW_HEAD_HEIGHT = 7;
+import {
+  SVG_NAMESPACE,
+  CONTROL_POINT_SIZE,
+  ARROW_HEAD_WIDTH,
+  ARROW_HEAD_HEIGHT,
+  TEXT_SIZE,
+  TEXT_FONT,
+} from "./constants.js";
 
 const debugMode = false;
 
@@ -13,11 +17,27 @@ class Arrow {
     this.arrowBody = document.createElementNS(SVG_NAMESPACE, "path");
     this.id = id;
     id++;
+    this.center = null;
+    this.text = document.createElementNS(SVG_NAMESPACE, "text");
+    this.text.textContent = "";
+    this.text.setAttributeNS(null, "text-anchor", "middle");
+    this.text.setAttributeNS(null, "dominant-baseline", "middle");
+    this.text.style.fontSize = TEXT_SIZE + "px";
+    this.text.style.fontFamily = TEXT_FONT;
+    this.svg.appendChild(this.text);
     this.arrowHead = this.createArrowHead();
     this.update(x1, y1, x2, y2, false);
     this.svg.appendChild(this.arrowBody);
     this.svg.appendChild(this.arrowHead);
     this.boundingPoly = null;
+  }
+
+  setTextAlignment(align) {
+    if (align === "top") {
+      this.text.setAttributeNS(null, "dominant-baseline", "middle");
+    } else if ((align = "bottom")) {
+      this.text.setAttributeNS(null, "dominant-baseline", "text-before-edge");
+    }
   }
 
   createArrowHead() {
@@ -52,6 +72,14 @@ class Arrow {
     this.arrowHead.children[0].children[0].setAttribute("fill", color);
   }
 
+  setText(text) {
+    this.text.textContent = text;
+  }
+
+  setTextVisible(visible) {
+    this.text.style.visibility = visible ? "visible" : "hidden";
+  }
+
   update(x1, y1, x2, y2, final = false) {
     const { xm, ym } = this.calculateArrowMid(x1, y1, x2, y2, final);
 
@@ -74,6 +102,10 @@ class Arrow {
       }
       this.boundingPoly = document.createElementNS(SVG_NAMESPACE, "polygon");
       if (x1 == x2 && y1 == y2) {
+        this.center = {
+          x: (startx + endx) / 2,
+          y: starty - 2 * CONTROL_POINT_SIZE,
+        };
         this.boundingPoly.setAttribute(
           "points",
           `${startx} ${starty}, ${endx} ${endy}, 
@@ -82,6 +114,7 @@ class Arrow {
           ${startx - 0.25 * CONTROL_POINT_SIZE} ${starty - CONTROL_POINT_SIZE}`
         );
       } else {
+        this.center = { x: xm, y: ym };
         this.boundingPoly.setAttribute(
           "points",
           `${startx} ${starty}, ${endx} ${endy}, ${xm} ${ym}`
@@ -102,17 +135,26 @@ class Arrow {
           0.5 * CONTROL_POINT_SIZE
         } ${CONTROL_POINT_SIZE} 0 0 1 ${endx} ${endy}`
       );
+      this.setTextAlignment("top");
     } else {
       this.arrowBody.setAttribute(
         "d",
         `M ${startx} ${starty} Q ${xm} ${ym} ${endx} ${endy}`
       );
+      if (startx < endx) {
+        this.setTextAlignment("bottom");
+      } else {
+        this.setTextAlignment("top");
+      }
     }
 
     this.arrowBody.setAttribute("fill", "none");
     this.arrowBody.setAttribute("stroke", "black");
     this.arrowBody.setAttribute("stroke-width", "2px");
     this.arrowBody.setAttribute("marker-end", `url(#arrowhead-${this.id})`);
+    const { x, y } = this.getCenter();
+    this.text.setAttributeNS(null, "x", x);
+    this.text.setAttributeNS(null, "y", y);
   }
 
   calculateArrowMid(x1, y1, x2, y2, final = false) {
@@ -127,6 +169,7 @@ class Arrow {
   remove() {
     this.arrowBody.remove();
     this.arrowHead.remove();
+    this.text.remove();
   }
 
   contains(x, y) {
@@ -136,6 +179,14 @@ class Arrow {
     return this.boundingPoly == null
       ? this.arrowBody.isPointInFill(point)
       : this.boundingPoly.isPointInFill(point);
+  }
+
+  getCenter() {
+    if (this.center) {
+      return this.center;
+    } else {
+      return { x: (this.x1 + this.x2) / 2, y: (this.y1 + this.y2) / 2 };
+    }
   }
 }
 
