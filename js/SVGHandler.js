@@ -124,9 +124,16 @@ class SVGHandler {
   }
 
   resetZoom() {
+    const [offsetX, offsetY] = [this.width / 2, this.height / 2];
+    this.viewBox.x += offsetX / this.scale;
+    this.viewBox.y += offsetY / this.scale;
+
     this.scale = 1;
-    this.viewBox.width = this.width;
-    this.viewBox.height = this.height;
+
+    this.viewBox.x -= offsetX / this.scale;
+    this.viewBox.y -= offsetY / this.scale;
+    this.viewBox.width = this.width / this.scale;
+    this.viewBox.height = this.height / this.scale;
     this.updateViewBox();
   }
 
