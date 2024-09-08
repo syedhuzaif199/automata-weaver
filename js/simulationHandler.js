@@ -64,8 +64,18 @@ export class SimulationHandler {
   }
 
   handlePrevious() {
+    if (this.inputIndex > 0) {
+      this.inputIndex--;
+    } else {
+      return;
+    }
     console.log("previous");
     this.retrieveDFA();
+    const input = this.inputTextField.value.replaceAll(" ", "");
+    this.dfa.run(input.slice(0, this.inputIndex));
+
+    this.highlightCurrentState();
+    this.checkSuccess();
   }
 
   handleNext() {
@@ -78,12 +88,10 @@ export class SimulationHandler {
     this.retrieveDFA();
     console.log("Input:", input);
     this.dfa.next(input[this.inputIndex]);
+
     this.inputIndex++;
     console.log("Current State:", this.dfa.currentState);
-    this.svgHandler.highlightControlPoint(
-      this.states.find((state) => state.stateNumber === this.dfa.currentState)
-        .state
-    );
+    this.highlightCurrentState();
     this.checkSuccess();
   }
 
@@ -92,7 +100,7 @@ export class SimulationHandler {
     this.retrieveDFA();
     this.inputIndex = 0;
     this.dfa.reset();
-    this.svgHandler.highlightControlPoint(this.initialState);
+    this.highlightCurrentState();
   }
 
   handleFastForward() {
@@ -101,12 +109,16 @@ export class SimulationHandler {
     this.inputIndex = 0;
     const input = this.inputTextField.value.replaceAll(" ", "");
     this.dfa.run(input);
-    const state = this.states.find(
-      (state) => state.stateNumber === this.dfa.currentState
-    ).state;
-    this.svgHandler.highlightControlPoint(state);
+    this.highlightCurrentState();
     this.inputIndex = input.length;
     this.checkSuccess();
+  }
+
+  highlightCurrentState() {
+    const currentState = this.states.find(
+      (state) => state.stateNumber === this.dfa.currentState
+    ).state;
+    this.svgHandler.highlightControlPoint(currentState);
   }
 
   checkSuccess() {
