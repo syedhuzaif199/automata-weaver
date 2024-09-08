@@ -1,11 +1,39 @@
 import { SVGHandler } from "./SVGHandler.js";
+import { SimulationHandler } from "./simulationHandler.js";
 
 const svg = document.querySelector("svg");
 const svgHandler = new SVGHandler(svg, window.innerWidth, window.innerHeight);
 
+const simulationHandler = new SimulationHandler(svgHandler);
+
 document.addEventListener("keydown", (e) => {
   svgHandler.setKeyDown(e.key);
   console.log("keyPressed", e.key);
+  // switch (e.key) {
+  //   case "s":
+  //   case "S":
+  //     svgHandler.setAction(svgHandler.actions.select);
+  //     setActiveButton(selectBtn);
+  //     break;
+
+  //   case "a":
+  //   case "A":
+  //     svgHandler.setAction(svgHandler.actions.addState);
+  //     setActiveButton(addStateBtn);
+  //     break;
+
+  //   case "t":
+  //   case "T":
+  //     svgHandler.setAction(svgHandler.actions.addTransition);
+  //     setActiveButton(addTransitionBtn);
+  //     break;
+  //   case "Delete":
+  //   case "Backspace":
+  //   case "d":
+  //   case "D":
+  //     svgHandler.deleteSelected();
+  //     break;
+  // }
 });
 
 document.addEventListener("keyup", (e) => {
@@ -31,6 +59,9 @@ addStateBtn.addEventListener("click", onAddStateBtnClick);
 const selectBtn = document.querySelector("#select-button");
 selectBtn.addEventListener("click", onSelectBtnClick);
 
+const flagBtn = document.querySelector("#flag-final-button");
+flagBtn.addEventListener("click", onFlagBtnClick);
+
 const deleteBtn = document.querySelector("#delete-button");
 deleteBtn.addEventListener("click", onDeleteBtnClick);
 
@@ -39,6 +70,41 @@ zoomResetBtn.addEventListener("click", onZoomReset);
 
 const menuBtn = document.querySelector("#menu-btn");
 menuBtn.addEventListener("click", onMenuBtnClick);
+
+const playPauseBtn = document.querySelector("#play-pause");
+playPauseBtn.addEventListener("click", onPlayPauseBtnClick);
+
+const previousBtn = document.querySelector("#previous");
+previousBtn.addEventListener("click", onPreviousBtnClick);
+
+const nextBtn = document.querySelector("#next");
+nextBtn.addEventListener("click", onNextBtnClick);
+
+const rewindBtn = document.querySelector("#rewind");
+rewindBtn.addEventListener("click", onRewindBtnClick);
+
+const fastForwardBtn = document.querySelector("#fast-forward");
+fastForwardBtn.addEventListener("click", onFastForwardBtnClick);
+
+function onPlayPauseBtnClick() {
+  simulationHandler.handlePlayPause();
+}
+
+function onPreviousBtnClick() {
+  simulationHandler.handlePrevious();
+}
+
+function onNextBtnClick() {
+  simulationHandler.handleNext();
+}
+
+function onRewindBtnClick() {
+  simulationHandler.handleRewind();
+}
+
+function onFastForwardBtnClick() {
+  simulationHandler.handleFastForward();
+}
 
 let activeButton = addStateBtn;
 svgHandler.setAction(svgHandler.actions.addState);
@@ -86,6 +152,11 @@ function onAddTransitionBtnClick() {
 function onAddStateBtnClick() {
   svgHandler.setAction(svgHandler.actions.addState);
   setActiveButton(addStateBtn);
+}
+
+function onFlagBtnClick() {
+  console.log("Flag Button Clicked");
+  svgHandler.flagAsFinalState();
 }
 
 function onDeleteBtnClick() {

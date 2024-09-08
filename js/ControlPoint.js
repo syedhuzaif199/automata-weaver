@@ -40,6 +40,20 @@ class ControlPoint {
     this.text.setAttributeNS(null, "text-anchor", "middle");
     this.text.setAttributeNS(null, "dominant-baseline", "middle");
     this.svg.appendChild(this.text);
+    this.flag = false;
+    this.flagCircle = document.createElementNS(this.ns, "circle");
+    this.flagCircle.setAttributeNS(null, "cx", this.x);
+    this.flagCircle.setAttributeNS(null, "cy", this.y);
+    this.flagCircle.setAttributeNS(null, "r", this.radius * 0.9);
+    this.flagCircle.setAttributeNS(null, "fill", this.fill);
+    this.flagCircle.setAttributeNS(null, "stroke", this.stroke);
+    this.flagCircle.setAttributeNS(
+      null,
+      "stroke-width",
+      this.stroke_width * 0.5
+    );
+    this.flagCircle.style.visibility = "hidden";
+    this.svg.appendChild(this.flagCircle);
   }
 
   addEventListener(eventName, listener) {
@@ -83,6 +97,16 @@ class ControlPoint {
 
   getCenter() {
     return { x: this.x, y: this.y };
+  }
+
+  toggleFlag() {
+    console.log("toggleFlag");
+    this.flag = !this.flag;
+    this.flagCircle.style.visibility = this.flag ? "visible" : "hidden";
+  }
+
+  isFinal() {
+    return this.flag;
   }
 }
 

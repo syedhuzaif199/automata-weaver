@@ -76,6 +76,10 @@ class Arrow {
     this.text.textContent = text;
   }
 
+  getText() {
+    return this.text.textContent;
+  }
+
   setTextVisible(visible) {
     this.text.style.visibility = visible ? "visible" : "hidden";
   }

@@ -28,6 +28,10 @@ class Transition {
   getCenter() {
     return this.arrow.getCenter();
   }
+
+  getText() {
+    return this.arrow.getText();
+  }
 }
 
 export { Transition };

@@ -6,11 +6,15 @@ import { Transition } from "./Transition.js";
 import {
   SELECTED_COLOR,
   UNSELECTED_COLOR,
+  HIGHLIGHTED_COLOR,
   MINSCALE,
   MAXSCALE,
   TEXT_SIZE,
   CONTROL_POINT_SIZE,
   TEXT_FONT,
+  UNHIGHLIGHTED_COLOR,
+  FAIL_COLOR,
+  SUCCESS_COLOR,
 } from "./constants.js";
 
 const states = Object.freeze({
@@ -63,6 +67,12 @@ class SVGHandler {
     this.states = states;
     this.actions = actions;
     this.textField = this.createTextField();
+    this.inputNode = new ControlPoint(this.svg, width / 4, height / 2);
+    this.inputNode.setText("Input");
+    this.controlPoints.push(this.inputNode);
+    this.highlightedControlPoint = null;
+    this.failControlPoint = null;
+    this.successControlPoint = null;
 
     this.setupSVG();
   }
@@ -234,6 +244,30 @@ class SVGHandler {
     }
   }
 
+  highlightControlPoint(element) {
+    if (this.failControlPoint) {
+      this.failControlPoint.setFillColor(UNHIGHLIGHTED_COLOR);
+    }
+    element.setFillColor(HIGHLIGHTED_COLOR);
+    this.failControlPoint = element;
+  }
+
+  setFailState(element) {
+    if (this.failControlPoint) {
+      this.failControlPoint.setFillColor(UNHIGHLIGHTED_COLOR);
+    }
+    element.setFillColor(FAIL_COLOR);
+    this.failControlPoint = element;
+  }
+
+  setSuccessState(element) {
+    if (this.successControlPoint) {
+      this.successControlPoint.setFillColor(UNHIGHLIGHTED_COLOR);
+    }
+    element.setFillColor(SUCCESS_COLOR);
+    this.successControlPoint = element;
+  }
+
   createTextField() {
     const textField = document.createElement("input");
     textField.setAttribute("type", "text");
@@ -280,15 +314,31 @@ class SVGHandler {
 
   hideTextField() {
     this.textField.style.visibility = "hidden";
-    this.textField.value = "";
     if (this.selectedElement) {
       this.selectedElement.setTextVisible(true);
+      if (this.textField.value !== "") {
+        this.setSelectedElementText(this.textField.value);
+      }
+      this.deselect();
+    }
+    this.textField.value = "";
+  }
+
+  flagAsFinalState() {
+    if (
+      this.selectionType === selectionTypes.controlPoint &&
+      this.selectedElement != this.inputNode
+    ) {
+      this.selectedElement.toggleFlag();
     }
   }
 
   handleDoubleClick(e) {
     const { clientX, clientY } = e;
     if (this.selectionType === selectionTypes.transition) {
+      if (this.selectedElement.startControlPoint === this.inputNode) {
+        return;
+      }
       this.spawnTextField(clientX, clientY);
     } else if (this.selectionType === selectionTypes.controlPoint) {
       this.spawnTextField(clientX, clientY);
@@ -420,8 +470,7 @@ class SVGHandler {
         this.transitions.splice(index, 1);
       });
     } else if (this.selectionType == selectionTypes.transition) {
-      const index = this.transitions.indexOf(this.selectedElement);
-      this.transitions.splice(index, 1);
+      this.removeTransition(this.selectedElement);
     }
 
     this.selectedElement.removeFromSVG();
@@ -433,6 +482,12 @@ class SVGHandler {
     console.log(this.controlPoints);
     console.log("Transitions:");
     console.log(this.transitions);
+  }
+
+  removeTransition(transition) {
+    const index = this.transitions.indexOf(transition);
+    this.transitions.splice(index, 1);
+    transition.removeFromSVG();
   }
 
   addState(offsetX, offsetY) {
@@ -474,8 +529,13 @@ class SVGHandler {
 
   endTransition(offsetX, offsetY) {
     const { x, y } = this.screenToSVG(offsetX, offsetY);
+
     const endControlPoint = this.controlPoints.find((cp) => cp.contains(x, y));
     if (!endControlPoint) {
+      this.arrow.remove();
+      return;
+    }
+    if (endControlPoint === this.inputNode) {
       this.arrow.remove();
       return;
     }
@@ -493,6 +553,17 @@ class SVGHandler {
         endControlPoint.y,
         true
       );
+      if (endControlPoint === this.inputNode) {
+        this.arrow.remove();
+        return;
+      }
+      if (this.startControlPoint === this.inputNode) {
+        this.transitions.forEach((transition) => {
+          if (transition.startControlPoint === this.inputNode) {
+            this.removeTransition(transition);
+          }
+        });
+      }
       this.transitions.push(
         new Transition(
           this.svg,
@@ -503,7 +574,11 @@ class SVGHandler {
       );
       const screenPoint = this.SVGToScreen(this.arrow.getCenter());
       this.selectElement(screenPoint.x, screenPoint.y);
-      this.spawnTextField();
+      if (this.startControlPoint !== this.inputNode) {
+        this.spawnTextField();
+      } else {
+        this.highlightControlPoint(endControlPoint);
+      }
     } else {
       this.arrow.remove();
     }
