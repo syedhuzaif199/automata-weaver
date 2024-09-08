@@ -1,7 +1,7 @@
 :root {
     --controls-bg: #ececf4;
     --controls-btn-hover: #dfdfdf;
-    --controls-btn-active: #e0dfff;
+    --controls-btn-active: #c7c5ff;
     --btn-width: 40px;
     --btn-height: 40px;
     --btn-img-width: 25px;
@@ -106,6 +106,7 @@
     border-radius: 0;
     margin: 0;
     width: calc(2*var(--btn-width));
+    font-size: 14px;
 }
 
 .separator {
@@ -165,6 +166,12 @@
     margin: 0;
     padding: 0;
 }
+
+.controls button.active {
+    background-color: var(--controls-btn-active);
+
+}
+
 
 
 .menu {
