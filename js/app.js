@@ -34,6 +34,8 @@ document
 
 document.querySelector("#zoom-reset").addEventListener("click", onZoomReset);
 
+document.querySelector("#menu-btn").addEventListener("click", onMenuBtnClick);
+
 function onHomeClick(event) {
   svgHandler.resetSVG();
 }
@@ -69,7 +71,18 @@ function onDeleteBtnClick() {
   svgHandler.deleteSelected();
 }
 
+function onMenuBtnClick(e) {
+  console.log("Menu Button Clicked");
+  const pane = document.querySelector("#menu-pane");
+  pane.style.display = pane.style.display === "none" ? "flex" : "none";
+}
+
 window.addEventListener("resize", () => {
   console.log("resize");
   svgHandler.resizeSVG(window.innerWidth, window.innerHeight);
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const pane = document.querySelector("#menu-pane");
+  pane.style.display = "none";
 });
