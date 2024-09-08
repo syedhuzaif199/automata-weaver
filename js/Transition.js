@@ -8,8 +8,16 @@ class Transition {
     this.arrow = arrow;
   }
 
-  setColor(color) {
-    this.arrow.setColor(color);
+  setStrokeColor(color) {
+    this.arrow.setStrokeColor(color);
+  }
+
+  contains(x, y) {
+    return this.arrow.contains(x, y);
+  }
+
+  removeFromSVG() {
+    this.arrow.remove();
   }
 }
 

@@ -35,6 +35,12 @@ const stateToCursor = {
   [states.dragging]: "move",
 };
 
+const selectionTypes = Object.freeze({
+  controlPoint: 0,
+  transition: 1,
+  none: 2,
+});
+
 class SVGHandler {
   constructor(svg, width, height) {
     this.svg = svg;
@@ -49,7 +55,8 @@ class SVGHandler {
     this.transitions = [];
     this.startControlPoint = null;
     this.arrow = null;
-    this.selectedControlPoint = null;
+    this.selectedElement = null;
+    this.selectionType = selectionTypes.none;
     this.states = states;
     this.actions = actions;
 
@@ -224,7 +231,7 @@ class SVGHandler {
     switch (this.action) {
       case actions.select:
         if (this.state === states.dragging) {
-          this.selectedControlPoint.updatePosition(x, y);
+          this.selectedElement.updatePosition(x, y);
           this.updateAllTransitions();
         }
         break;
@@ -260,34 +267,51 @@ class SVGHandler {
 
   selectElement(offsetX, offsetY) {
     const { x, y } = this.screenToSVG(offsetX, offsetY);
-    const cp = this.controlPoints.find((cp) => cp.contains(x, y));
+    const transition = this.transitions.find((t) => t.contains(x, y));
+    console.log("Selected Transition:", transition);
+    const controlPoint = this.controlPoints.find((cp) => cp.contains(x, y));
     this.deselect();
-    this.selectedControlPoint = cp ? cp : null;
-    if (this.selectedControlPoint) {
-      this.selectedControlPoint.setStrokeColor(SELECTED_COLOR);
+    if (transition) {
+      this.selectedElement = transition;
+      this.selectionType = selectionTypes.transition;
+    } else if (controlPoint) {
+      this.selectedElement = controlPoint;
+      this.selectionType = selectionTypes.controlPoint;
+    } else {
+      this.selectedElement = null;
+      this.selectionType = selectionTypes.none;
+    }
+    if (this.selectedElement) {
+      this.selectedElement.setStrokeColor(SELECTED_COLOR);
+    }
+    if (this.selectionType === selectionTypes.controlPoint) {
       this.changeState(states.dragging);
     }
   }
 
   deselect() {
-    if (this.selectedControlPoint) {
-      this.selectedControlPoint.setStrokeColor(UNSELECTED_COLOR);
-      this.selectedControlPoint = null;
+    if (this.selectedElement) {
+      this.selectedElement.setStrokeColor(UNSELECTED_COLOR);
+      this.selectedElement = null;
     }
   }
 
   deleteSelected() {
-    if (this.selectedControlPoint) {
-      const index = this.controlPoints.indexOf(this.selectedControlPoint);
+    if (this.selectionType === selectionTypes.none) {
+      return;
+    }
+
+    if (this.selectionType === selectionTypes.controlPoint) {
+      const index = this.controlPoints.indexOf(this.selectedElement);
       this.controlPoints.splice(index, 1);
       const temp = [];
       this.transitions.forEach((transition) => {
         if (
-          transition.startControlPoint === this.selectedControlPoint ||
-          transition.endControlPoint === this.selectedControlPoint
+          transition.startControlPoint === this.selectedElement ||
+          transition.endControlPoint === this.selectedElement
         ) {
           temp.push(transition);
-          transition.arrow.remove();
+          transition.removeFromSVG();
         }
       });
 
@@ -295,10 +319,15 @@ class SVGHandler {
         const index = this.transitions.indexOf(t);
         this.transitions.splice(index, 1);
       });
-
-      this.selectedControlPoint.removeFromSVG();
-      this.selectedControlPoint = null;
+    } else if (this.selectionType == selectionTypes.transition) {
+      const index = this.transitions.indexOf(this.selectedElement);
+      this.transitions.splice(index, 1);
     }
+
+    this.selectedElement.removeFromSVG();
+    this.selectedElement = null;
+    this.selectionType = selectionTypes.none;
+
     console.log("State after deletion");
     console.log("Control Points:");
     console.log(this.controlPoints);
