@@ -23,10 +23,10 @@ const zoomOutBtn = document.querySelector("#zoom-out");
 zoomOutBtn.addEventListener("click", onZoomOut);
 
 const addTransitionBtn = document.querySelector("#add-transition");
-addTransitionBtn.addEventListener("click", addTransition);
+addTransitionBtn.addEventListener("click", onAddTransitionBtnClick);
 
 const addStateBtn = document.querySelector("#add-state");
-addStateBtn.addEventListener("click", addState);
+addStateBtn.addEventListener("click", onAddStateBtnClick);
 
 const selectBtn = document.querySelector("#select-button");
 selectBtn.addEventListener("click", onSelectBtnClick);
@@ -39,6 +39,19 @@ zoomResetBtn.addEventListener("click", onZoomReset);
 
 const menuBtn = document.querySelector("#menu-btn");
 menuBtn.addEventListener("click", onMenuBtnClick);
+
+let activeButton = addStateBtn;
+svgHandler.setAction(svgHandler.actions.addState);
+setActiveButton(activeButton);
+
+function setActiveButton(button) {
+  console.log("Setting Active Button");
+  if (activeButton) {
+    activeButton.classList.remove("active");
+  }
+  activeButton = button;
+  activeButton.classList.add("active");
+}
 
 function onHomeClick(event) {
   svgHandler.resetSVG();
@@ -62,14 +75,17 @@ function onZoomReset(event) {
 function onSelectBtnClick(event) {
   console.log("Select Button Clicked");
   svgHandler.setAction(svgHandler.actions.select);
+  setActiveButton(selectBtn);
 }
 
-function addTransition() {
+function onAddTransitionBtnClick() {
   svgHandler.setAction(svgHandler.actions.addTransition);
+  setActiveButton(addTransitionBtn);
 }
 
-function addState() {
+function onAddStateBtnClick() {
   svgHandler.setAction(svgHandler.actions.addState);
+  setActiveButton(addStateBtn);
 }
 
 function onDeleteBtnClick() {
