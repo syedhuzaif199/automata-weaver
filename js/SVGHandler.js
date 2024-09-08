@@ -70,6 +70,14 @@ class SVGHandler {
     this.updateViewBox();
   }
 
+  resizeSVG(width, height) {
+    this.width = width;
+    this.height = height;
+    this.viewBox.width = width / this.scale;
+    this.viewBox.height = height / this.scale;
+    this.updateViewBox();
+  }
+
   zoomInOnPoint(event) {
     const { offsetX, offsetY } = event;
     this.viewBox.x += offsetX / this.scale;
