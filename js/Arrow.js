@@ -3,20 +3,28 @@ const CONTROL_POINT_SIZE = 50;
 const ARROW_HEAD_WIDTH = 7;
 const ARROW_HEAD_HEIGHT = 7;
 
+const debugMode = false;
+
+let id = 0;
+
 class Arrow {
   constructor(svg, x1, y1, x2, y2) {
     this.svg = svg;
     this.arrowBody = document.createElementNS(SVG_NAMESPACE, "path");
+    this.id = id;
+    id++;
     this.arrowHead = this.createArrowHead();
     this.update(x1, y1, x2, y2, false);
     this.svg.appendChild(this.arrowBody);
     this.svg.appendChild(this.arrowHead);
+    this.boundingPoly = null;
   }
 
   createArrowHead() {
     const defs = document.createElementNS(SVG_NAMESPACE, "defs");
     const marker = document.createElementNS(SVG_NAMESPACE, "marker");
-    marker.setAttribute("id", "arrowhead");
+    marker.setAttribute("id", `arrowhead-${this.id}`);
+    id++;
     marker.setAttribute("markerWidth", `${ARROW_HEAD_WIDTH}`);
     marker.setAttribute("markerHeight", `${ARROW_HEAD_HEIGHT}`);
     marker.setAttribute("refX", `${ARROW_HEAD_WIDTH}`);
@@ -39,7 +47,7 @@ class Arrow {
     return defs;
   }
 
-  setColor(color) {
+  setStrokeColor(color) {
     this.arrowBody.setAttribute("stroke", color);
     this.arrowHead.children[0].children[0].setAttribute("fill", color);
   }
@@ -60,6 +68,31 @@ class Arrow {
     if (!final) {
       endx = x2;
       endy = y2;
+    } else {
+      if (this.boundingPoly != null) {
+        this.boundingPoly.remove();
+      }
+      this.boundingPoly = document.createElementNS(SVG_NAMESPACE, "polygon");
+      if (x1 == x2 && y1 == y2) {
+        this.boundingPoly.setAttribute(
+          "points",
+          `${startx} ${starty}, ${endx} ${endy}, 
+          ${endx + 0.25 * CONTROL_POINT_SIZE} ${endy - CONTROL_POINT_SIZE},
+          ${(startx + endx) / 2} ${starty - 2 * CONTROL_POINT_SIZE}, 
+          ${startx - 0.25 * CONTROL_POINT_SIZE} ${starty - CONTROL_POINT_SIZE}`
+        );
+      } else {
+        this.boundingPoly.setAttribute(
+          "points",
+          `${startx} ${starty}, ${endx} ${endy}, ${xm} ${ym}`
+        );
+      }
+      this.svg.appendChild(this.boundingPoly);
+      this.boundingPoly.setAttribute("fill", "none");
+      if (debugMode) {
+        this.boundingPoly.setAttribute("stroke", "green");
+        this.boundingPoly.setAttribute("stroke-width", "1px");
+      }
     }
 
     if (x1 === x2 && y1 === y2) {
@@ -79,7 +112,7 @@ class Arrow {
     this.arrowBody.setAttribute("fill", "none");
     this.arrowBody.setAttribute("stroke", "black");
     this.arrowBody.setAttribute("stroke-width", "2px");
-    this.arrowBody.setAttribute("marker-end", "url(#arrowhead)");
+    this.arrowBody.setAttribute("marker-end", `url(#arrowhead-${this.id})`);
   }
 
   calculateArrowMid(x1, y1, x2, y2, final = false) {
@@ -94,6 +127,15 @@ class Arrow {
   remove() {
     this.arrowBody.remove();
     this.arrowHead.remove();
+  }
+
+  contains(x, y) {
+    const point = this.svg.createSVGPoint();
+    point.x = x;
+    point.y = y;
+    return this.boundingPoly == null
+      ? this.arrowBody.isPointInFill(point)
+      : this.boundingPoly.isPointInFill(point);
   }
 }
 
