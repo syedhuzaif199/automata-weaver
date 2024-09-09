@@ -114,7 +114,10 @@ export class SimulationHandler {
           this.highlightCurrentState();
           this.checkSuccess();
           if (!this.paused) {
-            this.handleNext();
+		setTimeout(() => {
+		    this.handleNext();
+		}, 1000);
+            //this.handleNext();
           }
         });
       }

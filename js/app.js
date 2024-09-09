@@ -111,6 +111,9 @@ function onNextBtnClick() {
 }
 
 function onRewindBtnClick() {
+  simulationHandler.paused = true;
+  playPauseBtn.children[0].src = "./assets/play.svg";
+
   simulationHandler.handleRewind();
 }
 

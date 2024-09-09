@@ -9,13 +9,21 @@
     --primary-color: #1c274c;
     --secondary-color: #969696;
 }
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     color: var(--primary-color);
     font-size: 16px;
-    font-family: 'monospace', sans-serif;
+}
+
+body {
+    font-family: 'Consolas', monospace, sans-serif;
+}
+
+input {
+	font: inherit;
 }
 
 
