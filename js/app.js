@@ -9,31 +9,38 @@ const simulationHandler = new SimulationHandler(svgHandler);
 document.addEventListener("keydown", (e) => {
   svgHandler.setKeyDown(e.key);
   console.log("keyPressed", e.key);
-  // switch (e.key) {
-  //   case "s":
-  //   case "S":
-  //     svgHandler.setAction(svgHandler.actions.select);
-  //     setActiveButton(selectBtn);
-  //     break;
+  if (svgHandler.textField.style.visibility === "visible") {
+    return;
+  }
+  switch (e.key) {
+    case "s":
+    case "S":
+      svgHandler.setAction(svgHandler.actions.select);
+      setActiveButton(selectBtn);
+      break;
 
-  //   case "a":
-  //   case "A":
-  //     svgHandler.setAction(svgHandler.actions.addState);
-  //     setActiveButton(addStateBtn);
-  //     break;
+    case "a":
+    case "A":
+      svgHandler.setAction(svgHandler.actions.addState);
+      setActiveButton(addStateBtn);
+      break;
 
-  //   case "t":
-  //   case "T":
-  //     svgHandler.setAction(svgHandler.actions.addTransition);
-  //     setActiveButton(addTransitionBtn);
-  //     break;
-  //   case "Delete":
-  //   case "Backspace":
-  //   case "d":
-  //   case "D":
-  //     svgHandler.deleteSelected();
-  //     break;
-  // }
+    case "t":
+    case "T":
+      svgHandler.setAction(svgHandler.actions.addTransition);
+      setActiveButton(addTransitionBtn);
+      break;
+    case "Delete":
+    case "Backspace":
+    case "d":
+    case "D":
+      svgHandler.deleteSelected();
+      break;
+    case "f":
+    case "F":
+      onFlagBtnClick();
+      break;
+  }
 });
 
 document.addEventListener("keyup", (e) => {
@@ -88,6 +95,11 @@ fastForwardBtn.addEventListener("click", onFastForwardBtnClick);
 
 function onPlayPauseBtnClick() {
   simulationHandler.handlePlayPause();
+  if (!simulationHandler.paused) {
+    playPauseBtn.children[0].src = "./assets/pause.svg";
+  } else {
+    playPauseBtn.children[0].src = "./assets/play.svg";
+  }
 }
 
 function onPreviousBtnClick() {
@@ -179,6 +191,8 @@ window.addEventListener("resize", () => {
 document.addEventListener("DOMContentLoaded", () => {
   const pane = document.querySelector("#menu-pane");
   pane.style.display = "none";
+  playPauseBtn.children[0].src = "./assets/play.svg";
+  s;
 });
 
 document.addEventListener("wheel", (e) => {

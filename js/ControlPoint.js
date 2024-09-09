@@ -65,6 +65,8 @@ class ControlPoint {
     this.y = y;
     this.circle.setAttributeNS(null, "cx", this.x);
     this.circle.setAttributeNS(null, "cy", this.y);
+    this.flagCircle.setAttributeNS(null, "cx", this.x);
+    this.flagCircle.setAttributeNS(null, "cy", this.y);
     this.text.setAttributeNS(null, "x", this.x);
     this.text.setAttributeNS(null, "y", this.y);
   }
@@ -75,6 +77,7 @@ class ControlPoint {
 
   removeFromSVG() {
     this.circle.remove();
+    this.flagCircle.remove();
     this.text.remove();
   }
 

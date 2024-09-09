@@ -245,11 +245,18 @@ class SVGHandler {
   }
 
   highlightControlPoint(element) {
-    if (this.failControlPoint) {
-      this.failControlPoint.setFillColor(UNHIGHLIGHTED_COLOR);
+    if (this.highlightedControlPoint) {
+      this.highlightedControlPoint.setFillColor(UNHIGHLIGHTED_COLOR);
     }
     element.setFillColor(HIGHLIGHTED_COLOR);
-    this.failControlPoint = element;
+    this.highlightedControlPoint = element;
+  }
+
+  async highlightTransition(transition) {
+    transition.setStrokeColor(HIGHLIGHTED_COLOR);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    transition.setStrokeColor(UNSELECTED_COLOR);
+    console.log("Transition Highlighted");
   }
 
   setFailState(element) {
@@ -351,9 +358,12 @@ class SVGHandler {
       this.changeState(states.panning);
       return;
     }
-    this.hideTextField();
 
     if (e.button === 0) {
+      if (this.textField.style.visibility === "visible") {
+        this.hideTextField();
+        return;
+      }
       switch (this.action) {
         case actions.select:
           this.selectElement(e.offsetX, e.offsetY);
@@ -488,6 +498,14 @@ class SVGHandler {
     const index = this.transitions.indexOf(transition);
     this.transitions.splice(index, 1);
     transition.removeFromSVG();
+    if (
+      transition.startControlPoint === this.inputNode &&
+      transition.endControlPoint === this.highlightedControlPoint
+    ) {
+      this.highlightedControlPoint.setFillColor(UNHIGHLIGHTED_COLOR);
+      this.highlightedControlPoint = null;
+      console.log("Removed Highlighted Control Point");
+    }
   }
 
   addState(offsetX, offsetY) {

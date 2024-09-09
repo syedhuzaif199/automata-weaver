@@ -57,7 +57,7 @@
 .right-bar {
     position: relative;
     right: 0;
-    top: 0;
+    top: 10vh;
     flex-direction: column;
     margin-bottom: 0;
 }
