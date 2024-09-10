@@ -93,6 +93,9 @@ class ControlPoint {
     // set the text content of the text element to the text argument
     this.text.textContent = text;
   }
+  getText() {
+    return this.text.textContent;
+  }
 
   setTextVisible(visible) {
     this.text.style.visibility = visible ? "visible" : "hidden";

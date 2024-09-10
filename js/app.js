@@ -1,10 +1,10 @@
 import { SVGHandler } from "./SVGHandler.js";
-import { SimulationHandler } from "./simulationHandler.js";
+import { DFASimulationHandler } from "./dfaSimulationHandler.js";
 
 const svg = document.querySelector("svg");
 const svgHandler = new SVGHandler(svg, window.innerWidth, window.innerHeight);
 
-const simulationHandler = new SimulationHandler(svgHandler);
+const simulationHandler = new DFASimulationHandler(svgHandler);
 
 document.addEventListener("keydown", (e) => {
   svgHandler.setKeyDown(e.key);
@@ -81,6 +81,10 @@ menuBtn.addEventListener("click", onMenuBtnClick);
 const playPauseBtn = document.querySelector("#play-pause");
 playPauseBtn.addEventListener("click", onPlayPauseBtnClick);
 
+simulationHandler.onPauseCallback = () => {
+  playPauseBtn.children[0].src = "./assets/play.svg";
+};
+
 const previousBtn = document.querySelector("#previous");
 previousBtn.addEventListener("click", onPreviousBtnClick);
 
@@ -95,7 +99,7 @@ fastForwardBtn.addEventListener("click", onFastForwardBtnClick);
 
 function onPlayPauseBtnClick() {
   simulationHandler.handlePlayPause();
-  if (!simulationHandler.paused) {
+  if (simulationHandler.isPlaying) {
     playPauseBtn.children[0].src = "./assets/pause.svg";
   } else {
     playPauseBtn.children[0].src = "./assets/play.svg";
@@ -111,7 +115,7 @@ function onNextBtnClick() {
 }
 
 function onRewindBtnClick() {
-  simulationHandler.paused = true;
+  simulationHandler.isPlaying = true;
   playPauseBtn.children[0].src = "./assets/play.svg";
 
   simulationHandler.handleRewind();
@@ -134,23 +138,28 @@ function setActiveButton(button) {
   activeButton.classList.add("active");
 }
 
+function updateZoomResetBtn() {
+  zoomResetBtn.innerHTML = parseInt(svgHandler.getScale() * 100) + "%";
+}
+
 function onHomeClick(event) {
   svgHandler.resetSVG();
+  updateZoomResetBtn();
 }
 
 function onZoomIn(event) {
   svgHandler.zoomIn();
-  zoomResetBtn.innerHTML = parseInt(svgHandler.getScale() * 100) + "%";
+  updateZoomResetBtn();
 }
 
 function onZoomOut(event) {
   svgHandler.zoomOut();
-  zoomResetBtn.innerHTML = parseInt(svgHandler.getScale() * 100) + "%";
+  updateZoomResetBtn();
 }
 
 function onZoomReset(event) {
   svgHandler.resetZoom();
-  zoomResetBtn.innerHTML = parseInt(svgHandler.getScale() * 100) + "%";
+  updateZoomResetBtn();
 }
 
 function onSelectBtnClick(event) {
@@ -194,10 +203,8 @@ window.addEventListener("resize", () => {
 document.addEventListener("DOMContentLoaded", () => {
   const pane = document.querySelector("#menu-pane");
   pane.style.display = "none";
-  playPauseBtn.children[0].src = "./assets/play.svg";
-  s;
 });
 
 document.addEventListener("wheel", (e) => {
-  zoomResetBtn.innerHTML = parseInt(svgHandler.getScale() * 100) + "%";
+  updateZoomResetBtn();
 });

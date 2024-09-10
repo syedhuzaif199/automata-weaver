@@ -252,11 +252,12 @@ class SVGHandler {
     this.highlightedControlPoint = element;
   }
 
-  async highlightTransition(transition) {
+  highlightTransition(transition) {
     transition.setStrokeColor(HIGHLIGHTED_COLOR);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+
+  unHighlightTransition(transition) {
     transition.setStrokeColor(UNSELECTED_COLOR);
-    console.log("Transition Highlighted");
   }
 
   setFailState(element) {

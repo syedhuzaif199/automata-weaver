@@ -1,7 +1,7 @@
 import { SVGHandler } from "./SVGHandler.js";
 import { DFA } from "./dfa.js";
 
-export class SimulationHandler {
+export class DFASimulationHandler {
   constructor(svgHandler) {
     this.svgHandler = svgHandler;
     this.dfa = new DFA();
@@ -10,7 +10,9 @@ export class SimulationHandler {
     this.inputIndex = 0;
     this.states = [];
     this.initialState = null;
-    this.paused = true;
+    this.isPlaying = false;
+    this.animationDelayMS = 500;
+    this.onPauseCallback = () => {};
   }
 
   retrieveDFA() {
@@ -29,11 +31,14 @@ export class SimulationHandler {
       }
     });
 
-    this.states.push({ state: this.initialState, stateNumber: 0 });
+    this.states[0] = this.initialState;
     let stateIndex = 1;
     controlPoints.forEach((controlPoint) => {
       if (controlPoint !== this.initialState && controlPoint !== inputNode) {
-        this.states.push({ state: controlPoint, stateNumber: stateIndex });
+        this.states[stateIndex] = controlPoint;
+        if (controlPoint.isFinal()) {
+          finalStates.push(stateIndex);
+        }
         stateIndex++;
       }
     });
@@ -43,25 +48,39 @@ export class SimulationHandler {
         return;
       }
       const originState = this.states.find(
-        (state) => state.state === transition.startControlPoint
+        (state) => state === transition.startControlPoint
       );
 
       const endState = this.states.find(
-        (state) => state.state === transition.endControlPoint
+        (state) => state === transition.endControlPoint
       );
 
+      // TODO: handle multiple symbols
       const symbol = transition.getText();
       this.dfa.addTransition(
-        originState.stateNumber,
-        endState.stateNumber,
+        this.states.indexOf(originState),
+        this.states.indexOf(endState),
         symbol
       );
     });
+
+    this.dfa.finalStates = finalStates;
+    console.log("STATES", this.states);
+  }
+
+  resetDFA() {
+    this.retrieveDFA();
+    this.inputIndex = 0;
+    this.dfa.reset();
+    this.highlightCurrentState();
   }
 
   handlePlayPause() {
-    this.paused = !this.paused;
-    if (!this.paused) {
+    this.isPlaying = !this.isPlaying;
+    if (this.isPlaying) {
+      if (this.inputIndex >= this.inputTextField.value.split(" ").length) {
+        this.resetDFA();
+      }
       this.handleNext();
     }
   }
@@ -85,7 +104,8 @@ export class SimulationHandler {
     const input = this.inputTextField.value.split(" ");
     if (this.inputIndex >= input.length) {
       console.log("No more input");
-      this.paused = true;
+      this.isPlaying = false;
+      this.onPauseCallback();
       return;
     }
     console.log("next");
@@ -96,40 +116,44 @@ export class SimulationHandler {
       this.dfa.transitions[[this.dfa.currentState, nextSymbol]];
     this.svgHandler.transitions.forEach((transition) => {
       const currentState = this.states.find(
-        (state) => state.stateNumber === this.dfa.currentState
+        (state, i) => i === this.dfa.currentState
       );
-      const nextState = this.states.find(
-        (state) => state.stateNumber === nextStateNumber
-      );
+      console.log("Current State:", currentState);
 
+      console.log("DFA transitions:", this.dfa.transitions);
+      const nextState = this.states.find((state, i) => i === nextStateNumber);
+      console.log("NextSymbol:", nextSymbol);
+      console.log("NextStateNumber:", nextStateNumber);
+      console.log("Next State:", nextState);
       if (
-        transition.startControlPoint === currentState.state &&
-        transition.endControlPoint === nextState.state
+        transition.startControlPoint === currentState &&
+        transition.endControlPoint === nextState
       ) {
-        this.svgHandler.highlightTransition(transition).then(() => {
+        this.svgHandler.highlightTransition(transition);
+        setTimeout(() => {
+          this.svgHandler.unHighlightTransition(transition);
           this.dfa.next(nextSymbol);
-
           this.inputIndex++;
           console.log("Current State:", this.dfa.currentState);
           this.highlightCurrentState();
           this.checkSuccess();
-          if (!this.paused) {
-		setTimeout(() => {
-		    this.handleNext();
-		}, 1000);
-            //this.handleNext();
-          }
-        });
+          setTimeout(() => {
+            if (this.isPlaying) {
+              this.handleNext();
+            }
+          }, this.animationDelayMS);
+        }, this.animationDelayMS);
+        return;
       }
     });
+    console.log("Next called");
   }
 
   handleRewind() {
     console.log("rewind");
-    this.retrieveDFA();
-    this.inputIndex = 0;
-    this.dfa.reset();
-    this.highlightCurrentState();
+    this.resetDFA();
+    this.isPlaying = false;
+    this.onPauseCallback();
   }
 
   handleFastForward() {
@@ -145,8 +169,8 @@ export class SimulationHandler {
 
   highlightCurrentState() {
     const currentState = this.states.find(
-      (state) => state.stateNumber === this.dfa.currentState
-    ).state;
+      (state, i) => i === this.dfa.currentState
+    );
     this.svgHandler.highlightControlPoint(currentState);
   }
 
@@ -154,8 +178,8 @@ export class SimulationHandler {
     const input = this.inputTextField.value.replaceAll(" ", "");
     if (this.inputIndex >= input.length) {
       const currentState = this.states.find(
-        (state) => state.stateNumber === this.dfa.currentState
-      ).state;
+        (state, i) => i === this.dfa.currentState
+      );
       if (currentState.isFinal()) {
         this.svgHandler.setSuccessState(currentState);
       } else {

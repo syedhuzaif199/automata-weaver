@@ -31,13 +31,10 @@ export class DFA extends FiniteAutomaton {
   //TODO: getMinimized() {}
 
   next(inString) {
-    console.log("Instring:", inString);
     for (let i = 0; i < inString.length; i++) {
       const symbol = inString[i];
-      console.log("Symbol of instring: " + symbol);
       if ([this.currentState, symbol] in this.transitions) {
         this.currentState = this.transitions[[this.currentState, symbol]];
-        console.log("DFA State: " + this.currentState);
       } else {
         return -1;
       }
