@@ -313,6 +313,7 @@ class SVGHandler {
     this.textField.style.top =
       y - this.textField.style.height.replace("px", "") / 2 + "px";
     this.textField.focus();
+    this.textField.value = this.selectedElement.getText();
     this.selectedElement.setTextVisible(false);
   }
 
@@ -348,7 +349,10 @@ class SVGHandler {
         return;
       }
       this.spawnTextField(clientX, clientY);
-    } else if (this.selectionType === selectionTypes.controlPoint) {
+    } else if (
+      this.selectionType === selectionTypes.controlPoint &&
+      this.selectedElement !== this.inputNode
+    ) {
       this.spawnTextField(clientX, clientY);
     }
   }
@@ -463,6 +467,9 @@ class SVGHandler {
     }
 
     if (this.selectionType === selectionTypes.controlPoint) {
+      if (this.selectedElement === this.inputNode) {
+        return;
+      }
       const index = this.controlPoints.indexOf(this.selectedElement);
       this.controlPoints.splice(index, 1);
       const temp = [];

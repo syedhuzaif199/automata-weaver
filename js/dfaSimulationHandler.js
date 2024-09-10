@@ -56,12 +56,14 @@ export class DFASimulationHandler {
       );
 
       // TODO: handle multiple symbols
-      const symbol = transition.getText();
-      this.dfa.addTransition(
-        this.states.indexOf(originState),
-        this.states.indexOf(endState),
-        symbol
-      );
+      const symbols = transition.getText().replaceAll(" ", "").split(",");
+      symbols.forEach((symbol) => {
+        this.dfa.addTransition(
+          this.states.indexOf(originState),
+          this.states.indexOf(endState),
+          symbol
+        );
+      });
     });
 
     this.dfa.finalStates = finalStates;
