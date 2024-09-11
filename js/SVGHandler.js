@@ -314,6 +314,7 @@ class SVGHandler {
       y - this.textField.style.height.replace("px", "") / 2 + "px";
     this.textField.focus();
     this.textField.value = this.selectedElement.getText();
+    this.textField.select();
     this.selectedElement.setTextVisible(false);
   }
 

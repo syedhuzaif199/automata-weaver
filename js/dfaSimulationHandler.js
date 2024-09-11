@@ -12,6 +12,7 @@ export class DFASimulationHandler {
     this.initialState = null;
     this.isPlaying = false;
     this.animationDelayMS = 500;
+    this.isAnimating = false;
     this.onPauseCallback = () => {};
   }
 
@@ -83,7 +84,7 @@ export class DFASimulationHandler {
       if (this.inputIndex >= this.inputTextField.value.split(" ").length) {
         this.resetDFA();
       }
-      this.handleNext();
+      this.next();
     }
   }
 
@@ -103,6 +104,15 @@ export class DFASimulationHandler {
   }
 
   handleNext() {
+    if (this.isPlaying || this.isAnimating) {
+      return;
+    }
+    console.log("next");
+
+    this.next();
+  }
+
+  next() {
     const input = this.inputTextField.value.split(" ");
     if (this.inputIndex >= input.length) {
       console.log("No more input");
@@ -110,7 +120,6 @@ export class DFASimulationHandler {
       this.onPauseCallback();
       return;
     }
-    console.log("next");
     this.retrieveDFA();
     console.log("Input:", input);
     const nextSymbol = input[this.inputIndex];
@@ -132,6 +141,7 @@ export class DFASimulationHandler {
         transition.endControlPoint === nextState
       ) {
         this.svgHandler.highlightTransition(transition);
+        this.isAnimating = true;
         setTimeout(() => {
           this.svgHandler.unHighlightTransition(transition);
           this.dfa.next(nextSymbol);
@@ -139,16 +149,16 @@ export class DFASimulationHandler {
           console.log("Current State:", this.dfa.currentState);
           this.highlightCurrentState();
           this.checkSuccess();
+          this.isAnimating = false;
           setTimeout(() => {
             if (this.isPlaying) {
-              this.handleNext();
+              this.next();
             }
           }, this.animationDelayMS);
         }, this.animationDelayMS);
         return;
       }
     });
-    console.log("Next called");
   }
 
   handleRewind() {
