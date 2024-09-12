@@ -1,4 +1,3 @@
-import { SVGHandler } from "./SVGHandler.js";
 import { DFA } from "./dfa.js";
 
 export class DFASimulationHandler {
@@ -31,6 +30,9 @@ export class DFASimulationHandler {
         this.initialState = transition.endControlPoint;
       }
     });
+    if (this.initialState === null) {
+      return false;
+    }
 
     this.states[0] = this.initialState;
     let stateIndex = 1;
@@ -56,7 +58,6 @@ export class DFASimulationHandler {
         (state) => state === transition.endControlPoint
       );
 
-      // TODO: handle multiple symbols
       const symbols = transition.getText().replaceAll(" ", "").split(",");
       symbols.forEach((symbol) => {
         this.dfa.addTransition(
@@ -69,10 +70,10 @@ export class DFASimulationHandler {
 
     this.dfa.finalStates = finalStates;
     console.log("STATES", this.states);
+    return true;
   }
 
   resetDFA() {
-    this.retrieveDFA();
     this.inputIndex = 0;
     this.dfa.reset();
     this.highlightCurrentState();
@@ -120,22 +121,27 @@ export class DFASimulationHandler {
       this.onPauseCallback();
       return;
     }
-    this.retrieveDFA();
+    if (!this.retrieveDFA()) {
+      console.log("No initial state");
+      this.isPlaying = false;
+      this.onPauseCallback();
+      this.resetDFA();
+      return;
+    }
     console.log("Input:", input);
     const nextSymbol = input[this.inputIndex];
     const nextStateNumber =
       this.dfa.transitions[[this.dfa.currentState, nextSymbol]];
+    const currentState = this.states.find(
+      (state, i) => i === this.dfa.currentState
+    );
+    console.log("Current State:", currentState);
+    console.log("DFA transitions:", this.dfa.transitions);
+    const nextState = this.states.find((state, i) => i === nextStateNumber);
+    console.log("NextSymbol:", nextSymbol);
+    console.log("NextStateNumber:", nextStateNumber);
+    console.log("Next State:", nextState);
     this.svgHandler.transitions.forEach((transition) => {
-      const currentState = this.states.find(
-        (state, i) => i === this.dfa.currentState
-      );
-      console.log("Current State:", currentState);
-
-      console.log("DFA transitions:", this.dfa.transitions);
-      const nextState = this.states.find((state, i) => i === nextStateNumber);
-      console.log("NextSymbol:", nextSymbol);
-      console.log("NextStateNumber:", nextStateNumber);
-      console.log("Next State:", nextState);
       if (
         transition.startControlPoint === currentState &&
         transition.endControlPoint === nextState
