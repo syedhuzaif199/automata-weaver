@@ -1,7 +1,7 @@
-export class FiniteAutomaton {
+export class DFA {
   constructor(numStates, alphabet, finalStates = []) {
     this.numStates = numStates;
-    this.alphabet = alphabet; //string or list of strings
+    this.alphabet = alphabet;
     this.finalStates = finalStates;
     this.states = [];
     this.transitions = {};
@@ -20,12 +20,6 @@ export class FiniteAutomaton {
     for (let transition of transitions) {
       this.addTransition(transition[0], transition[1], transition[2]);
     }
-  }
-}
-
-export class DFA extends FiniteAutomaton {
-  constructor(numStates, alphabet, finalStates = []) {
-    super(numStates, alphabet, finalStates);
   }
 
   enumerateAccStates(state, accessibleStates) {
@@ -184,22 +178,22 @@ export class DFA extends FiniteAutomaton {
     return minimizedDFA;
   }
 
-  next(inString) {
-    for (let symbol of inString) {
-      if ([this.currentState, symbol] in this.transitions) {
-        this.currentState = this.transitions[[this.currentState, symbol]];
-      } else {
-        return -1;
-      }
+  next(symbol) {
+    if ([this.currentState, symbol] in this.transitions) {
+      this.currentState = this.transitions[[this.currentState, symbol]];
+    } else {
+      return -1;
     }
 
     return this.currentState;
   }
 
-  run(inString) {
+  run(input) {
     this.currentState = 0;
-    let endState = this.next(inString);
-    if (this.finalStates.includes(endState)) {
+    for (let inSymbol of input) {
+      this.currentState = this.next(inSymbol);
+    }
+    if (this.finalStates.includes(this.currentState)) {
       return true;
     } else {
       return false;

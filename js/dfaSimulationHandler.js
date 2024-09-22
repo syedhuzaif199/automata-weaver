@@ -20,7 +20,16 @@ export class DFASimulationHandler {
     const transitions = this.svgHandler.transitions;
 
     const numStates = controlPoints.length;
+    this.dfa.numStates = numStates;
     const alphabet = this.alphabetTextField.value.split(" ");
+    this.dfa.alphabet = alphabet;
+    const input = this.inputTextField.value.split(" ");
+    for (let symbol of input) {
+      if (!this.dfa.alphabet.includes(symbol)) {
+        alert(`Input symbol ${symbol} does not belong to the alphabet`);
+        return false;
+      }
+    }
     const finalStates = [];
     this.states = [];
     const inputNode = this.svgHandler.inputNode;
@@ -117,7 +126,8 @@ export class DFASimulationHandler {
     }
     console.log("previous");
     this.retrieveDFA();
-    const input = this.inputTextField.value.replaceAll(" ", "");
+    const input = this.inputTextField.value.split(" ");
+
     this.dfa.run(input.slice(0, this.inputIndex));
 
     this.highlightCurrentState();
@@ -207,7 +217,7 @@ export class DFASimulationHandler {
     console.log("fast-forward");
     this.retrieveDFA();
     this.inputIndex = 0;
-    const input = this.inputTextField.value.replaceAll(" ", "");
+    const input = this.inputTextField.value.split(" ");
     this.dfa.run(input);
     this.highlightCurrentState();
     this.inputIndex = input.length;
@@ -224,7 +234,8 @@ export class DFASimulationHandler {
   }
 
   checkSuccess() {
-    const input = this.inputTextField.value.replaceAll(" ", "");
+    console.log("Success check called");
+    const input = this.inputTextField.value.split(" ");
     if (this.inputIndex >= input.length) {
       const currentState = this.states.find(
         (state, i) => i === this.dfa.currentState
