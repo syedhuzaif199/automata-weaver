@@ -6,7 +6,7 @@ import { Transition } from "./Transition.js";
 import {
   SELECTED_COLOR,
   UNSELECTED_COLOR,
-  HIGHLIGHTED_COLOR,
+  STATE_HIGHLIGHTED_COLOR,
   MINSCALE,
   MAXSCALE,
   TEXT_SIZE,
@@ -15,6 +15,7 @@ import {
   UNHIGHLIGHTED_COLOR,
   FAIL_COLOR,
   SUCCESS_COLOR,
+  TRANSITION_HIGHLIGHTED_COLOR,
 } from "./constants.js";
 
 const states = Object.freeze({
@@ -73,6 +74,7 @@ class SVGHandler {
     this.highlightedControlPoint = null;
     this.failControlPoint = null;
     this.successControlPoint = null;
+    this.isEditingDisabled = false;
 
     this.setupSVG();
   }
@@ -193,7 +195,7 @@ class SVGHandler {
 
   changeState(newState) {
     this.state = newState;
-    this.svg.style.cursor = stateToCursor[this.state];
+    this.svg.style.cursor = actionToCursor[this.action];
   }
 
   screenToSVG(x, y) {
@@ -244,20 +246,28 @@ class SVGHandler {
     }
   }
 
-  highlightControlPoint(element) {
+  highlightControlPoint(controlPoint) {
     if (this.highlightedControlPoint) {
       this.highlightedControlPoint.setFillColor(UNHIGHLIGHTED_COLOR);
     }
-    element.setFillColor(HIGHLIGHTED_COLOR);
-    this.highlightedControlPoint = element;
+    controlPoint.setFillColor(STATE_HIGHLIGHTED_COLOR);
+    this.highlightedControlPoint = controlPoint;
   }
 
-  highlightTransition(transition) {
-    transition.setStrokeColor(HIGHLIGHTED_COLOR);
+  highlightTransition(transition, color = TRANSITION_HIGHLIGHTED_COLOR) {
+    transition.setStrokeColor(color);
   }
 
   unHighlightTransition(transition) {
     transition.setStrokeColor(UNSELECTED_COLOR);
+  }
+
+  unHighlightAllTransitions() {
+    this.transitions.forEach((transition) => {
+      if (transition !== this.selectedElement) {
+        transition.setStrokeColor(UNSELECTED_COLOR);
+      }
+    });
   }
 
   setFailState(element) {
@@ -305,9 +315,17 @@ class SVGHandler {
   }
 
   spawnTextField() {
+    if (this.isEditingDisabled) {
+      return;
+    }
     console.log("Spawning Text Field");
     this.textField.style.visibility = "visible";
     const { x, y } = this.SVGToScreen(this.selectedElement.getCenter());
+    this.textField.style.fontSize = TEXT_SIZE * this.scale + "px";
+    this.textField.style.width =
+      this.textField.style.width.replace("px", "") * this.scale + "px";
+    this.textField.style.height =
+      this.textField.style.height.replace("px", "") * this.scale + "px";
     this.textField.style.left =
       x - this.textField.style.width.replace("px", "") / 2 + "px";
     this.textField.style.top =
@@ -337,24 +355,24 @@ class SVGHandler {
   flagAsFinalState() {
     if (
       this.selectionType === selectionTypes.controlPoint &&
-      this.selectedElement != this.inputNode
+      this.selectedElement != this.inputNode &&
+      !this.isEditingDisabled
     ) {
       this.selectedElement.toggleFlag();
     }
   }
 
   handleDoubleClick(e) {
-    const { clientX, clientY } = e;
     if (this.selectionType === selectionTypes.transition) {
       if (this.selectedElement.startControlPoint === this.inputNode) {
         return;
       }
-      this.spawnTextField(clientX, clientY);
+      this.spawnTextField();
     } else if (
       this.selectionType === selectionTypes.controlPoint &&
       this.selectedElement !== this.inputNode
     ) {
-      this.spawnTextField(clientX, clientY);
+      this.spawnTextField();
     }
   }
 
@@ -372,7 +390,7 @@ class SVGHandler {
       }
       switch (this.action) {
         case actions.select:
-          this.selectElement(e.offsetX, e.offsetY);
+          this.selectElementAtPoint(e.offsetX, e.offsetY);
           if (e.detail === 2) {
             this.handleDoubleClick(e);
           }
@@ -418,6 +436,7 @@ class SVGHandler {
 
   onMouseLeave(e) {
     this.changeState(states.default);
+    console.log("left");
   }
 
   onMouseWheel(e) {
@@ -431,22 +450,24 @@ class SVGHandler {
     }
   }
 
-  selectElement(offsetX, offsetY) {
+  selectElementAtPoint(offsetX, offsetY) {
     const { x, y } = this.screenToSVG(offsetX, offsetY);
     const transition = this.transitions.find((t) => t.contains(x, y));
     console.log("Selected Transition:", transition);
     const controlPoint = this.controlPoints.find((cp) => cp.contains(x, y));
-    this.deselect();
     if (transition) {
-      this.selectedElement = transition;
-      this.selectionType = selectionTypes.transition;
+      this.selectElement(transition, selectionTypes.transition);
     } else if (controlPoint) {
-      this.selectedElement = controlPoint;
-      this.selectionType = selectionTypes.controlPoint;
+      this.selectElement(controlPoint, selectionTypes.controlPoint);
     } else {
-      this.selectedElement = null;
-      this.selectionType = selectionTypes.none;
+      this.deselect();
     }
+  }
+
+  selectElement(element, type) {
+    this.deselect();
+    this.selectedElement = element;
+    this.selectionType = type;
     if (this.selectedElement) {
       this.selectedElement.setStrokeColor(SELECTED_COLOR);
     }
@@ -459,11 +480,15 @@ class SVGHandler {
     if (this.selectedElement) {
       this.selectedElement.setStrokeColor(UNSELECTED_COLOR);
       this.selectedElement = null;
+      this.selectionType = selectionTypes.none;
     }
   }
 
   deleteSelected() {
     if (this.selectionType === selectionTypes.none) {
+      return;
+    }
+    if (this.isEditingDisabled) {
       return;
     }
 
@@ -518,17 +543,23 @@ class SVGHandler {
   }
 
   addState(offsetX, offsetY) {
+    if (this.isEditingDisabled) {
+      return;
+    }
     const cp = new ControlPoint(
       this.svg,
       offsetX / this.scale + this.viewBox.x,
       offsetY / this.scale + this.viewBox.y
     );
     this.controlPoints.push(cp);
-    this.selectElement(offsetX, offsetY);
+    this.selectElement(cp, selectionTypes.controlPoint);
     this.spawnTextField();
   }
 
   startTransition(offsetX, offsetY) {
+    if (this.isEditingDisabled) {
+      return;
+    }
     const { x, y } = this.screenToSVG(offsetX, offsetY);
     this.startControlPoint = this.controlPoints.find((cp) => cp.contains(x, y));
     if (!this.startControlPoint) {
@@ -591,16 +622,15 @@ class SVGHandler {
           }
         });
       }
-      this.transitions.push(
-        new Transition(
-          this.svg,
-          this.startControlPoint,
-          endControlPoint,
-          this.arrow
-        )
+      const transition = new Transition(
+        this.svg,
+        this.startControlPoint,
+        endControlPoint,
+        this.arrow
       );
+      this.transitions.push(transition);
       const screenPoint = this.SVGToScreen(this.arrow.getCenter());
-      this.selectElement(screenPoint.x, screenPoint.y);
+      this.selectElement(transition, selectionTypes.transition);
       if (this.startControlPoint !== this.inputNode) {
         this.spawnTextField();
       } else {

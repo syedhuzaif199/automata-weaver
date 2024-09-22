@@ -3,6 +3,8 @@ import {
   CONTROL_POINT_SIZE,
   TEXT_SIZE,
   TEXT_FONT,
+  UNSELECTED_COLOR,
+  CONTROL_POINT_STROKE_WIDTH,
 } from "./constants.js";
 class ControlPoint {
   constructor(
@@ -11,8 +13,8 @@ class ControlPoint {
     y,
     radius = CONTROL_POINT_SIZE,
     fill = "none",
-    stroke = "black",
-    stroke_width = "2px"
+    stroke = UNSELECTED_COLOR,
+    stroke_width = CONTROL_POINT_STROKE_WIDTH
   ) {
     this.ns = SVG_NAMESPACE;
     this.x = x;
@@ -32,6 +34,7 @@ class ControlPoint {
     this.svg = svg;
     this.svg.appendChild(this.circle);
     this.text = document.createElementNS(SVG_NAMESPACE, "text");
+    this.text.setAttribute("fill", this.stroke);
     this.text.setAttributeNS(null, "x", this.x);
     this.text.setAttributeNS(null, "y", this.y);
     this.text.style.fontSize = TEXT_SIZE + "px";
@@ -44,7 +47,7 @@ class ControlPoint {
     this.flagCircle = document.createElementNS(this.ns, "circle");
     this.flagCircle.setAttributeNS(null, "cx", this.x);
     this.flagCircle.setAttributeNS(null, "cy", this.y);
-    this.flagCircle.setAttributeNS(null, "r", this.radius * 0.9);
+    this.flagCircle.setAttributeNS(null, "r", this.radius * 0.8);
     this.flagCircle.setAttributeNS(null, "fill", this.fill);
     this.flagCircle.setAttributeNS(null, "stroke", this.stroke);
     this.flagCircle.setAttributeNS(
@@ -83,6 +86,8 @@ class ControlPoint {
 
   setStrokeColor(color) {
     this.circle.setAttributeNS(null, "stroke", color);
+    this.text.setAttributeNS(null, "fill", color);
+    this.flagCircle.setAttributeNS(null, "stroke", color);
   }
 
   setFillColor(color) {

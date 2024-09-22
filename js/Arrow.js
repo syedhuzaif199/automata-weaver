@@ -5,6 +5,8 @@ import {
   ARROW_HEAD_HEIGHT,
   TEXT_SIZE,
   TEXT_FONT,
+  UNSELECTED_COLOR,
+  ARROW_STROKE_WIDTH,
 } from "./constants.js";
 
 const debugMode = false;
@@ -15,6 +17,9 @@ class Arrow {
   constructor(svg, x1, y1, x2, y2) {
     this.svg = svg;
     this.arrowBody = document.createElementNS(SVG_NAMESPACE, "path");
+    this.arrowBody.setAttribute("fill", "none");
+    this.arrowBody.setAttribute("stroke", UNSELECTED_COLOR);
+    this.arrowBody.setAttribute("stroke-width", ARROW_STROKE_WIDTH);
     this.id = id;
     id++;
     this.center = null;
@@ -24,6 +29,7 @@ class Arrow {
     this.text.setAttributeNS(null, "dominant-baseline", "middle");
     this.text.style.fontSize = TEXT_SIZE + "px";
     this.text.style.fontFamily = TEXT_FONT;
+    this.text.setAttribute("fill", UNSELECTED_COLOR);
     this.svg.appendChild(this.text);
     this.arrowHead = this.createArrowHead();
     this.update(x1, y1, x2, y2, false);
@@ -58,7 +64,7 @@ class Arrow {
         ARROW_HEAD_HEIGHT / 2
       }, 0 ${ARROW_HEAD_HEIGHT}`
     );
-    arrowHead.setAttribute("fill", "black");
+    arrowHead.setAttribute("fill", UNSELECTED_COLOR);
 
     marker.appendChild(arrowHead);
     defs.appendChild(marker);
@@ -70,6 +76,7 @@ class Arrow {
   setStrokeColor(color) {
     this.arrowBody.setAttribute("stroke", color);
     this.arrowHead.children[0].children[0].setAttribute("fill", color);
+    this.text.setAttribute("fill", color);
   }
 
   setText(text) {
@@ -152,9 +159,6 @@ class Arrow {
       }
     }
 
-    this.arrowBody.setAttribute("fill", "none");
-    this.arrowBody.setAttribute("stroke", "black");
-    this.arrowBody.setAttribute("stroke-width", "2px");
     this.arrowBody.setAttribute("marker-end", `url(#arrowhead-${this.id})`);
     const { x, y } = this.getCenter();
     this.text.setAttributeNS(null, "x", x);
@@ -180,9 +184,19 @@ class Arrow {
     const point = this.svg.createSVGPoint();
     point.x = x;
     point.y = y;
-    return this.boundingPoly == null
-      ? this.arrowBody.isPointInFill(point)
-      : this.boundingPoly.isPointInFill(point);
+    const isInside =
+      this.boundingPoly == null
+        ? this.arrowBody.isPointInFill(point)
+        : this.boundingPoly.isPointInFill(point);
+
+    const textBBox = this.text.getBBox();
+
+    const isInText =
+      textBBox.x < x &&
+      textBBox.x + textBBox.width > x &&
+      textBBox.y < y &&
+      textBBox.y + textBBox.height > y;
+    return isInside || isInText;
   }
 
   getCenter() {

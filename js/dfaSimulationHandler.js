@@ -1,3 +1,4 @@
+import { DANGER_COLOR } from "./constants.js";
 import { DFA } from "./dfa.js";
 
 export class DFASimulationHandler {
@@ -10,7 +11,6 @@ export class DFASimulationHandler {
     this.states = [];
     this.initialState = null;
     this.isPlaying = false;
-    this.animationDelayMS = 500;
     this.isAnimating = false;
     this.onPauseCallback = () => {};
   }
@@ -46,10 +46,12 @@ export class DFASimulationHandler {
       }
     });
 
+    let symbolsNotInAlpha = new Set();
     transitions.forEach((transition) => {
       if (transition.startControlPoint === inputNode) {
         return;
       }
+
       const originState = this.states.find(
         (state) => state === transition.startControlPoint
       );
@@ -60,32 +62,50 @@ export class DFASimulationHandler {
 
       const symbols = transition.getText().replaceAll(" ", "").split(",");
       symbols.forEach((symbol) => {
+        if (!alphabet.includes(symbol)) {
+          symbolsNotInAlpha.add(symbol);
+          this.svgHandler.highlightTransition(transition, DANGER_COLOR);
+          return;
+        }
         this.dfa.addTransition(
           this.states.indexOf(originState),
-          this.states.indexOf(endState),
-          symbol
+          symbol,
+          this.states.indexOf(endState)
         );
       });
     });
+
+    if (symbolsNotInAlpha.size > 0) {
+      const symbolsNotInAlphaStr = Array.from(symbolsNotInAlpha).join(", ");
+      alert(
+        `Transition symbols [${symbolsNotInAlphaStr}] are not in the alphabet. The erroneous transitions are highlighted in red.`
+      );
+      return false;
+    }
 
     this.dfa.finalStates = finalStates;
     console.log("STATES", this.states);
     return true;
   }
 
-  resetDFA() {
+  resetSimulation() {
     this.inputIndex = 0;
     this.dfa.reset();
     this.highlightCurrentState();
+    this.svgHandler.isEditingDisabled = false;
+    this.svgHandler.unHighlightAllTransitions();
   }
 
   handlePlayPause() {
     this.isPlaying = !this.isPlaying;
     if (this.isPlaying) {
+      this.svgHandler.isEditingDisabled = true;
       if (this.inputIndex >= this.inputTextField.value.split(" ").length) {
-        this.resetDFA();
+        this.resetSimulation();
       }
       this.next();
+    } else {
+      this.svgHandler.isEditingDisabled = false;
     }
   }
 
@@ -113,11 +133,17 @@ export class DFASimulationHandler {
     this.next();
   }
 
+  getAnimDelay() {
+    const speedEle = document.querySelector("#speed");
+    return 1000 - speedEle.value + 10;
+  }
+
   next() {
     const input = this.inputTextField.value.split(" ");
     if (this.inputIndex >= input.length) {
       console.log("No more input");
       this.isPlaying = false;
+      this.svgHandler.isEditingDisabled = false;
       this.onPauseCallback();
       return;
     }
@@ -125,7 +151,7 @@ export class DFASimulationHandler {
       console.log("No initial state");
       this.isPlaying = false;
       this.onPauseCallback();
-      this.resetDFA();
+      this.resetSimulation();
       return;
     }
     console.log("Input:", input);
@@ -160,8 +186,8 @@ export class DFASimulationHandler {
             if (this.isPlaying) {
               this.next();
             }
-          }, this.animationDelayMS);
-        }, this.animationDelayMS);
+          }, this.getAnimDelay());
+        }, this.getAnimDelay());
         return;
       }
     });
@@ -169,12 +195,15 @@ export class DFASimulationHandler {
 
   handleRewind() {
     console.log("rewind");
-    this.resetDFA();
+    this.resetSimulation();
     this.isPlaying = false;
     this.onPauseCallback();
   }
 
   handleFastForward() {
+    if (this.isPlaying || this.isAnimating) {
+      return;
+    }
     console.log("fast-forward");
     this.retrieveDFA();
     this.inputIndex = 0;
@@ -189,7 +218,9 @@ export class DFASimulationHandler {
     const currentState = this.states.find(
       (state, i) => i === this.dfa.currentState
     );
-    this.svgHandler.highlightControlPoint(currentState);
+    if (currentState) {
+      this.svgHandler.highlightControlPoint(currentState);
+    }
   }
 
   checkSuccess() {

@@ -62,6 +62,13 @@ input {
 
 }
 
+.speed-bar {
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
 .right-bar {
     position: relative;
     right: 0;
