@@ -87,6 +87,13 @@ class SVGHandler {
     this.addEventListeners();
   }
 
+  clear() {
+    this.controlPoints.forEach((cp) => cp.removeFromSVG());
+    this.transitions.forEach((t) => t.removeFromSVG());
+    this.controlPoints = [];
+    this.transitions = [];
+  }
+
   saveToJSON() {
     const controlPoints = this.controlPoints.map((cp) => {
       const newcp = cp.toJSON();
@@ -103,12 +110,7 @@ class SVGHandler {
   }
 
   loadFromJSON(json) {
-    for (let cp of this.controlPoints) {
-      cp.removeFromSVG();
-    }
-    for (let t of this.transitions) {
-      t.removeFromSVG();
-    }
+    this.clear();
     const data = JSON.parse(json);
     this.controlPoints = data.controlPoints.map((cp) => {
       const newcp = new ControlPoint(this.svg, cp.x, cp.y);
@@ -150,6 +152,87 @@ class SVGHandler {
     } else {
       console.error("No automaton data found!");
     }
+  }
+
+  drawDFA(dfa) {
+    console.log("Minimized dfa:", dfa);
+    this.clear();
+    this.inputNode = new ControlPoint(
+      this.svg,
+      this.width / 4,
+      this.height / 2
+    );
+    this.inputNode.setText("Input");
+    this.controlPoints.push(this.inputNode);
+    const numStates = dfa.numStates;
+    const transitions = dfa.transitions;
+    const angle = (2 * Math.PI) / numStates;
+    const radius = (4 * CONTROL_POINT_SIZE) / angle + CONTROL_POINT_SIZE;
+    const center = {
+      x: this.inputNode.x + 4 * CONTROL_POINT_SIZE + radius,
+      y: this.height / 2,
+    };
+
+    for (let i = 0; i < numStates; i++) {
+      const x = center.x + radius * Math.cos(i * angle + 0.01 + Math.PI);
+      const y = center.y + radius * Math.sin(i * angle + Math.PI);
+      const cp = new ControlPoint(this.svg, x, y);
+      if (dfa.finalStates.includes(i)) {
+        cp.toggleFlag();
+      }
+      cp.setText("q" + i.toString());
+      this.controlPoints.push(cp);
+    }
+
+    console.log("control points:", this.controlPoints);
+    for (let key in transitions) {
+      let [state, symbol] = key.split(",");
+      state = parseInt(state) + 1;
+      console.log("state:", state);
+      const endState = parseInt(transitions[key]) + 1;
+      const existingTransition = this.transitions.find(
+        (t) =>
+          t.startControlPoint === this.controlPoints[state] &&
+          t.endControlPoint === this.controlPoints[endState]
+      );
+      if (existingTransition) {
+        existingTransition.setText(existingTransition.getText() + "," + symbol);
+        continue;
+      }
+      const transition = new Transition(
+        this.svg,
+        this.controlPoints[state],
+        this.controlPoints[endState],
+        new Arrow(
+          this.svg,
+          this.controlPoints[state].x,
+          this.controlPoints[state].y,
+          this.controlPoints[endState].x,
+          this.controlPoints[endState].y
+        )
+      );
+
+      transition.setText(symbol);
+
+      this.transitions.push(transition);
+    }
+
+    const transition = new Transition(
+      this.svg,
+      this.inputNode,
+      this.controlPoints[1],
+      new Arrow(
+        this.svg,
+        this.inputNode.x,
+        this.inputNode.y,
+        this.controlPoints[1].x,
+        this.controlPoints[1].y
+      )
+    );
+
+    this.transitions.push(transition);
+
+    this.updateAllTransitions();
   }
 
   resetSVG() {
