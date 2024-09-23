@@ -87,6 +87,70 @@ class SVGHandler {
     this.addEventListeners();
   }
 
+  saveToJSON() {
+    const controlPoints = this.controlPoints.map((cp) => {
+      const newcp = cp.toJSON();
+      newcp.id = this.controlPoints.indexOf(cp);
+      return newcp;
+    });
+    const transitions = this.transitions.map((t) => {
+      const newt = t.toJSON();
+      newt.id1 = this.controlPoints.indexOf(t.startControlPoint);
+      newt.id2 = this.controlPoints.indexOf(t.endControlPoint);
+      return newt;
+    });
+    return JSON.stringify({ controlPoints, transitions });
+  }
+
+  loadFromJSON(json) {
+    for (let cp of this.controlPoints) {
+      cp.removeFromSVG();
+    }
+    for (let t of this.transitions) {
+      t.removeFromSVG();
+    }
+    const data = JSON.parse(json);
+    this.controlPoints = data.controlPoints.map((cp) => {
+      const newcp = new ControlPoint(this.svg, cp.x, cp.y);
+      newcp.flag = cp.flag;
+      newcp.setText(cp.text);
+      return newcp;
+    });
+    this.transitions = data.transitions.map((t) => {
+      const newT = new Transition(
+        this.svg,
+        this.controlPoints[t.id1],
+        this.controlPoints[t.id2],
+        new Arrow(
+          this.svg,
+          t.startControlPoint.x,
+          t.startControlPoint.y,
+          t.endControlPoint.x,
+          t.endControlPoint.y
+        )
+      );
+
+      newT.setText(t.text);
+      return newT;
+    });
+    this.inputNode = this.controlPoints[0];
+    this.updateAllTransitions();
+  }
+
+  saveToLocalStorage() {
+    const data = this.saveToJSON();
+    localStorage.setItem("automatonData", data);
+  }
+
+  loadFromLocalStorage() {
+    const data = localStorage.getItem("automatonData");
+    if (data) {
+      this.loadFromJSON(data);
+    } else {
+      console.error("No automaton data found!");
+    }
+  }
+
   resetSVG() {
     this.viewBox = { x: 0, y: 0, width: this.width, height: this.height };
     this.scale = 1;
