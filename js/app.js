@@ -124,6 +124,9 @@ removeInputBtn.addEventListener("click", () => onRemoveInputBtnClick());
 const machineTypeSelect = document.querySelector("#machine-type");
 machineTypeSelect.addEventListener("change", onMachineTypeChange);
 
+const machineOptionsBtn = document.querySelector("#machine-options");
+machineOptionsBtn.addEventListener("click", onMachineOptionsBtnClick);
+
 function onAddInputBtnClick(e) {
   const inputBox = document.querySelector("#input");
   const inputField = document.createElement("input");
@@ -161,6 +164,17 @@ setMachineType(machineTypeSelect.value);
 function onMachineTypeChange(e) {
   const machineType = e.target.value;
   setMachineType(machineType);
+}
+
+function onMachineOptionsBtnClick(e) {
+  console.log("Machine Options Button Clicked");
+  // const options = document.querySelector("#machine-options-pane");
+  // options.style.display = options.style.display === "none" ? "flex" : "none";
+  if (machineTypeSelect.value === "dfa") {
+    simulationHandler.drawMinimizedDFA();
+  } else if (machineTypeSelect.value === "nfa") {
+    simulationHandler.convertToDFA();
+  }
 }
 
 function onPlayPauseBtnClick() {

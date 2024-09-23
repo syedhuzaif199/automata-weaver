@@ -272,6 +272,15 @@ export class DFASimulationHandler extends BasicSimulator {
     this.checkSuccess();
   }
 
+  drawMinimizedDFA() {
+    if (!this.retrieveMachine()) {
+      return;
+    }
+
+    const minDfa = this.machine.getMinimized();
+    this.svgHandler.drawDFA(minDfa);
+  }
+
   highlightCurrentStates() {
     const currentState = this.states.find(
       (state, i) => i === this.machine.currentState
