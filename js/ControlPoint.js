@@ -119,6 +119,16 @@ class ControlPoint {
   isFinal() {
     return this.flag;
   }
+
+  toJSON() {
+    return {
+      x: this.x,
+      y: this.y,
+      flag: this.flag,
+      text: this.text.textContent,
+      id: null,
+    };
+  }
 }
 
 export { ControlPoint };

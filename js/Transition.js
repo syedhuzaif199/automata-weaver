@@ -32,6 +32,16 @@ class Transition {
   getText() {
     return this.arrow.getText();
   }
+
+  toJSON() {
+    return {
+      startControlPoint: this.startControlPoint.toJSON(),
+      endControlPoint: this.endControlPoint.toJSON(),
+      text: this.getText(),
+      id1: null,
+      id2: null,
+    };
+  }
 }
 
 export { Transition };
