@@ -10,8 +10,6 @@
       <div class="input-box">
         <label for="alphabet-text">Alphabet</label>
         <input type="text" id="alphabet-text" placeholder="Space separated" />
-        <label for="input-text">Input</label>
-        <input type="text" id="input-text" placeholder="Space separated" />
       </div>
       <div class="left-bar">
         <div class="controls menu-btn">
@@ -115,13 +113,21 @@
           value="500"
         />
       </div>
-      <div class="machine-selector">
+      <div class="machine-selector controls">
         <select id="machine-type">
           <option value="dfa">DFA</option>
           <option value="nfa">NFA</option>
           <option value="pda">PDA</option>
           <option value="turing" disabled>Turing Machine</option>
         </select>
+        <button id="machine-settings">
+          <img
+            src="./assets/settings.svg"
+            alt="Settings"
+            width="25px"
+            height="25px"
+          />
+        </button>
       </div>
       <div class="right-panel">
         <div class="controls right-bar">
@@ -197,6 +203,32 @@
             height="25px"
           />
         </button>
+      </div>
+      <div class="controls bottom-bar">
+        <label for="input">Input</label>
+        <div id="input">
+          <input type="text" class="input-field"/>
+          <input type="text" class="input-field"/>
+          <input type="text" class="input-field"/>
+        </div>
+        <div class="input-add-remove">
+          <button id="add-input">
+            <img
+              src="./assets/plus.svg"
+              alt="Add Input"
+              width="25px"
+              height="25px"
+            />
+          </button>
+          <div class="separator vsep"></div>
+          <button id="remove-input">
+            <img
+              src="./assets/minus.svg"
+              alt="Remove Input"
+              width="25px"
+              height="25px"
+            />
+        </div>
       </div>
       <div id="svgcontainer">
         <svg id="svgdisplay"></svg>

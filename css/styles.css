@@ -8,6 +8,8 @@
     --btn-img-height: 25px;
     --primary-color: #1c274c;
     --secondary-color: #969696;
+    --highlight-color: #fe7c00;
+    --highlight-bg: #ffc48d;
 }
 
 * {
@@ -42,18 +44,6 @@ input {
 }
 
 @media print {
-    /* .controls {
-        visibility: hidden;
-
-    }
-
-    .right-panel {
-        visibility: hidden;
-    }
-
-    .input-box {
-        visibility: hidden;
-    } */
 
     body * {
         visibility: hidden;
@@ -102,7 +92,7 @@ input {
     top: 0;
     left: 25%;
     transform: translateX(-50%);
-    padding: 20px;
+    padding-left: 20px;
 }
 
 .right-bar {
@@ -167,6 +157,12 @@ input {
 .separator.vsep {
     width: 90%;
     height: 1px;
+    margin: 2px;
+}
+
+.separator.hsep {
+    width: 1px;
+    height: 90%;
     margin: 2px;
 }
 
@@ -251,6 +247,48 @@ input {
     }
 }
 
+.bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    padding-left: 20px;
+    padding-right: 20px;
+    max-width: 70vw;
+    width: max-content;
+    
+}
+
+#input {
+    display: flex;
+    width: max-content;
+    max-width: 100%;
+    padding-right: 10px;
+    padding-left: 10px;
+    overflow-x: auto;
+}
+
+.input-field {
+    border: 2px solid var(--secondary-color);
+    width: 50px;
+    height: 50px;
+    padding: 4px;
+    margin: 4px;
+    border-radius: 10px;
+    text-align: center;
+    outline: none;
+}
+
+.highlighted-input-field {
+    border-color: var(--highlight-color);
+    background-color: var(--highlight-bg);
+}
+
+.input-add-remove {
+    padding-left: 10px;
+}
+
 .input-box {
     position: fixed;
     bottom: 50%;
@@ -261,14 +299,8 @@ input {
     margin: 20px;
 }
 
-.input-box input {
-    width: 100%;
-    margin: 5px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    border-color: var(--secondary-color);
-    padding: 4px;
-}
+
+
 
 .input-box label {
     margin: 5px;
