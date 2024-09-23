@@ -92,6 +92,13 @@ class SVGHandler {
     this.transitions.forEach((t) => t.removeFromSVG());
     this.controlPoints = [];
     this.transitions = [];
+    this.inputNode = new ControlPoint(
+      this.svg,
+      this.width / 4,
+      this.height / 2
+    );
+    this.inputNode.setText("Input");
+    this.controlPoints.push(this.inputNode);
   }
 
   saveToJSON() {
@@ -101,16 +108,17 @@ class SVGHandler {
       return newcp;
     });
     const transitions = this.transitions.map((t) => {
-      const newt = t.toJSON();
-      newt.id1 = this.controlPoints.indexOf(t.startControlPoint);
-      newt.id2 = this.controlPoints.indexOf(t.endControlPoint);
-      return newt;
+      const newT = t.toJSON();
+      newT.id1 = this.controlPoints.indexOf(t.startControlPoint);
+      newT.id2 = this.controlPoints.indexOf(t.endControlPoint);
+      return newT;
     });
     return JSON.stringify({ controlPoints, transitions });
   }
 
   loadFromJSON(json) {
     this.clear();
+    this.inputNode.removeFromSVG();
     const data = JSON.parse(json);
     this.controlPoints = data.controlPoints.map((cp) => {
       const newcp = new ControlPoint(this.svg, cp.x, cp.y);
@@ -157,13 +165,7 @@ class SVGHandler {
   drawDFA(dfa) {
     console.log("Minimized dfa:", dfa);
     this.clear();
-    this.inputNode = new ControlPoint(
-      this.svg,
-      this.width / 4,
-      this.height / 2
-    );
-    this.inputNode.setText("Input");
-    this.controlPoints.push(this.inputNode);
+
     const numStates = dfa.numStates;
     const transitions = dfa.transitions;
     const angle = (2 * Math.PI) / numStates;

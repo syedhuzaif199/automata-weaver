@@ -96,6 +96,9 @@ saveJSONBtn.addEventListener("click", onSaveJSONBtnClick);
 const savePdfBtn = document.querySelector("#save-pdf");
 savePdfBtn.addEventListener("click", onSavePdfBtnClick);
 
+const clearCanvasBtn = document.querySelector("#clear-btn");
+clearCanvasBtn.addEventListener("click", onClearCanvasBtnClick);
+
 const playPauseBtn = document.querySelector("#play-pause");
 playPauseBtn.addEventListener("click", onPlayPauseBtnClick);
 
@@ -174,6 +177,12 @@ function onMachineOptionsBtnClick(e) {
     simulationHandler.drawMinimizedDFA();
   } else if (machineTypeSelect.value === "nfa") {
     simulationHandler.convertToDFA();
+  }
+}
+
+function onClearCanvasBtnClick() {
+  if (confirm("Are you sure you want to clear the canvas?")) {
+    svgHandler.clear();
   }
 }
 
