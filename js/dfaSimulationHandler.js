@@ -16,7 +16,7 @@ export class DFASimulationHandler {
   }
 
   retrieveDFA() {
-    this.dfa = new DFA();
+    this.dfa.transitions = {};
     const controlPoints = this.svgHandler.controlPoints;
     const transitions = this.svgHandler.transitions;
 
@@ -66,6 +66,7 @@ export class DFASimulationHandler {
     // add transitions
     let symbolsNotInAlpha = new Set();
     let multipleTransitions = new Set();
+    let alertMessage = "";
     transitions.forEach((transition) => {
       if (transition.startControlPoint === inputNode) {
         return;
@@ -104,10 +105,7 @@ export class DFASimulationHandler {
 
     if (symbolsNotInAlpha.size > 0) {
       const symbolsNotInAlphaStr = Array.from(symbolsNotInAlpha).join(", ");
-      alert(
-        `Transition symbols [${symbolsNotInAlphaStr}] are not in the alphabet. The erroneous transitions are highlighted in red.`
-      );
-      return false;
+      alertMessage += `Transition symbols [${symbolsNotInAlphaStr}] are not in the alphabet. The erroneous transitions are highlighted in red.\n`;
     }
 
     if (multipleTransitions.size > 0) {
@@ -121,10 +119,7 @@ export class DFASimulationHandler {
             } on symbol ${symbol}\n`
         )
         .join("");
-      alert(
-        `Multiple transitions found for the following state-symbol pairs:\n${multipleTransitionsStr}The erroneous transitions are highlighted in red.`
-      );
-      return false;
+      alertMessage += `Multiple transitions found for the following state-symbol pairs:\n${multipleTransitionsStr}The erroneous transitions are highlighted in red.\n`;
     }
 
     //check if each state has a transition for each symbol in the alphabet
@@ -143,16 +138,21 @@ export class DFASimulationHandler {
       console.log("Well, NumStates?:", numStates);
       let missedSymbolsStr = "";
       for (let [state, symbol] of missedSymbols) {
-        missedSymbolsStr += `State ${state} on symbol ${symbol}, \n`;
+        missedSymbolsStr += `${
+          this.states[state].getText() === ""
+            ? "(Unnamed state)"
+            : "State " + this.states[state].getText()
+        } on symbol ${symbol}, \n`;
       }
-      alert(
-        `The following states are missing transitions on the following symbols: \n${missedSymbolsStr}`
-      );
-      return false;
+      alertMessage += `The following states are missing transitions on the following symbols: \n${missedSymbolsStr}\n`;
+    }
+
+    if (alertMessage !== "") {
+      alert(alertMessage);
+      return;
     }
 
     this.dfa.finalStates = finalStates;
-    console.log("STATES", this.states);
     return true;
   }
 
@@ -230,36 +230,38 @@ export class DFASimulationHandler {
     const currentState = this.states.find(
       (state, i) => i === this.dfa.currentState
     );
-    console.log("Current State:", currentState);
-    console.log("DFA transitions:", this.dfa.transitions);
     const nextState = this.states.find((state, i) => i === nextStateNumber);
-    console.log("NextSymbol:", nextSymbol);
+    console.log("CurrentStateNumber:", this.dfa.currentState);
     console.log("NextStateNumber:", nextStateNumber);
-    console.log("Next State:", nextState);
-    this.svgHandler.transitions.forEach((transition) => {
-      if (
+    const transition = this.svgHandler.transitions.find(
+      (transition) =>
         transition.startControlPoint === currentState &&
         transition.endControlPoint === nextState
-      ) {
-        this.svgHandler.highlightTransition(transition);
-        this.isAnimating = true;
-        setTimeout(() => {
-          this.svgHandler.unHighlightTransition(transition);
-          this.dfa.next(nextSymbol);
-          this.inputIndex++;
-          console.log("Current State:", this.dfa.currentState);
-          this.highlightCurrentState();
-          this.checkSuccess();
-          this.isAnimating = false;
-          setTimeout(() => {
-            if (this.isPlaying) {
-              this.next();
-            }
-          }, this.getAnimDelay());
-        }, this.getAnimDelay());
-        return;
-      }
-    });
+    );
+    if (transition === undefined) {
+      console.log("No transition found");
+      this.isPlaying = false;
+      this.onPauseCallback();
+      this.resetSimulation();
+      return;
+    }
+
+    console.log("I m here");
+    this.svgHandler.highlightTransition(transition);
+    this.isAnimating = true;
+    setTimeout(() => {
+      this.svgHandler.unHighlightTransition(transition);
+      this.dfa.next(nextSymbol);
+      this.inputIndex++;
+      this.highlightCurrentState();
+      this.checkSuccess();
+      this.isAnimating = false;
+      setTimeout(() => {
+        if (this.isPlaying) {
+          this.next();
+        }
+      }, this.getAnimDelay());
+    }, this.getAnimDelay());
   }
 
   handleRewind() {
