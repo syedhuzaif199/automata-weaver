@@ -78,6 +78,15 @@ zoomResetBtn.addEventListener("click", onZoomReset);
 const menuBtn = document.querySelector("#menu-btn");
 menuBtn.addEventListener("click", onMenuBtnClick);
 
+const loadJSONBtn = document.querySelector("#load-json");
+loadJSONBtn.addEventListener("click", onLoadJSONBtnClick);
+
+const saveJSONBtn = document.querySelector("#save-json");
+saveJSONBtn.addEventListener("click", onSaveJSONBtnClick);
+
+const savePdfBtn = document.querySelector("#save-pdf");
+savePdfBtn.addEventListener("click", onSavePdfBtnClick);
+
 const playPauseBtn = document.querySelector("#play-pause");
 playPauseBtn.addEventListener("click", onPlayPauseBtnClick);
 
@@ -193,6 +202,21 @@ function onMenuBtnClick(e) {
   console.log("Menu Button Clicked");
   const pane = document.querySelector("#menu-pane");
   pane.style.display = pane.style.display === "none" ? "flex" : "none";
+}
+
+function onSaveJSONBtnClick(e) {
+  console.log("Save JSON Button Clicked");
+  svgHandler.saveToLocalStorage();
+}
+
+function onLoadJSONBtnClick(e) {
+  console.log("Load JSON Button Clicked");
+  svgHandler.loadFromLocalStorage();
+}
+
+function onSavePdfBtnClick(e) {
+  console.log("Save PDF Button Clicked");
+  window.print();
 }
 
 window.addEventListener("resize", () => {
