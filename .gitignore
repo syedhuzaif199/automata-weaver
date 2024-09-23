@@ -1,4 +1,5 @@
-/references
-/errors
+references/
+errors/
 finiteAutomata.js
 todo.txt
+temp/
