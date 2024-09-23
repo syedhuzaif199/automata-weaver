@@ -16,14 +16,17 @@ export class DFASimulationHandler {
   }
 
   retrieveDFA() {
+    this.dfa = new DFA();
     const controlPoints = this.svgHandler.controlPoints;
     const transitions = this.svgHandler.transitions;
 
-    const numStates = controlPoints.length;
+    const numStates = controlPoints.length - 1;
     this.dfa.numStates = numStates;
     const alphabet = this.alphabetTextField.value.split(" ");
     this.dfa.alphabet = alphabet;
     const input = this.inputTextField.value.split(" ");
+
+    // check if input symbols are in the alphabet
     for (let symbol of input) {
       if (!this.dfa.alphabet.includes(symbol)) {
         alert(`Input symbol ${symbol} does not belong to the alphabet`);
@@ -34,6 +37,8 @@ export class DFASimulationHandler {
     this.states = [];
     const inputNode = this.svgHandler.inputNode;
     this.initialState = null;
+
+    // find the initial state
     transitions.forEach((transition) => {
       if (transition.startControlPoint === inputNode) {
         this.initialState = transition.endControlPoint;
@@ -43,8 +48,11 @@ export class DFASimulationHandler {
       return false;
     }
 
+    // add the initial state
     this.states[0] = this.initialState;
     let stateIndex = 1;
+
+    // add the rest of the states
     controlPoints.forEach((controlPoint) => {
       if (controlPoint !== this.initialState && controlPoint !== inputNode) {
         this.states[stateIndex] = controlPoint;
@@ -55,7 +63,9 @@ export class DFASimulationHandler {
       }
     });
 
+    // add transitions
     let symbolsNotInAlpha = new Set();
+    let multipleTransitions = new Set();
     transitions.forEach((transition) => {
       if (transition.startControlPoint === inputNode) {
         return;
@@ -70,11 +80,19 @@ export class DFASimulationHandler {
       );
 
       const symbols = transition.getText().replaceAll(" ", "").split(",");
+
       symbols.forEach((symbol) => {
         if (!alphabet.includes(symbol)) {
           symbolsNotInAlpha.add(symbol);
           this.svgHandler.highlightTransition(transition, DANGER_COLOR);
           return;
+        }
+        if (
+          this.dfa.transitions[[this.states.indexOf(originState), symbol]] !==
+          undefined
+        ) {
+          multipleTransitions.add([originState, symbol]);
+          this.svgHandler.highlightTransition(transition, DANGER_COLOR);
         }
         this.dfa.addTransition(
           this.states.indexOf(originState),
@@ -92,6 +110,47 @@ export class DFASimulationHandler {
       return false;
     }
 
+    if (multipleTransitions.size > 0) {
+      const multipleTransitionsStr = Array.from(multipleTransitions)
+        .map(
+          ([state, symbol]) =>
+            `${
+              state.getText() === ""
+                ? "(Unnamed state)"
+                : "State " + state.getText()
+            } on symbol ${symbol}\n`
+        )
+        .join("");
+      alert(
+        `Multiple transitions found for the following state-symbol pairs:\n${multipleTransitionsStr}The erroneous transitions are highlighted in red.`
+      );
+      return false;
+    }
+
+    //check if each state has a transition for each symbol in the alphabet
+    const missedSymbols = new Set();
+    for (let i = 0; i < this.dfa.numStates; i++) {
+      for (let symbol of this.dfa.alphabet) {
+        if (this.dfa.transitions[[i, symbol]] === undefined) {
+          missedSymbols.add([i, symbol]);
+        }
+      }
+    }
+
+    if (missedSymbols.size > 0) {
+      console.log("States:", this.states);
+      console.log("States?:", this.dfa.numStates);
+      console.log("Well, NumStates?:", numStates);
+      let missedSymbolsStr = "";
+      for (let [state, symbol] of missedSymbols) {
+        missedSymbolsStr += `State ${state} on symbol ${symbol}, \n`;
+      }
+      alert(
+        `The following states are missing transitions on the following symbols: \n${missedSymbolsStr}`
+      );
+      return false;
+    }
+
     this.dfa.finalStates = finalStates;
     console.log("STATES", this.states);
     return true;
@@ -102,7 +161,7 @@ export class DFASimulationHandler {
     this.dfa.reset();
     this.highlightCurrentState();
     this.svgHandler.isEditingDisabled = false;
-    this.svgHandler.unHighlightAllTransitions();
+    // this.svgHandler.unHighlightAllTransitions();
   }
 
   handlePlayPause() {

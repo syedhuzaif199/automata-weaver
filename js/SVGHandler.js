@@ -302,12 +302,7 @@ class SVGHandler {
     textField.style.textAlign = "center";
     document.body.appendChild(textField);
     textField.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        const text = this.textField.value;
-        this.setSelectedElementText(text);
-        this.hideTextField();
-      }
-      if (e.key === "Escape") {
+      if (e.key === "Enter" || e.key === "Escape") {
         this.hideTextField();
       }
     });
@@ -347,6 +342,7 @@ class SVGHandler {
       if (this.textField.value !== "") {
         this.setSelectedElementText(this.textField.value);
       }
+
       this.deselect();
     }
     this.textField.value = "";
@@ -384,6 +380,9 @@ class SVGHandler {
     }
 
     if (e.button === 0) {
+      if (!this.isEditingDisabled) {
+        this.unHighlightAllTransitions();
+      }
       if (this.textField.style.visibility === "visible") {
         this.hideTextField();
         return;
@@ -593,6 +592,8 @@ class SVGHandler {
       this.arrow.remove();
       return;
     }
+
+    //Transitions to the input node are not allowed
     if (endControlPoint === this.inputNode) {
       this.arrow.remove();
       return;
@@ -611,10 +612,8 @@ class SVGHandler {
         endControlPoint.y,
         true
       );
-      if (endControlPoint === this.inputNode) {
-        this.arrow.remove();
-        return;
-      }
+
+      // Remove the transition starting from the input node if it exists
       if (this.startControlPoint === this.inputNode) {
         this.transitions.forEach((transition) => {
           if (transition.startControlPoint === this.inputNode) {
@@ -629,11 +628,13 @@ class SVGHandler {
         this.arrow
       );
       this.transitions.push(transition);
-      const screenPoint = this.SVGToScreen(this.arrow.getCenter());
       this.selectElement(transition, selectionTypes.transition);
+
+      //Cannot edit the text inside the input node
       if (this.startControlPoint !== this.inputNode) {
         this.spawnTextField();
       } else {
+        // highlight the node that has just been connected to the input node
         this.highlightControlPoint(endControlPoint);
       }
     } else {
