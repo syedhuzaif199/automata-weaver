@@ -48,6 +48,14 @@ document.addEventListener("keyup", (e) => {
   svgHandler.setKeyDown(null);
 });
 
+document.querySelector("#menu-pane").childNodes.forEach((child) => {
+  child.addEventListener("click", (e) => {
+    console.log("Menu Pane Clicked");
+    const pane = document.querySelector("#menu-pane");
+    pane.style.display = "none";
+  });
+});
+
 const homeBtn = document.querySelector("#home");
 homeBtn.addEventListener("click", onHomeClick);
 

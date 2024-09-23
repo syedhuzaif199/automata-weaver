@@ -112,7 +112,8 @@ class SVGHandler {
     const data = JSON.parse(json);
     this.controlPoints = data.controlPoints.map((cp) => {
       const newcp = new ControlPoint(this.svg, cp.x, cp.y);
-      newcp.flag = cp.flag;
+      newcp.flag = !cp.flag;
+      newcp.toggleFlag();
       newcp.setText(cp.text);
       return newcp;
     });
