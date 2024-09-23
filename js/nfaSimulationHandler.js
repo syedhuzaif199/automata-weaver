@@ -1,14 +1,15 @@
 import { BasicSimulator } from "./basicSimulator.js";
 import { DANGER_COLOR } from "./constants.js";
-import { DFA } from "./dfa.js";
+import { NFA } from "./nfa.js";
 
-export class DFASimulationHandler extends BasicSimulator {
+export class NFASimulationHandler extends BasicSimulator {
   constructor(svgHandler, onPauseCallback = () => {}) {
     super(svgHandler, onPauseCallback);
-    this.machine = new DFA();
+    this.machine = new NFA();
   }
 
   retrieveMachine() {
+    console.log("Retrieving NFA");
     this.machine.transitions = {};
     const controlPoints = this.svgHandler.controlPoints;
     const transitions = this.svgHandler.transitions;
@@ -58,87 +59,77 @@ export class DFASimulationHandler extends BasicSimulator {
 
     // add transitions
     let symbolsNotInAlpha = new Set();
-    let multipleTransitions = new Set();
     let alertMessage = "";
-    transitions.forEach((transition) => {
-      if (transition.startControlPoint === inputNode) {
-        return;
-      }
 
-      const originState = this.states.find(
-        (state) => state === transition.startControlPoint
+    this.states.forEach((state, i) => {
+      const transitionsFromState = transitions.filter(
+        (transition) => transition.startControlPoint === state
       );
 
-      const endState = this.states.find(
-        (state) => state === transition.endControlPoint
-      );
-
-      const symbols = transition.getText().replaceAll(" ", "").split(",");
-
-      symbols.forEach((symbol) => {
-        if (!alphabet.includes(symbol)) {
-          symbolsNotInAlpha.add(symbol);
-          this.svgHandler.highlightTransition(transition, DANGER_COLOR);
-          return;
-        }
-        if (
-          this.machine.transitions[
-            [this.states.indexOf(originState), symbol]
-          ] !== undefined
-        ) {
-          multipleTransitions.add([originState, symbol]);
-          this.svgHandler.highlightTransition(transition, DANGER_COLOR);
-        }
+      alphabet.forEach((symbol) => {
+        const transitionsOnSymbol = transitionsFromState.filter((transition) =>
+          transition.getText().replaceAll(" ", "").split(",").includes(symbol)
+        );
         this.machine.addTransition(
-          this.states.indexOf(originState),
+          i,
           symbol,
-          this.states.indexOf(endState)
+          transitionsOnSymbol.map((transition) =>
+            this.states.indexOf(transition.endControlPoint)
+          )
         );
       });
     });
 
+    // transitions.forEach((transition) => {
+    //   if (transition.startControlPoint === inputNode) {
+    //     return;
+    //   }
+
+    //   const originState = this.states.find(
+    //     (state) => state === transition.startControlPoint
+    //   );
+
+    //   const endState = this.states.find(
+    //     (state) => state === transition.endControlPoint
+    //   );
+
+    //   const symbols = transition.getText().replaceAll(" ", "").split(",");
+
+    //   symbols.forEach((symbol) => {
+    //     if (!alphabet.includes(symbol)) {
+    //       symbolsNotInAlpha.add(symbol);
+    //       this.svgHandler.highlightTransition(transition, DANGER_COLOR);
+    //       return;
+    //     }
+    //     if (
+    //       this.nfa.transitions[[this.states.indexOf(originState), symbol]] !==
+    //       undefined
+    //     ) {
+    //       // ?
+    //     }
+    //     this.nfa.addTransition(
+    //       this.states.indexOf(originState),
+    //       symbol,
+    //       this.states.indexOf(endState)
+    //     );
+    //   });
+    // });
+
+    transitions.forEach((transition) => {
+      if (transition.startControlPoint === inputNode) {
+        return;
+      }
+      const symbols = transition.getText().replaceAll(" ", "").split(",");
+      symbols.forEach((symbol) => {
+        if (!alphabet.includes(symbol)) {
+          symbolsNotInAlpha.add(symbol);
+          this.svgHandler.highlightTransition(transition, DANGER_COLOR);
+        }
+      });
+    });
     if (symbolsNotInAlpha.size > 0) {
       const symbolsNotInAlphaStr = Array.from(symbolsNotInAlpha).join(", ");
       alertMessage += `Transition symbols [${symbolsNotInAlphaStr}] are not in the alphabet. The erroneous transitions are highlighted in red.\n`;
-    }
-
-    if (multipleTransitions.size > 0) {
-      const multipleTransitionsStr = Array.from(multipleTransitions)
-        .map(
-          ([state, symbol]) =>
-            `${
-              state.getText() === ""
-                ? "(Unnamed state)"
-                : "State " + state.getText()
-            } on symbol ${symbol}\n`
-        )
-        .join("");
-      alertMessage += `Multiple transitions found for the following state-symbol pairs:\n${multipleTransitionsStr}The erroneous transitions are highlighted in red.\n`;
-    }
-
-    //check if each state has a transition for each symbol in the alphabet
-    const missedSymbols = new Set();
-    for (let i = 0; i < this.machine.numStates; i++) {
-      for (let symbol of this.machine.alphabet) {
-        if (this.machine.transitions[[i, symbol]] === undefined) {
-          missedSymbols.add([i, symbol]);
-        }
-      }
-    }
-
-    if (missedSymbols.size > 0) {
-      console.log("States:", this.states);
-      console.log("States?:", this.machine.numStates);
-      console.log("Well, NumStates?:", numStates);
-      let missedSymbolsStr = "";
-      for (let [state, symbol] of missedSymbols) {
-        missedSymbolsStr += `${
-          this.states[state].getText() === ""
-            ? "(Unnamed state)"
-            : "State " + this.states[state].getText()
-        } on symbol ${symbol}, \n`;
-      }
-      alertMessage += `The following states are missing transitions on the following symbols: \n${missedSymbolsStr}\n`;
     }
 
     if (alertMessage !== "") {
@@ -203,7 +194,7 @@ export class DFASimulationHandler extends BasicSimulator {
       return;
     }
     if (!this.retrieveMachine()) {
-      console.log("Error in retrieving DFA");
+      console.log("Error in retrieving NFA");
       this.isPlaying = false;
       this.onPauseCallback();
       this.resetSimulation();
@@ -211,21 +202,31 @@ export class DFASimulationHandler extends BasicSimulator {
     }
     console.log("Input:", input);
     const nextSymbol = input[this.inputIndex];
-    const nextStateNumber =
-      this.machine.transitions[[this.machine.currentState, nextSymbol]];
-    const currentState = this.states.find(
-      (state, i) => i === this.machine.currentState
+    let nextStateNumbers = new Set();
+    this.machine.currentStates.forEach((currentState) => {
+      const nextStates = this.machine.transitions[[currentState, nextSymbol]];
+      if (nextStates !== undefined) {
+        nextStates.forEach((nextState) => {
+          nextStateNumbers.add(nextState);
+        });
+      }
+    });
+    nextStateNumbers = Array.from(nextStateNumbers);
+    const currentStates = this.states.filter((state, i) =>
+      this.machine.currentStates.includes(i)
     );
-    const nextState = this.states.find((state, i) => i === nextStateNumber);
-    console.log("CurrentStateNumber:", this.machine.currentState);
-    console.log("NextStateNumber:", nextStateNumber);
-    const transition = this.svgHandler.transitions.find(
+    const nextStates = nextStateNumbers.map(
+      (nextState) => this.states[nextState]
+    );
+    console.log("CurrentStateNumbers:", this.machine.currentStates);
+    console.log("NextStateNumbers:", nextStateNumbers);
+    const nextTransitions = this.svgHandler.transitions.filter(
       (transition) =>
-        transition.startControlPoint === currentState &&
-        transition.endControlPoint === nextState
+        currentStates.includes(transition.startControlPoint) &&
+        nextStates.includes(transition.endControlPoint)
     );
-    if (transition === undefined) {
-      console.log("No transition found");
+    if (nextTransitions === undefined) {
+      console.log("No transitions found");
       this.isPlaying = false;
       this.onPauseCallback();
       this.resetSimulation();
@@ -233,10 +234,14 @@ export class DFASimulationHandler extends BasicSimulator {
     }
 
     this.svgHandler.highlightControlPoints([]);
-    this.svgHandler.highlightTransition(transition);
+    nextTransitions.forEach((transition) => {
+      this.svgHandler.highlightTransition(transition);
+    });
     this.isAnimating = true;
     setTimeout(() => {
-      this.svgHandler.unHighlightTransition(transition);
+      nextTransitions.forEach((transition) => {
+        this.svgHandler.unHighlightTransition(transition);
+      });
       this.machine.next(nextSymbol);
       this.inputIndex++;
       this.highlightCurrentInput();
@@ -273,11 +278,11 @@ export class DFASimulationHandler extends BasicSimulator {
   }
 
   highlightCurrentStates() {
-    const currentState = this.states.find(
-      (state, i) => i === this.machine.currentState
+    const currentStates = this.states.filter((state, i) =>
+      this.machine.currentStates.includes(i)
     );
-    if (currentState) {
-      this.svgHandler.highlightControlPoints([currentState]);
+    if (currentStates) {
+      this.svgHandler.highlightControlPoints(currentStates);
     }
   }
 
@@ -296,14 +301,20 @@ export class DFASimulationHandler extends BasicSimulator {
   checkSuccess() {
     const input = this.getInput();
     if (this.inputIndex >= input.length) {
-      const currentState = this.states.find(
-        (state, i) => i === this.machine.currentState
+      const currentStates = this.states.filter((state, i) =>
+        this.machine.currentStates.includes(i)
       );
-      if (currentState.isFinal()) {
-        this.svgHandler.setSuccessStates([currentState]);
-      } else {
-        this.svgHandler.setFailStates([currentState]);
-      }
+      const sucessStates = [];
+      const failStates = [];
+      currentStates.forEach((currentState) => {
+        if (currentState.isFinal()) {
+          sucessStates.push(currentState);
+        } else {
+          failStates.push(currentState);
+        }
+      });
+      this.svgHandler.setFailStates(failStates);
+      this.svgHandler.setSuccessStates(sucessStates);
     }
   }
 }

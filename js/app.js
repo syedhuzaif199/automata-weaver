@@ -1,10 +1,11 @@
 import { SVGHandler } from "./SVGHandler.js";
 import { DFASimulationHandler } from "./dfaSimulationHandler.js";
+import { NFASimulationHandler } from "./nfaSimulationHandler.js";
 
 const svg = document.querySelector("svg");
 const svgHandler = new SVGHandler(svg, window.innerWidth, window.innerHeight);
 
-const simulationHandler = new DFASimulationHandler(svgHandler);
+let simulationHandler;
 
 document.addEventListener("keydown", (e) => {
   svgHandler.setKeyDown(e.key);
@@ -98,7 +99,7 @@ savePdfBtn.addEventListener("click", onSavePdfBtnClick);
 const playPauseBtn = document.querySelector("#play-pause");
 playPauseBtn.addEventListener("click", onPlayPauseBtnClick);
 
-simulationHandler.onPauseCallback = () => {
+const onPauseCallback = () => {
   playPauseBtn.children[0].src = "./assets/play.svg";
 };
 
@@ -113,6 +114,54 @@ rewindBtn.addEventListener("click", onRewindBtnClick);
 
 const fastForwardBtn = document.querySelector("#fast-forward");
 fastForwardBtn.addEventListener("click", onFastForwardBtnClick);
+
+const addInputBtn = document.querySelector("#add-input");
+addInputBtn.addEventListener("click", () => onAddInputBtnClick());
+
+const removeInputBtn = document.querySelector("#remove-input");
+removeInputBtn.addEventListener("click", () => onRemoveInputBtnClick());
+
+const machineTypeSelect = document.querySelector("#machine-type");
+machineTypeSelect.addEventListener("change", onMachineTypeChange);
+
+function onAddInputBtnClick(e) {
+  const inputBox = document.querySelector("#input");
+  const inputField = document.createElement("input");
+  inputField.classList.add("input-field");
+  inputField.type = "text";
+  inputBox.appendChild(inputField);
+}
+
+function onRemoveInputBtnClick(e) {
+  const inputBox = document.querySelector("#input");
+  const inputFields = document.querySelectorAll(".input-field");
+  if (inputFields.length > 1) {
+    inputBox.removeChild(inputFields[inputFields.length - 1]);
+  }
+}
+
+function setMachineType(machineType) {
+  console.log("Machine Type Changed", machineType);
+  switch (machineType) {
+    case "dfa":
+      simulationHandler = new DFASimulationHandler(svgHandler, onPauseCallback);
+      break;
+    case "nfa":
+      simulationHandler = new NFASimulationHandler(svgHandler, onPauseCallback);
+      break;
+
+    default:
+      simulationHandler = new DFASimulationHandler(svgHandler, onPauseCallback);
+      break;
+  }
+}
+
+setMachineType(machineTypeSelect.value);
+
+function onMachineTypeChange(e) {
+  const machineType = e.target.value;
+  setMachineType(machineType);
+}
 
 function onPlayPauseBtnClick() {
   simulationHandler.handlePlayPause();

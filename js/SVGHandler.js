@@ -71,9 +71,9 @@ class SVGHandler {
     this.inputNode = new ControlPoint(this.svg, width / 4, height / 2);
     this.inputNode.setText("Input");
     this.controlPoints.push(this.inputNode);
-    this.highlightedControlPoint = null;
-    this.failControlPoint = null;
-    this.successControlPoint = null;
+    this.highlightedControlPoints = null;
+    this.failControlPoints = null;
+    this.successControlPoints = null;
     this.isEditingDisabled = false;
 
     this.setupSVG();
@@ -311,12 +311,16 @@ class SVGHandler {
     }
   }
 
-  highlightControlPoint(controlPoint) {
-    if (this.highlightedControlPoint) {
-      this.highlightedControlPoint.setFillColor(UNHIGHLIGHTED_COLOR);
+  highlightControlPoints(controlPoints) {
+    if (this.highlightedControlPoints) {
+      this.highlightedControlPoints.forEach((controlPoint) =>
+        controlPoint.setFillColor(UNHIGHLIGHTED_COLOR)
+      );
     }
-    controlPoint.setFillColor(STATE_HIGHLIGHTED_COLOR);
-    this.highlightedControlPoint = controlPoint;
+    controlPoints.forEach((controlPoint) =>
+      controlPoint.setFillColor(STATE_HIGHLIGHTED_COLOR)
+    );
+    this.highlightedControlPoints = controlPoints;
   }
 
   highlightTransition(transition, color = TRANSITION_HIGHLIGHTED_COLOR) {
@@ -335,20 +339,28 @@ class SVGHandler {
     });
   }
 
-  setFailState(element) {
-    if (this.failControlPoint) {
-      this.failControlPoint.setFillColor(UNHIGHLIGHTED_COLOR);
+  setFailStates(controlPoints) {
+    if (this.failControlPoints) {
+      this.failControlPoints.forEach((controlPoint) =>
+        controlPoint.setFillColor(UNHIGHLIGHTED_COLOR)
+      );
     }
-    element.setFillColor(FAIL_COLOR);
-    this.failControlPoint = element;
+    controlPoints.forEach((controlPoint) =>
+      controlPoint.setFillColor(FAIL_COLOR)
+    );
+    this.failControlPoints = controlPoints;
   }
 
-  setSuccessState(element) {
-    if (this.successControlPoint) {
-      this.successControlPoint.setFillColor(UNHIGHLIGHTED_COLOR);
+  setSuccessStates(controlPoints) {
+    if (this.successControlPoints) {
+      this.successControlPoints.forEach((controlPoint) =>
+        controlPoint.setFillColor(UNHIGHLIGHTED_COLOR)
+      );
     }
-    element.setFillColor(SUCCESS_COLOR);
-    this.successControlPoint = element;
+    controlPoints.forEach((controlPoint) =>
+      controlPoint.setFillColor(SUCCESS_COLOR)
+    );
+    this.successControlPoints = controlPoints;
   }
 
   createTextField() {
@@ -598,10 +610,10 @@ class SVGHandler {
     transition.removeFromSVG();
     if (
       transition.startControlPoint === this.inputNode &&
-      transition.endControlPoint === this.highlightedControlPoint
+      transition.endControlPoint === this.highlightedControlPoints
     ) {
-      this.highlightedControlPoint.setFillColor(UNHIGHLIGHTED_COLOR);
-      this.highlightedControlPoint = null;
+      this.highlightedControlPoints.setFillColor(UNHIGHLIGHTED_COLOR);
+      this.highlightedControlPoints = null;
       console.log("Removed Highlighted Control Point");
     }
   }
@@ -700,7 +712,7 @@ class SVGHandler {
         this.spawnTextField();
       } else {
         // highlight the node that has just been connected to the input node
-        this.highlightControlPoint(endControlPoint);
+        this.highlightControlPoints([endControlPoint]);
       }
     } else {
       this.arrow.remove();

@@ -1,7 +1,7 @@
 import { DFA } from "./dfa.js";
 
 export class NFA {
-  constructor(numStates, alphabet, finalStates = []) {
+  constructor(numStates, alphabet = [], finalStates = []) {
     this.numStates = numStates;
     this.alphabet = alphabet; //string or list of strings
     this.finalStates = finalStates;
@@ -13,6 +13,11 @@ export class NFA {
 
   addFinalStates(states) {
     this.finalStates = states;
+  }
+
+  addAlphabet(alphabet) {
+    this.alphabet = alphabet;
+    this.alphabet.push(null);
   }
 
   addTransition(originState, symbol, endStates) {
@@ -118,6 +123,6 @@ export class NFA {
   }
 
   reset() {
-    this.currentState = [0];
+    this.currentStates = [0];
   }
 }
