@@ -72,12 +72,26 @@ export class NFASimulationHandler extends BasicSimulator {
         );
         this.machine.addTransition(
           i,
-          symbol,
+          symbol === "" ? null : symbol,
           transitionsOnSymbol.map((transition) =>
             this.states.indexOf(transition.endControlPoint)
           )
         );
       });
+
+      // handling epsilon transitions
+      const epsilonTransitions = transitionsFromState.filter(
+        (transition) => transition.getText().replaceAll(" ", "") === ""
+      );
+      if (epsilonTransitions.length > 0) {
+        this.machine.addTransition(
+          i,
+          null,
+          epsilonTransitions.map((transition) =>
+            this.states.indexOf(transition.endControlPoint)
+          )
+        );
+      }
     });
 
     // transitions.forEach((transition) => {
@@ -121,7 +135,7 @@ export class NFASimulationHandler extends BasicSimulator {
       }
       const symbols = transition.getText().replaceAll(" ", "").split(",");
       symbols.forEach((symbol) => {
-        if (!alphabet.includes(symbol)) {
+        if (!alphabet.includes(symbol) && symbol !== "") {
           symbolsNotInAlpha.add(symbol);
           this.svgHandler.highlightTransition(transition, DANGER_COLOR);
         }
@@ -138,7 +152,14 @@ export class NFASimulationHandler extends BasicSimulator {
     }
 
     this.machine.finalStates = finalStates;
+    console.log("NFA:", this.machine);
     return true;
+  }
+
+  convertToDFA() {
+    this.retrieveMachine();
+    const dfa = this.machine.generateDFA();
+    this.svgHandler.drawDFA(dfa);
   }
 
   handlePlayPause() {
