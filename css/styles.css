@@ -41,6 +41,34 @@ input {
     z-index: -1;
 }
 
+@media print {
+    /* .controls {
+        visibility: hidden;
+
+    }
+
+    .right-panel {
+        visibility: hidden;
+    }
+
+    .input-box {
+        visibility: hidden;
+    } */
+
+    body * {
+        visibility: hidden;
+    }
+
+    #svgcontainer {
+        visibility: visible;
+    }
+
+    #svgcontainer * {
+        visibility: visible;
+    }
+} 
+
+
 .controls {
     position: fixed;
     display: flex;
@@ -67,6 +95,14 @@ input {
     top: 100px;
     left: 50%;
     transform: translateX(-50%);
+}
+
+.machine-selector {
+    position: fixed;
+    top: 0;
+    left: 25%;
+    transform: translateX(-50%);
+    padding: 20px;
 }
 
 .right-bar {

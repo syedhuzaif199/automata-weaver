@@ -25,6 +25,15 @@
           </button>
         </div>
         <div class="controls menu" id="menu-pane">
+          <button id="save-pdf">
+            <img
+              src="./assets/download.svg"
+              alt="Save as PDF"
+              width="25px"
+              height="25px"
+            />
+            Save as PDF
+          </button>
           <button id="login-btn">
             <img
               src="./assets/login.svg"
@@ -87,6 +96,14 @@
           max="1000"
           value="500"
         />
+      </div>
+      <div class="machine-selector">
+        <select id="machine-type">
+          <option value="dfa">DFA</option>
+          <option value="nfa">NFA</option>
+          <option value="pda">PDA</option>
+          <option value="turing" disabled>Turing Machine</option>
+        </select>
       </div>
       <div class="right-panel">
         <div class="controls right-bar">
