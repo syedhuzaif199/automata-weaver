@@ -77,7 +77,6 @@ export class DFA {
             if (distinguisherTable[nextState1][nextState2]) {
               distinguisherTable[a][b] = distinguisherTable[b][a] = true;
               terminate = false;
-              break;
             }
           }
         }
@@ -88,21 +87,24 @@ export class DFA {
     }
 
     let eq_classes = accessibleStates.map((state) => [state]);
+    console.log("Eq class before:\n", eq_classes);
     for (let i = 0; i < accessibleStates.length - 1; i++) {
       for (let j = i + 1; j < accessibleStates.length; j++) {
         const a = accessibleStates[i];
         const b = accessibleStates[j];
-        if (
-          !distinguisherTable[accessibleStates[i]][accessibleStates[j]] &&
-          a !== b
-        ) {
-          if ([b] in eq_classes) {
-            eq_classes.splice(eq_classes.indexOf([b]), 1);
-          }
+        if (!distinguisherTable[a][b] && a !== b) {
+          eq_classes.forEach((ele, idx) => {
+            if (ele.includes(b) && ele.length === 1) {
+              eq_classes.splice(idx, 1);
+              console.log("Removed:", [b]);
+            }
+          });
           let tempIdx = 0;
-          for (let eq_class of eq_classes) {
+
+          for (let idx = 0; i < eq_classes.length; i++) {
+            const eq_class = eq_classes[i];
             if (eq_class.includes(a)) {
-              tempIdx = eq_classes.indexOf(eq_class);
+              tempIdx = idx;
               break;
             }
           }
@@ -111,6 +113,7 @@ export class DFA {
       }
     }
 
+    console.log("Eq classes:", eq_classes);
     let transitions = {};
     let initialState = null;
     eq_classes.forEach((eq_class, i) => {
