@@ -7,7 +7,6 @@ export class DFASimulationHandler extends BasicSimulator {
     super(svgHandler, onPauseCallback);
     this.machine = new DFA();
   }
-
   retrieveMachine() {
     this.machine.transitions = {};
     const controlPoints = this.svgHandler.controlPoints;
@@ -149,50 +148,6 @@ export class DFASimulationHandler extends BasicSimulator {
     this.machine.finalStates = finalStates;
     return true;
   }
-
-  handlePlayPause() {
-    this.isPlaying = !this.isPlaying;
-    if (this.isPlaying) {
-      this.svgHandler.isEditingDisabled = true;
-      if (this.inputIndex >= this.getInput().length) {
-        this.resetSimulation();
-      }
-      this.next();
-    } else {
-      this.svgHandler.isEditingDisabled = false;
-    }
-  }
-
-  handlePrevious() {
-    if (this.inputIndex > 0) {
-      this.inputIndex--;
-    } else {
-      return;
-    }
-    console.log("previous");
-    this.retrieveMachine();
-    const input = this.getInput();
-
-    this.machine.run(input.slice(0, this.inputIndex));
-
-    this.highlightCurrentStates();
-    this.checkSuccess();
-  }
-
-  handleNext() {
-    if (this.isPlaying || this.isAnimating) {
-      return;
-    }
-    console.log("next");
-
-    this.next();
-  }
-
-  getAnimDelay() {
-    const speedEle = document.querySelector("#speed");
-    return 1000 - speedEle.value + 10;
-  }
-
   next() {
     const input = this.getInput();
     if (this.inputIndex >= input.length) {
@@ -251,27 +206,6 @@ export class DFASimulationHandler extends BasicSimulator {
     }, this.getAnimDelay());
   }
 
-  handleRewind() {
-    console.log("rewind");
-    this.resetSimulation();
-    this.isPlaying = false;
-    this.onPauseCallback();
-  }
-
-  handleFastForward() {
-    if (this.isPlaying || this.isAnimating) {
-      return;
-    }
-    console.log("fast-forward");
-    this.retrieveMachine();
-    this.inputIndex = 0;
-    const input = this.getInput();
-    this.machine.run(input);
-    this.highlightCurrentStates();
-    this.inputIndex = input.length;
-    this.checkSuccess();
-  }
-
   drawMinimizedDFA() {
     if (!this.retrieveMachine()) {
       return;
@@ -288,18 +222,6 @@ export class DFASimulationHandler extends BasicSimulator {
     if (currentState) {
       this.svgHandler.highlightControlPoints([currentState]);
     }
-  }
-
-  highlightCurrentInput() {
-    const input = document.querySelector("#input");
-    if (this.currentInputField) {
-      this.currentInputField.classList.remove("highlighted-input-field");
-    }
-    if (this.inputIndex >= input.children.length) {
-      return;
-    }
-    this.currentInputField = input.children[this.inputIndex];
-    this.currentInputField.classList.add("highlighted-input-field");
   }
 
   checkSuccess() {

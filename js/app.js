@@ -1,6 +1,6 @@
 import { SVGHandler } from "./SVGHandler.js";
-import { DFASimulationHandler } from "./dfaSimulationHandler.js";
-import { NFASimulationHandler } from "./nfaSimulationHandler.js";
+import { DFASimulationHandler } from "./dfaSimulator.js";
+import { NFASimulationHandler } from "./nfaSimulator.js";
 
 const svg = document.querySelector("svg");
 const svgHandler = new SVGHandler(svg, window.innerWidth, window.innerHeight);

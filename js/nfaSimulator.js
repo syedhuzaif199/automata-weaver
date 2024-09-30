@@ -9,6 +9,79 @@ export class NFASimulationHandler extends BasicSimulator {
   }
 
   retrieveMachine() {
+    super.retrieveMachine();
+
+    // add transitions
+    let symbolsNotInAlpha = new Set();
+    let alertMessage = "";
+
+    this.states.forEach((state, i) => {
+      const transitionsFromState = this.svgHandler.transitions.filter(
+        (transition) => transition.startControlPoint === state
+      );
+
+      this.alphabet.forEach((symbol) => {
+        const transitionsOnSymbol = transitionsFromState.filter((transition) =>
+          transition.getText().replaceAll(" ", "").split(",").includes(symbol)
+        );
+        this.machine.addTransition(
+          i,
+          symbol === "" ? null : symbol,
+          transitionsOnSymbol.map((transition) =>
+            this.states.indexOf(transition.endControlPoint)
+          )
+        );
+      });
+
+      // handling epsilon transitions
+      const epsilonTransitions = transitionsFromState.filter(
+        (transition) => transition.getText().replaceAll(" ", "") === ""
+      );
+      if (epsilonTransitions.length > 0) {
+        this.machine.addTransition(
+          i,
+          null,
+          epsilonTransitions.map((transition) =>
+            this.states.indexOf(transition.endControlPoint)
+          )
+        );
+      }
+    });
+
+    this.svgHandler.transitions.forEach((transition) => {
+      if (transition.startControlPoint === this.inputNode) {
+        return;
+      }
+      const symbols = transition.getText().replaceAll(" ", "").split(",");
+      symbols.forEach((symbol) => {
+        if (!this.alphabet.includes(symbol) && symbol !== "") {
+          symbolsNotInAlpha.add(symbol);
+          this.svgHandler.highlightTransition(transition, DANGER_COLOR);
+        }
+      });
+    });
+    if (symbolsNotInAlpha.size > 0) {
+      const symbolsNotInAlphaStr = Array.from(symbolsNotInAlpha).join(", ");
+      alertMessage += `Transition symbols [${symbolsNotInAlphaStr}] are not in the alphabet. The erroneous transitions are highlighted in red.\n`;
+    }
+
+    if (alertMessage !== "") {
+      alert(alertMessage);
+      return;
+    }
+
+    this.machine.finalStates = this.finalStates;
+    console.log("NFA:", this.machine);
+    return true;
+  }
+
+  convertToDFA() {
+    this.retrieveMachine();
+    const dfa = this.machine.generateDFA();
+    this.svgHandler.drawDFA(dfa);
+  }
+
+  retrieveMachine() {
     console.log("Retrieving NFA");
     this.machine.transitions = {};
     const controlPoints = this.svgHandler.controlPoints;
@@ -156,55 +229,6 @@ export class NFASimulationHandler extends BasicSimulator {
     return true;
   }
 
-  convertToDFA() {
-    this.retrieveMachine();
-    const dfa = this.machine.generateDFA();
-    this.svgHandler.drawDFA(dfa);
-  }
-
-  handlePlayPause() {
-    this.isPlaying = !this.isPlaying;
-    if (this.isPlaying) {
-      this.svgHandler.isEditingDisabled = true;
-      if (this.inputIndex >= this.getInput().length) {
-        this.resetSimulation();
-      }
-      this.next();
-    } else {
-      this.svgHandler.isEditingDisabled = false;
-    }
-  }
-
-  handlePrevious() {
-    if (this.inputIndex > 0) {
-      this.inputIndex--;
-    } else {
-      return;
-    }
-    console.log("previous");
-    this.retrieveMachine();
-    const input = this.getInput();
-
-    this.machine.run(input.slice(0, this.inputIndex));
-
-    this.highlightCurrentStates();
-    this.checkSuccess();
-  }
-
-  handleNext() {
-    if (this.isPlaying || this.isAnimating) {
-      return;
-    }
-    console.log("next");
-
-    this.next();
-  }
-
-  getAnimDelay() {
-    const speedEle = document.querySelector("#speed");
-    return 1000 - speedEle.value + 10;
-  }
-
   next() {
     const input = this.getInput();
     if (this.inputIndex >= input.length) {
@@ -275,48 +299,6 @@ export class NFASimulationHandler extends BasicSimulator {
         }
       }, this.getAnimDelay());
     }, this.getAnimDelay());
-  }
-
-  handleRewind() {
-    console.log("rewind");
-    this.resetSimulation();
-    this.isPlaying = false;
-    this.onPauseCallback();
-  }
-
-  handleFastForward() {
-    if (this.isPlaying || this.isAnimating) {
-      return;
-    }
-    console.log("fast-forward");
-    this.retrieveMachine();
-    this.inputIndex = 0;
-    const input = this.getInput();
-    this.machine.run(input);
-    this.highlightCurrentStates();
-    this.inputIndex = input.length;
-    this.checkSuccess();
-  }
-
-  highlightCurrentStates() {
-    const currentStates = this.states.filter((state, i) =>
-      this.machine.currentStates.includes(i)
-    );
-    if (currentStates) {
-      this.svgHandler.highlightControlPoints(currentStates);
-    }
-  }
-
-  highlightCurrentInput() {
-    const input = document.querySelector("#input");
-    if (this.currentInputField) {
-      this.currentInputField.classList.remove("highlighted-input-field");
-    }
-    if (this.inputIndex >= input.children.length) {
-      return;
-    }
-    this.currentInputField = input.children[this.inputIndex];
-    this.currentInputField.classList.add("highlighted-input-field");
   }
 
   checkSuccess() {
