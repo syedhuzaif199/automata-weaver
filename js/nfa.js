@@ -94,12 +94,9 @@ export class NFA {
     }
 
     const dfaFinalStates = [];
-    console.log("NFA final states:", this.finalStates);
-    console.log("DFA states:", dfaStates);
     dfaStates.forEach((state, i) => {
       if (state.some((subState) => this.finalStates.includes(subState))) {
         dfaFinalStates.push(i);
-        console.log("Added final state:", i);
       }
     });
 
