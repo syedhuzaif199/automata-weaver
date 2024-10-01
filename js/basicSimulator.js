@@ -30,6 +30,18 @@ export class BasicSimulator {
     return 1000 - speedEle.value + 10;
   }
 
+  resetSimulation() {
+    this.stopSimulation();
+    this.inputIndex = 0;
+    this.highlightCurrentInput();
+    this.machine.reset();
+    this.highlightCurrentStates();
+    this.svgHandler.isEditingDisabled = false;
+    // this.svgHandler.unHighlightAllTransitions();
+    this.svgHandler.unHighlightAllControlPoints();
+    // this.svgHandler.highlightControlPoints([this.initialState]);
+  }
+
   handlePlayPause() {
     this.isPlaying = !this.isPlaying;
     if (this.isPlaying) {
@@ -41,6 +53,13 @@ export class BasicSimulator {
     } else {
       this.svgHandler.isEditingDisabled = false;
     }
+  }
+
+  stopSimulation() {
+    this.isPlaying = false;
+    this.isAnimating = false;
+    this.svgHandler.isEditingDisabled = false;
+    this.onPauseCallback();
   }
 
   handlePrevious() {
@@ -58,15 +77,6 @@ export class BasicSimulator {
     this.highlightCurrentInput();
     this.highlightCurrentStates();
     this.checkSuccess();
-  }
-
-  resetSimulation() {
-    this.inputIndex = 0;
-    this.highlightCurrentInput();
-    this.machine.reset();
-    this.highlightCurrentStates();
-    this.svgHandler.isEditingDisabled = false;
-    // this.svgHandler.unHighlightAllTransitions();
   }
 
   handleNext() {
