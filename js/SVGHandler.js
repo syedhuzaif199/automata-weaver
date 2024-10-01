@@ -16,6 +16,8 @@ import {
   FAIL_COLOR,
   SUCCESS_COLOR,
   TRANSITION_HIGHLIGHTED_COLOR,
+  TEXTBOX_BASE_WIDTH,
+  EPSILON,
 } from "./constants.js";
 
 const states = Object.freeze({
@@ -72,7 +74,7 @@ class SVGHandler {
     this.inputNode.setText("Input");
     this.controlPoints.push(this.inputNode);
     this.highlightedControlPoints = null;
-    this.failControlPoints = null;
+    this.failControlPoints = [];
     this.successControlPoints = null;
     this.isEditingDisabled = false;
 
@@ -259,8 +261,9 @@ class SVGHandler {
         screenX - this.textField.style.width.replace("px", "") / 2 + "px";
       this.textField.style.top =
         screenY - this.textField.style.height.replace("px", "") / 2 + "px";
-      this.textField.style.width = 2 * CONTROL_POINT_SIZE * this.scale + "px";
+      this.textField.style.width = TEXTBOX_BASE_WIDTH * this.scale + "px";
       this.textField.style.height = TEXT_SIZE * this.scale + "px";
+      this.textField.style.fontSize = TEXT_SIZE * this.scale + "px";
     }
   }
 
@@ -424,6 +427,10 @@ class SVGHandler {
     });
   }
 
+  unHighlightAllControlPoints() {
+    this.controlPoints.forEach((cp) => cp.setFillColor(UNHIGHLIGHTED_COLOR));
+  }
+
   setFailStates(controlPoints) {
     if (this.failControlPoints) {
       this.failControlPoints.forEach((controlPoint) =>
@@ -453,7 +460,7 @@ class SVGHandler {
     textField.setAttribute("type", "text");
     textField.style.position = "absolute";
     textField.style.visibility = "hidden";
-    textField.style.width = 2 * CONTROL_POINT_SIZE + "px";
+    textField.style.width = TEXTBOX_BASE_WIDTH + "px";
     textField.style.height = TEXT_SIZE + "px";
     // set background transparent
     textField.style.backgroundColor = "transparent";
@@ -479,10 +486,8 @@ class SVGHandler {
     this.textField.style.visibility = "visible";
     const { x, y } = this.SVGToScreen(this.selectedElement.getCenter());
     this.textField.style.fontSize = TEXT_SIZE * this.scale + "px";
-    this.textField.style.width =
-      this.textField.style.width.replace("px", "") * this.scale + "px";
-    this.textField.style.height =
-      this.textField.style.height.replace("px", "") * this.scale + "px";
+    this.textField.style.width = TEXTBOX_BASE_WIDTH * this.scale + "px";
+    this.textField.style.height = TEXT_SIZE * this.scale + "px";
     this.textField.style.left =
       x - this.textField.style.width.replace("px", "") / 2 + "px";
     this.textField.style.top =
@@ -501,8 +506,10 @@ class SVGHandler {
     this.textField.style.visibility = "hidden";
     if (this.selectedElement) {
       this.selectedElement.setTextVisible(true);
-      if (this.textField.value !== "") {
+      if (this.textField.value.replaceAll(" ", "") !== "") {
         this.setSelectedElementText(this.textField.value);
+      } else if (this.selectionType === selectionTypes.transition) {
+        this.setSelectedElementText(EPSILON);
       }
 
       this.deselect();
@@ -675,6 +682,9 @@ class SVGHandler {
         this.transitions.splice(index, 1);
       });
     } else if (this.selectionType == selectionTypes.transition) {
+      if (this.selectedElement.startControlPoint === this.inputNode) {
+        this.selectedElement.endControlPoint.setFillColor(UNHIGHLIGHTED_COLOR);
+      }
       this.removeTransition(this.selectedElement);
     }
 
