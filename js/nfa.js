@@ -63,11 +63,10 @@ export class NFA {
     const dfaAlphabet = this.alphabet.filter((symbol) => symbol !== null);
     const dfaStates = [];
     dfaStates.push(this.nullClosure([0]));
-    console.log("DFA States:", dfaStates);
     const dfaTransitions = {};
 
     function compareArrays(arr1, arr2) {
-      return JSON.stringify(arr1) === JSON.stringify(arr2);
+      return JSON.stringify(arr1.sort()) === JSON.stringify(arr2.sort());
     }
 
     function getIndex(arr, ele) {
@@ -95,9 +94,12 @@ export class NFA {
     }
 
     const dfaFinalStates = [];
+    console.log("NFA final states:", this.finalStates);
+    console.log("DFA states:", dfaStates);
     dfaStates.forEach((state, i) => {
       if (state.some((subState) => this.finalStates.includes(subState))) {
         dfaFinalStates.push(i);
+        console.log("Added final state:", i);
       }
     });
 
