@@ -2,7 +2,7 @@ import { BasicSimulator } from "./basicSimulator.js";
 import { DANGER_COLOR } from "./constants.js";
 import { DFA } from "./dfa.js";
 
-export class DFASimulationHandler extends BasicSimulator {
+export class DFASimulator extends BasicSimulator {
   constructor(svgHandler, onPauseCallback = () => {}) {
     super(svgHandler, onPauseCallback);
     this.machine = new DFA();
@@ -42,6 +42,9 @@ export class DFASimulationHandler extends BasicSimulator {
 
     // add the initial state
     this.states[0] = this.initialState;
+    if (this.initialState.isFinal()) {
+      finalStates.push(0);
+    }
     let stateIndex = 1;
 
     // add the rest of the states
@@ -142,7 +145,7 @@ export class DFASimulationHandler extends BasicSimulator {
 
     if (alertMessage !== "") {
       alert(alertMessage);
-      return;
+      return false;
     }
 
     this.machine.finalStates = finalStates;
@@ -150,18 +153,15 @@ export class DFASimulationHandler extends BasicSimulator {
   }
   next() {
     const input = this.getInput();
-    if (this.inputIndex >= input.length) {
-      console.log("No more input");
-      this.isPlaying = false;
-      this.svgHandler.isEditingDisabled = false;
-      this.onPauseCallback();
-      return;
-    }
     if (!this.retrieveMachine()) {
       console.log("Error in retrieving DFA");
-      this.isPlaying = false;
-      this.onPauseCallback();
       this.resetSimulation();
+      return;
+    }
+    if (this.inputIndex >= input.length) {
+      console.log("No more input");
+      this.checkSuccess();
+      this.stopSimulation();
       return;
     }
     console.log("Input:", input);
@@ -181,8 +181,6 @@ export class DFASimulationHandler extends BasicSimulator {
     );
     if (transition === undefined) {
       console.log("No transition found");
-      this.isPlaying = false;
-      this.onPauseCallback();
       this.resetSimulation();
       return;
     }

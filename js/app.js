@@ -1,6 +1,6 @@
 import { SVGHandler } from "./SVGHandler.js";
-import { DFASimulationHandler } from "./dfaSimulator.js";
-import { NFASimulationHandler } from "./nfaSimulator.js";
+import { DFASimulator } from "./dfaSimulator.js";
+import { NFASimulator } from "./nfaSimulator.js";
 
 const svg = document.querySelector("svg");
 const svgHandler = new SVGHandler(svg, window.innerWidth, window.innerHeight);
@@ -150,14 +150,14 @@ function setMachineType(machineType) {
   console.log("Machine Type Changed", machineType);
   switch (machineType) {
     case "dfa":
-      simulationHandler = new DFASimulationHandler(svgHandler, onPauseCallback);
+      simulationHandler = new DFASimulator(svgHandler, onPauseCallback);
       break;
     case "nfa":
-      simulationHandler = new NFASimulationHandler(svgHandler, onPauseCallback);
+      simulationHandler = new NFASimulator(svgHandler, onPauseCallback);
       break;
 
     default:
-      simulationHandler = new DFASimulationHandler(svgHandler, onPauseCallback);
+      simulationHandler = new DFASimulator(svgHandler, onPauseCallback);
       break;
   }
 }
