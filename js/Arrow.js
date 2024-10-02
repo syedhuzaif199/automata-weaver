@@ -46,6 +46,10 @@ class Arrow {
     }
   }
 
+  setAnchor(anchor) {
+    this.text.setAttributeNS(null, "text-anchor", anchor);
+  }
+
   createArrowHead() {
     const defs = document.createElementNS(SVG_NAMESPACE, "defs");
     const marker = document.createElementNS(SVG_NAMESPACE, "marker");
@@ -152,6 +156,7 @@ class Arrow {
         } ${CONTROL_POINT_SIZE} 0 0 1 ${endx} ${2 * y2 - endy}`
       );
       this.setTextAlignment("top");
+      this.setAnchor("middle");
     } else {
       this.arrowBody.setAttribute(
         "d",
@@ -161,6 +166,11 @@ class Arrow {
         this.setTextAlignment("top");
       } else {
         this.setTextAlignment("bottom");
+      }
+      if (starty < endy) {
+        this.setAnchor("start");
+      } else if (starty > endy) {
+        this.setAnchor("end");
       }
     }
 
