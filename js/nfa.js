@@ -107,6 +107,7 @@ export class NFA {
 
   next(symbol) {
     if (this.currentStates.length === 1 && this.currentStates[0] === 0) {
+      //reset the value of current states to the null closure of initial state
       this.currentStates = this.nullClosure(this.currentStates);
     }
     this.currentStates = this.move(this.currentStates, symbol);

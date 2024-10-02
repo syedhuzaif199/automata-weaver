@@ -9,7 +9,7 @@ import {
   ARROW_STROKE_WIDTH,
 } from "./constants.js";
 
-const debugMode = false;
+const debugMode = true;
 
 let id = 0;
 
@@ -99,10 +99,10 @@ class Arrow {
     const alpha = Math.PI / 6;
     const fact = x1 < x2 ? 1 : -1;
 
-    const startx = x1 + fact * CONTROL_POINT_SIZE * Math.cos(theta + alpha);
-    const starty = y1 + fact * CONTROL_POINT_SIZE * Math.sin(theta + alpha);
-    let endx = x2 - fact * CONTROL_POINT_SIZE * Math.cos(theta - alpha);
-    let endy = y2 - fact * CONTROL_POINT_SIZE * Math.sin(theta - alpha);
+    const startx = x1 + fact * CONTROL_POINT_SIZE * Math.cos(theta - alpha);
+    const starty = y1 + fact * CONTROL_POINT_SIZE * Math.sin(theta - alpha);
+    let endx = x2 - fact * CONTROL_POINT_SIZE * Math.cos(theta + alpha);
+    let endy = y2 - fact * CONTROL_POINT_SIZE * Math.sin(theta + alpha);
 
     if (!final) {
       endx = x2;
@@ -113,16 +113,21 @@ class Arrow {
       }
       this.boundingPoly = document.createElementNS(SVG_NAMESPACE, "polygon");
       if (x1 == x2 && y1 == y2) {
+        const newstarty = 2 * y1 - starty;
+        const newendy = 2 * y2 - endy;
+
         this.center = {
           x: (startx + endx) / 2,
-          y: starty - 2 * CONTROL_POINT_SIZE,
+          y: newstarty - 2 * CONTROL_POINT_SIZE,
         };
         this.boundingPoly.setAttribute(
           "points",
-          `${startx} ${starty}, ${endx} ${endy}, 
-          ${endx + 0.25 * CONTROL_POINT_SIZE} ${endy - CONTROL_POINT_SIZE},
-          ${(startx + endx) / 2} ${starty - 2 * CONTROL_POINT_SIZE}, 
-          ${startx - 0.25 * CONTROL_POINT_SIZE} ${starty - CONTROL_POINT_SIZE}`
+          `${startx} ${newstarty}, ${endx} ${newendy}, 
+          ${endx + 0.25 * CONTROL_POINT_SIZE} ${newendy - CONTROL_POINT_SIZE},
+          ${(startx + endx) / 2} ${newstarty - 2 * CONTROL_POINT_SIZE}, 
+          ${startx - 0.25 * CONTROL_POINT_SIZE} ${
+            newstarty - CONTROL_POINT_SIZE
+          }`
         );
       } else {
         this.center = { x: xm, y: ym };
@@ -142,9 +147,9 @@ class Arrow {
     if (x1 === x2 && y1 === y2) {
       this.arrowBody.setAttribute(
         "d",
-        `M ${startx} ${starty} A ${
+        `M ${startx} ${2 * y1 - starty} A ${
           0.5 * CONTROL_POINT_SIZE
-        } ${CONTROL_POINT_SIZE} 0 0 1 ${endx} ${endy}`
+        } ${CONTROL_POINT_SIZE} 0 0 1 ${endx} ${2 * y2 - endy}`
       );
       this.setTextAlignment("top");
     } else {
@@ -153,9 +158,9 @@ class Arrow {
         `M ${startx} ${starty} Q ${xm} ${ym} ${endx} ${endy}`
       );
       if (startx < endx) {
-        this.setTextAlignment("bottom");
-      } else {
         this.setTextAlignment("top");
+      } else {
+        this.setTextAlignment("bottom");
       }
     }
 
@@ -169,14 +174,15 @@ class Arrow {
     let d = CONTROL_POINT_SIZE * 1;
     d = d * (x1 < x2 ? 1 : -1);
     const theta = Math.atan((y2 - y1) / (x2 - x1));
-    const xm = (x1 + x2) / 2 - d * Math.sin(theta);
-    const ym = (y1 + y2) / 2 + d * Math.cos(theta);
+    const xm = (x1 + x2) / 2 + d * Math.sin(theta);
+    const ym = (y1 + y2) / 2 - d * Math.cos(theta);
     return { xm, ym };
   }
 
   remove() {
     this.arrowBody.remove();
     this.arrowHead.remove();
+    this.boundingPoly.remove();
     this.text.remove();
   }
 
