@@ -9,7 +9,7 @@ import {
   ARROW_STROKE_WIDTH,
 } from "./constants.js";
 
-const debugMode = true;
+const debugMode = false;
 
 let id = 0;
 

@@ -387,9 +387,13 @@ class SVGHandler {
 
   addEventListeners() {
     this.svg.addEventListener("mousedown", (e) => this.onMouseDown(e));
+    this.svg.addEventListener("touchstart", (e) => this.onMouseDown(e));
     this.svg.addEventListener("mousemove", (e) => this.onMouseMove(e));
+    this.svg.addEventListener("touchmove", (e) => this.onMouseMove(e));
     this.svg.addEventListener("mouseup", (e) => this.onMouseUp(e));
+    this.svg.addEventListener("touchend", (e) => this.onMouseUp(e));
     this.svg.addEventListener("mouseleave", (e) => this.onMouseLeave(e));
+    this.svg.addEventListener("touchleave", (e) => this.onMouseLeave(e));
     this.svg.addEventListener("wheel", (e) => this.onMouseWheel(e));
   }
 
@@ -543,10 +547,6 @@ class SVGHandler {
 
   onMouseDown(e) {
     e.preventDefault();
-    console.log("Active element:", document.activeElement);
-    if (document.activeElement) {
-      document.activeElement.blur();
-    }
     if (e.button === 1 || (e.button === 0 && this.keyDown === " ")) {
       this.changeState(states.panning);
       return;
@@ -558,6 +558,11 @@ class SVGHandler {
       }
       if (this.textField.style.visibility === "visible") {
         this.hideTextField();
+        return;
+      }
+      if (document.activeElement !== document.body) {
+        console.log("Active element:", document.activeElement);
+        document.activeElement.blur();
         return;
       }
       switch (this.action) {
