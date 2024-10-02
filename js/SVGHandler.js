@@ -178,7 +178,7 @@ class SVGHandler {
     };
 
     for (let i = 0; i < numStates; i++) {
-      const x = center.x + radius * Math.cos(i * angle + 0.01 + Math.PI);
+      const x = center.x + radius * Math.cos(i * angle + Math.PI);
       const y = center.y + radius * Math.sin(i * angle + Math.PI);
       const cp = new ControlPoint(this.svg, x, y);
       if (dfa.finalStates.includes(i)) {

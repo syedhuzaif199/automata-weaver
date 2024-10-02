@@ -9,7 +9,7 @@ import {
   ARROW_STROKE_WIDTH,
 } from "./constants.js";
 
-const debugMode = false;
+const debugMode = true;
 
 let id = 0;
 
@@ -117,21 +117,16 @@ class Arrow {
       }
       this.boundingPoly = document.createElementNS(SVG_NAMESPACE, "polygon");
       if (x1 == x2 && y1 == y2) {
-        const newstarty = 2 * y1 - starty;
-        const newendy = 2 * y2 - endy;
-
         this.center = {
           x: (startx + endx) / 2,
-          y: newstarty - 2 * CONTROL_POINT_SIZE,
+          y: starty - 2 * CONTROL_POINT_SIZE,
         };
         this.boundingPoly.setAttribute(
           "points",
-          `${startx} ${newstarty}, ${endx} ${newendy}, 
-          ${endx + 0.25 * CONTROL_POINT_SIZE} ${newendy - CONTROL_POINT_SIZE},
-          ${(startx + endx) / 2} ${newstarty - 2 * CONTROL_POINT_SIZE}, 
-          ${startx - 0.25 * CONTROL_POINT_SIZE} ${
-            newstarty - CONTROL_POINT_SIZE
-          }`
+          `${startx} ${starty}, ${endx} ${endy}, 
+          ${endx - 0.25 * CONTROL_POINT_SIZE} ${endy - CONTROL_POINT_SIZE},
+          ${(startx + endx) / 2} ${starty - 2 * CONTROL_POINT_SIZE}, 
+          ${startx + 0.25 * CONTROL_POINT_SIZE} ${starty - CONTROL_POINT_SIZE}`
         );
       } else {
         this.center = { x: xm, y: ym };
@@ -151,9 +146,9 @@ class Arrow {
     if (x1 === x2 && y1 === y2) {
       this.arrowBody.setAttribute(
         "d",
-        `M ${startx} ${2 * y1 - starty} A ${
+        `M ${endx} ${endy} A ${
           0.5 * CONTROL_POINT_SIZE
-        } ${CONTROL_POINT_SIZE} 0 0 1 ${endx} ${2 * y2 - endy}`
+        } ${CONTROL_POINT_SIZE} 0 0 1 ${startx} ${starty}`
       );
       this.setTextAlignment("top");
       this.setAnchor("middle");
