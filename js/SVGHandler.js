@@ -543,6 +543,10 @@ class SVGHandler {
 
   onMouseDown(e) {
     e.preventDefault();
+    console.log("Active element:", document.activeElement);
+    if (document.activeElement) {
+      document.activeElement.blur();
+    }
     if (e.button === 1 || (e.button === 0 && this.keyDown === " ")) {
       this.changeState(states.panning);
       return;
