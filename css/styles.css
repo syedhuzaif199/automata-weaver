@@ -154,13 +154,13 @@ input {
     background-color: var(--secondary-color);
 }
 
-.separator.vsep {
+.separator.hline {
     width: 90%;
     height: 1px;
     margin: 2px;
 }
 
-.separator.hsep {
+.separator.vline {
     width: 1px;
     height: 90%;
     margin: 2px;
