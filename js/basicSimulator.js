@@ -1,3 +1,5 @@
+import { lettersFromRange } from "./utils.js";
+
 export class BasicSimulator {
   constructor(svgHandler, onPauseCallback = () => {}) {
     this.svgHandler = svgHandler;
@@ -53,6 +55,23 @@ export class BasicSimulator {
     } else {
       this.svgHandler.isEditingDisabled = false;
     }
+  }
+
+  getAlphabet() {
+    const alphabet = this.alphabetTextField.value.split(" ");
+    console.log("Alphabet before regex resolution:", alphabet);
+    const resolvedAlphabet = alphabet
+      .map((val) => {
+        const letters = lettersFromRange(val);
+        if (letters) {
+          return letters;
+        } else {
+          return val;
+        }
+      })
+      .flat();
+    console.log("Alphabet after regex resolution:", resolvedAlphabet);
+    return resolvedAlphabet;
   }
 
   stopSimulation() {

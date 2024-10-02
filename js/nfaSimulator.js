@@ -23,7 +23,7 @@ export class NFASimulator extends BasicSimulator {
 
     const numStates = controlPoints.length - 1;
     this.machine.numStates = numStates;
-    const alphabet = this.alphabetTextField.value.split(" ");
+    const alphabet = this.getAlphabet();
     this.machine.alphabet = alphabet;
     const input = this.getInput();
 
