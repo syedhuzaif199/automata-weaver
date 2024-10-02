@@ -101,7 +101,7 @@ class Arrow {
     const slope = (y2 - y1) / (x2 - x1);
     const theta = Math.atan(slope) || 0;
     const alpha = Math.PI / 6;
-    const fact = x1 < x2 ? 1 : -1;
+    const fact = x1 <= x2 ? 1 : -1;
 
     const startx = x1 + fact * CONTROL_POINT_SIZE * Math.cos(theta - alpha);
     const starty = y1 + fact * CONTROL_POINT_SIZE * Math.sin(theta - alpha);
@@ -182,7 +182,7 @@ class Arrow {
 
   calculateArrowMid(x1, y1, x2, y2, final = false) {
     let d = CONTROL_POINT_SIZE * 1;
-    d = d * (x1 < x2 ? 1 : -1);
+    d = d * (x1 <= x2 ? 1 : -1);
     const theta = Math.atan((y2 - y1) / (x2 - x1));
     const xm = (x1 + x2) / 2 + d * Math.sin(theta);
     const ym = (y1 + y2) / 2 - d * Math.cos(theta);

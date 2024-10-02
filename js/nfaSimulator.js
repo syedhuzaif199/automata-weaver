@@ -179,6 +179,7 @@ export class NFASimulator extends BasicSimulator {
     let deadStates = new Set(currentStates);
     deadStates = deadStates.difference(new Set(nextStates));
 
+    //rework the whole thing
     if (nextStates.length === 0) {
       this.highlightDeadStates(currentStates);
       this.machine.run(input.slice(0, this.inputIndex));
