@@ -508,11 +508,12 @@ export default class SVGHandler {
       this.selectedElement.setTextVisible(true);
       if (this.textField.value.replaceAll(" ", "") !== "") {
         this.setSelectedElementText(this.textField.value);
-      } else if (this.selectionType === selectionTypes.transition) {
+      } else if (
+        this.selectionType === selectionTypes.transition &&
+        this.selectedElement.startControlPoint != this.inputNode
+      ) {
         this.setSelectedElementText(EPSILON);
       }
-
-      this.deselect();
     }
     this.textField.value = "";
   }
@@ -554,6 +555,7 @@ export default class SVGHandler {
       }
       if (this.textField.style.visibility === "visible") {
         this.hideTextField();
+        this.deselect();
         return;
       }
       if (document.activeElement !== document.body) {
