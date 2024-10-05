@@ -1,8 +1,8 @@
-import { BasicSimulator } from "./basicSimulator.js";
+import BasicSimulator from "./basicSimulator.js";
 import { DANGER_COLOR, EPSILON } from "./constants.js";
-import { NFA } from "./nfa.js";
+import NFA from "./nfa.js";
 
-export class NFASimulator extends BasicSimulator {
+export default class NFASimulator extends BasicSimulator {
   constructor(svgHandler, onPauseCallback = () => {}) {
     super(svgHandler, onPauseCallback);
     this.machine = new NFA();

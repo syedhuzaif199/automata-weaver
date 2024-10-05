@@ -1,6 +1,6 @@
 import { lettersFromRange } from "./utils.js";
 
-export class BasicSimulator {
+export default class BasicSimulator {
   constructor(svgHandler, onPauseCallback = () => {}) {
     this.svgHandler = svgHandler;
     this.alphabetTextField = document.querySelector("#alphabet-text");
@@ -37,10 +37,10 @@ export class BasicSimulator {
     this.inputIndex = 0;
     this.highlightCurrentInput();
     this.machine.reset();
+    this.svgHandler.unHighlightAllControlPoints();
     this.highlightCurrentStates();
     this.svgHandler.isEditingDisabled = false;
     // this.svgHandler.unHighlightAllTransitions();
-    this.svgHandler.unHighlightAllControlPoints();
     // this.svgHandler.highlightControlPoints([this.initialState]);
   }
 

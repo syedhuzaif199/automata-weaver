@@ -1,8 +1,8 @@
-import { BasicSimulator } from "./basicSimulator.js";
+import BasicSimulator from "./basicSimulator.js";
 import { DANGER_COLOR } from "./constants.js";
-import { DFA } from "./dfa.js";
+import DFA from "./dfa.js";
 
-export class DFASimulator extends BasicSimulator {
+export default class DFASimulator extends BasicSimulator {
   constructor(svgHandler, onPauseCallback = () => {}) {
     super(svgHandler, onPauseCallback);
     this.machine = new DFA();

@@ -1,6 +1,6 @@
-import { DFA } from "./dfa.js";
+import DFA from "./dfa.js";
 
-export class NFA {
+export default class NFA {
   constructor(numStates, alphabet = [], finalStates = []) {
     this.numStates = numStates;
     this.alphabet = alphabet; //string or list of strings

@@ -51,7 +51,7 @@ const selectionTypes = Object.freeze({
   none: 2,
 });
 
-class SVGHandler {
+export default class SVGHandler {
   constructor(svg, width, height) {
     this.svg = svg;
     this.width = width;
@@ -387,13 +387,9 @@ class SVGHandler {
 
   addEventListeners() {
     this.svg.addEventListener("mousedown", (e) => this.onMouseDown(e));
-    this.svg.addEventListener("touchstart", (e) => this.onMouseDown(e));
     this.svg.addEventListener("mousemove", (e) => this.onMouseMove(e));
-    this.svg.addEventListener("touchmove", (e) => this.onMouseMove(e));
     this.svg.addEventListener("mouseup", (e) => this.onMouseUp(e));
-    this.svg.addEventListener("touchend", (e) => this.onMouseUp(e));
     this.svg.addEventListener("mouseleave", (e) => this.onMouseLeave(e));
-    this.svg.addEventListener("touchleave", (e) => this.onMouseLeave(e));
     this.svg.addEventListener("wheel", (e) => this.onMouseWheel(e));
   }
 
@@ -836,5 +832,3 @@ class SVGHandler {
     });
   }
 }
-
-export { SVGHandler };

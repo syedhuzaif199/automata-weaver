@@ -1,4 +1,4 @@
-export class DFA {
+export default class DFA {
   constructor(numStates, alphabet, finalStates = []) {
     this.numStates = numStates;
     this.alphabet = alphabet;
