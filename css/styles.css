@@ -87,12 +87,23 @@ input {
     transform: translateX(-50%);
 }
 
-.machine-selector {
+
+.machine-controls-pane {
     position: fixed;
     top: 0;
     left: 25%;
-    transform: translateX(-50%);
-    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 20%;
+    padding: 20px;
+
+}
+
+.machine-selector {
+        padding: 0;
+    margin: 0;
+    margin-bottom: 20px;
+    position: relative;
 }
 
 .right-bar {

@@ -123,22 +123,29 @@
           value="500"
         />
       </div>
-      <div class="machine-selector controls">
-        <select id="machine-type">
-          <option value="dfa">DFA</option>
-          <option value="nfa">NFA</option>
-          <option value="pda" disabled>PDA</option>
-          <option value="turing" disabled>Turing Machine</option>
-        </select>
-        <button id="machine-options">
-          <img
-            src="./assets/settings.svg"
-            alt="Settings"
-            width="25px"
-            height="25px"
-          />
-        </button>
-      </div>
+      <div class="machine-controls-pane">
+        <div class="machine-selector controls">
+          <select id="machine-type">
+            <option value="dfa">DFA</option>
+            <option value="nfa">NFA</option>
+            <option value="pda" disabled>PDA</option>
+            <option value="turing" disabled>Turing Machine</option>
+          </select>
+          <button id="machine-options-btn">
+            <img
+              src="./assets/settings.svg"
+              alt="Settings"
+              width="25px"
+              height="25px"
+            />
+          </button>
+        </div>
+        <div class="controls menu" id="machine-options-pane">
+          <button id="gen-regex">Genereate From Regex</button>
+          <button id="minimize-dfa">Minimize</button>
+          <button id="convert-to-dfa">Convert to DFA</button>
+        </div>
+      </div> <!-- -->
       <div class="right-panel">
         <div class="controls right-bar">
           <button id="add-state" title="Add State (A)">
