@@ -49,10 +49,20 @@ document.addEventListener("keyup", (e) => {
   svgHandler.setKeyDown(null);
 });
 
+// hide menu pane when a child button is clicked
 document.querySelector("#menu-pane").childNodes.forEach((child) => {
   child.addEventListener("click", (e) => {
     console.log("Menu Pane Clicked");
     const pane = document.querySelector("#menu-pane");
+    pane.style.display = "none";
+  });
+});
+
+// hide machine options pane when a child button is clicked
+document.querySelector("#machine-options-pane").childNodes.forEach((child) => {
+  child.addEventListener("click", (e) => {
+    console.log("Machine Options Pane Clicked");
+    const pane = document.querySelector("#machine-options-pane");
     pane.style.display = "none";
   });
 });
@@ -127,8 +137,16 @@ removeInputBtn.addEventListener("click", () => onRemoveInputBtnClick());
 const machineTypeSelect = document.querySelector("#machine-type");
 machineTypeSelect.addEventListener("change", onMachineTypeChange);
 
-const machineOptionsBtn = document.querySelector("#machine-options");
+const machineOptionsBtn = document.querySelector("#machine-options-btn");
 machineOptionsBtn.addEventListener("click", onMachineOptionsBtnClick);
+
+const conv2dfaBtn = document.querySelector("#convert-to-dfa");
+conv2dfaBtn.addEventListener("click", () => simulationHandler.convertToDFA());
+
+const minimizeDfaBtn = document.querySelector("#minimize-dfa");
+minimizeDfaBtn.addEventListener("click", () =>
+  simulationHandler.drawMinimizedDFA()
+);
 
 function onAddInputBtnClick(e) {
   const inputBox = document.querySelector("#input");
@@ -151,9 +169,13 @@ function setMachineType(machineType) {
   switch (machineType) {
     case "dfa":
       simulationHandler = new DFASimulator(svgHandler, onPauseCallback);
+      conv2dfaBtn.style.display = "none";
+      minimizeDfaBtn.style.display = "flex";
       break;
     case "nfa":
       simulationHandler = new NFASimulator(svgHandler, onPauseCallback);
+      conv2dfaBtn.style.display = "flex";
+      minimizeDfaBtn.style.display = "none";
       break;
 
     default:
@@ -171,13 +193,8 @@ function onMachineTypeChange(e) {
 
 function onMachineOptionsBtnClick(e) {
   console.log("Machine Options Button Clicked");
-  // const options = document.querySelector("#machine-options-pane");
-  // options.style.display = options.style.display === "none" ? "flex" : "none";
-  if (machineTypeSelect.value === "dfa") {
-    simulationHandler.drawMinimizedDFA();
-  } else if (machineTypeSelect.value === "nfa") {
-    simulationHandler.convertToDFA();
-  }
+  const options = document.querySelector("#machine-options-pane");
+  options.style.display = options.style.display === "none" ? "flex" : "none";
 }
 
 function onClearCanvasBtnClick() {
@@ -305,8 +322,10 @@ window.addEventListener("resize", () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  const pane = document.querySelector("#menu-pane");
-  pane.style.display = "none";
+  const panes = document.querySelectorAll(".menu");
+  panes.forEach((pane) => (pane.style.display = "none"));
+  const machineTypeSelect = document.querySelector("#machine-type");
+  setMachineType(machineTypeSelect.value);
 });
 
 document.addEventListener("wheel", (e) => {
