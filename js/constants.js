@@ -18,3 +18,4 @@ export const ARROW_HEAD_WIDTH = 7;
 export const ARROW_HEAD_HEIGHT = 7;
 export const TEXT_FONT = "monospace";
 export const EPSILON = "ε";
+export const ID_SYMBOL = "⊢";
