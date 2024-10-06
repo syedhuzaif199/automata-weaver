@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>AutomataWeaver</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css" />
   </head>
 
   <body>
@@ -60,7 +60,7 @@
             Clear Canvas
           </button>
           <div class="separator hline"></div>
-           <button id="login-btn">
+          <button id="login-btn">
             <img
               src="./assets/login.svg"
               alt="Login"
@@ -129,7 +129,7 @@
             <option value="dfa">DFA</option>
             <option value="nfa">NFA</option>
             <option value="pda" disabled>PDA</option>
-            <option value="turing" disabled>Turing Machine</option>
+            <option value="tm" disabled>Turing Machine</option>
           </select>
           <button id="machine-options-btn">
             <img
@@ -142,14 +142,18 @@
         </div>
         <div class="controls menu" id="machine-options-pane">
           <button id="gen-regex">
-            <img src="./assets/regex.svg"> Genereate From Regex</button>
+            <img src="./assets/regex.svg" /> Genereate From Regex
+          </button>
           <button id="minimize-dfa">
-            <img src="./assets/minimize.svg"> Minimize</button>
+            <img src="./assets/minimize.svg" /> Minimize
+          </button>
           <button id="convert-to-dfa">
-            <img src="./assets/dfa.svg">
-            Convert to DFA</button>
+            <img src="./assets/dfa.svg" />
+            Convert to DFA
+          </button>
         </div>
-      </div> <!-- -->
+      </div>
+      <!-- -->
       <div class="right-panel">
         <div class="controls right-bar">
           <button id="add-state" title="Add State (A)">
@@ -225,31 +229,8 @@
           />
         </button>
       </div>
-      <div class="controls bottom-bar">
-        <label for="input">Input</label>
-        <div id="input">
-          <input type="text" class="input-field"/>
-          <input type="text" class="input-field"/>
-          <input type="text" class="input-field"/>
-        </div>
-        <div class="input-add-remove">
-          <button id="add-input">
-            <img
-              src="./assets/plus.svg"
-              alt="Add Input"
-              width="25px"
-              height="25px"
-            />
-          </button>
-          <div class="separator hline"></div>
-          <button id="remove-input">
-            <img
-              src="./assets/minus.svg"
-              alt="Remove Input"
-              width="25px"
-              height="25px"
-            />
-        </div>
+      <div class="bottom-bar">
+        <div id="tape"></div>
       </div>
       <div id="svgcontainer">
         <svg id="svgdisplay"></svg>
