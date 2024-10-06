@@ -3,8 +3,8 @@ import { DANGER_COLOR, EPSILON } from "./constants.js";
 import NFA from "./nfa.js";
 
 export default class NFASimulator extends BasicSimulator {
-  constructor(svgHandler, onPauseCallback = () => {}) {
-    super(svgHandler, onPauseCallback);
+  constructor(svgHandler, tape, onPauseCallback = () => {}) {
+    super(svgHandler, tape, onPauseCallback);
     this.machine = new NFA();
   }
 
@@ -197,7 +197,7 @@ export default class NFASimulator extends BasicSimulator {
         this.svgHandler.unHighlightTransition(transition);
       });
       this.inputIndex++;
-      this.highlightCurrentInput();
+      this.tape.moveTapeHead(1);
       this.checkSuccess();
       this.highlightDeadStates(deadStates);
       this.highlightCurrentStates();

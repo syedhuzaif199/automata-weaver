@@ -1,12 +1,12 @@
 import { lettersFromRange } from "./utils.js";
 
 export default class BasicSimulator {
-  constructor(svgHandler, onPauseCallback = () => {}) {
+  constructor(svgHandler, tape, onPauseCallback = () => {}) {
     this.svgHandler = svgHandler;
+    this.tape = tape;
     this.alphabetTextField = document.querySelector("#alphabet-text");
     this.inputIndex = 0;
-    this.currentInputField = null;
-    this.highlightCurrentInput();
+    this.currentTapeCell = null;
     this.states = [];
     this.initialState = null;
     this.isPlaying = false;
@@ -15,15 +15,16 @@ export default class BasicSimulator {
     this.inputNode = null;
   }
   getInput() {
-    const inputbox = document.querySelector("#input");
     const input = [];
-    for (let i = 0; i < inputbox.children.length; i++) {
-      if (inputbox.children[i].value === "") {
+    const tape = this.tape.tape;
+    for (let i = 0; i < tape.children.length; i++) {
+      if (tape.children[i].children[0].value === "") {
         break;
       }
-      input.push(inputbox.children[i].value);
+      input.push(tape.children[i].children[0].value);
     }
 
+    console.log("Input: ", input);
     return input;
   }
 
@@ -35,7 +36,7 @@ export default class BasicSimulator {
   resetSimulation() {
     this.stopSimulation();
     this.inputIndex = 0;
-    this.highlightCurrentInput();
+    this.tape.moveTapeToStart();
     this.machine.reset();
     this.svgHandler.unHighlightAllControlPoints();
     this.highlightCurrentStates();
@@ -93,7 +94,7 @@ export default class BasicSimulator {
 
     this.machine.run(input.slice(0, this.inputIndex));
 
-    this.highlightCurrentInput();
+    this.tape.moveTapeHead(-1);
     this.highlightCurrentStates();
     this.checkSuccess();
   }
@@ -113,12 +114,12 @@ export default class BasicSimulator {
     }
     console.log("fast-forward");
     this.retrieveMachine();
-    this.inputIndex = 0;
     const input = this.getInput();
+    this.tape.moveTapeHead(input.length - this.inputIndex);
+    this.inputIndex = 0;
     this.machine.run(input);
     this.highlightCurrentStates();
     this.inputIndex = input.length;
-    this.highlightCurrentInput();
     this.checkSuccess();
   }
 
@@ -136,17 +137,5 @@ export default class BasicSimulator {
     if (currentStates) {
       this.svgHandler.highlightControlPoints(currentStates);
     }
-  }
-
-  highlightCurrentInput() {
-    const input = document.querySelector("#input");
-    if (this.currentInputField) {
-      this.currentInputField.classList.remove("highlighted-input-field");
-    }
-    if (this.inputIndex >= input.children.length) {
-      return;
-    }
-    this.currentInputField = input.children[this.inputIndex];
-    this.currentInputField.classList.add("highlighted-input-field");
   }
 }

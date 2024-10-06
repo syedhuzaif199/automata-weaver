@@ -1,10 +1,12 @@
 import SVGHandler from "./SVGHandler.js";
+import { BLANK } from "./constants.js";
 import DFASimulator from "./dfaSimulator.js";
 import NFASimulator from "./nfaSimulator.js";
+import Tape from "./tape.js";
 
 const svg = document.querySelector("svg");
 const svgHandler = new SVGHandler(svg, window.innerWidth, window.innerHeight);
-
+const tape = new Tape(1025, 21);
 let simulationHandler;
 
 document.addEventListener("keydown", (e) => {
@@ -128,12 +130,6 @@ rewindBtn.addEventListener("click", onRewindBtnClick);
 const fastForwardBtn = document.querySelector("#fast-forward");
 fastForwardBtn.addEventListener("click", onFastForwardBtnClick);
 
-const addInputBtn = document.querySelector("#add-input");
-addInputBtn.addEventListener("click", () => onAddInputBtnClick());
-
-const removeInputBtn = document.querySelector("#remove-input");
-removeInputBtn.addEventListener("click", () => onRemoveInputBtnClick());
-
 const machineTypeSelect = document.querySelector("#machine-type");
 machineTypeSelect.addEventListener("change", onMachineTypeChange);
 
@@ -148,43 +144,37 @@ minimizeDfaBtn.addEventListener("click", () =>
   simulationHandler.drawMinimizedDFA()
 );
 
-function onAddInputBtnClick(e) {
-  const inputBox = document.querySelector("#input");
-  const inputField = document.createElement("input");
-  inputField.classList.add("input-field");
-  inputField.type = "text";
-  inputBox.appendChild(inputField);
-}
-
-function onRemoveInputBtnClick(e) {
-  const inputBox = document.querySelector("#input");
-  const inputFields = document.querySelectorAll(".input-field");
-  if (inputFields.length > 1) {
-    inputBox.removeChild(inputFields[inputFields.length - 1]);
-  }
-}
-
 function setMachineType(machineType) {
   console.log("Machine Type Changed", machineType);
   switch (machineType) {
     case "dfa":
-      simulationHandler = new DFASimulator(svgHandler, onPauseCallback);
       conv2dfaBtn.style.display = "none";
       minimizeDfaBtn.style.display = "flex";
+      simulationHandler = new DFASimulator(svgHandler, tape, onPauseCallback);
+      tape.moveTapeToStart();
+      tape.fillTape("");
       break;
     case "nfa":
-      simulationHandler = new NFASimulator(svgHandler, onPauseCallback);
       conv2dfaBtn.style.display = "flex";
       minimizeDfaBtn.style.display = "none";
+      simulationHandler = new NFASimulator(svgHandler, tape, onPauseCallback);
+      tape.moveTapeToStart();
+      tape.fillTape("");
+      break;
+    case "pda":
+      tape.moveTapeToStart();
+      tape.fillTape("");
+      break;
+    case "tm":
+      tape.moveTapeToMiddle();
+      tape.fillTape(BLANK);
       break;
 
     default:
-      simulationHandler = new DFASimulator(svgHandler, onPauseCallback);
+      simulationHandler = new DFASimulator(svgHandler, tape, onPauseCallback);
       break;
   }
 }
-
-setMachineType(machineTypeSelect.value);
 
 function onMachineTypeChange(e) {
   const machineType = e.target.value;

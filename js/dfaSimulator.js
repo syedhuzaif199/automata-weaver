@@ -3,8 +3,8 @@ import { DANGER_COLOR } from "./constants.js";
 import DFA from "./dfa.js";
 
 export default class DFASimulator extends BasicSimulator {
-  constructor(svgHandler, onPauseCallback = () => {}) {
-    super(svgHandler, onPauseCallback);
+  constructor(svgHandler, tape, onPauseCallback = () => {}) {
+    super(svgHandler, tape, onPauseCallback);
     this.machine = new DFA();
   }
   retrieveMachine() {
@@ -192,7 +192,7 @@ export default class DFASimulator extends BasicSimulator {
       this.svgHandler.unHighlightTransition(transition);
       this.machine.next(nextSymbol);
       this.inputIndex++;
-      this.highlightCurrentInput();
+      this.tape.moveTapeHead(1);
       this.highlightCurrentStates();
       this.checkSuccess();
       this.isAnimating = false;
