@@ -106,6 +106,18 @@ input {
     position: relative;
 }
 
+#machine-type {
+    margin-left: 20px;
+    padding: 0;
+    border: none;
+    background-color: var(--controls-bg);
+}
+
+
+#machine-type option {
+    background-color: var(--controls-bg);
+}
+
 .right-bar {
     position: relative;
     right: 0;
