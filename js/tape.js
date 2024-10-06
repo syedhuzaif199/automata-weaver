@@ -1,0 +1,97 @@
+export default class Tape {
+  constructor(cellCount, maxCellDisplay) {
+    this.cellSize = 50;
+    this.cellMargin = 4;
+
+    this.setCSSVariable("--cell-size", `${this.cellSize}px`);
+    this.setCSSVariable("--cell-margin", `${this.cellMargin}px`);
+
+    this.tape = document.getElementById("tape");
+    this.cellCount = (cellCount & 1) == 0 ? cellCount + 1 : cellCount;
+    this.maxCellDisplay =
+      (maxCellDisplay & 1) == 0 ? maxCellDisplay + 1 : maxCellDisplay;
+    this.tape.style.width = `${
+      this.maxCellDisplay * (this.cellSize + 2 * this.cellMargin)
+    }px`;
+    this.cells = [];
+    for (let i = 0; i < this.cellCount; i++) {
+      const cell = document.createElement("div");
+      cell.classList.add("cell");
+      this.cells.push(cell);
+      cell.style.left = `${
+        (this.maxCellDisplay / 2 - this.cellCount / 2 + i) *
+        (this.cellSize + 2 * this.cellMargin)
+      }px`;
+      this.tape.appendChild(cell);
+      const inputField = document.createElement("input");
+      inputField.type = "text";
+      cell.appendChild(inputField);
+    }
+
+    this.tapeHead = document.createElement("div");
+    this.tapeHead.id = "tape-head";
+    this.tape.appendChild(this.tapeHead);
+
+    this.shifts = 0;
+
+    this.moveHeadToMiddle();
+  }
+
+  setCSSVariable(name, value) {
+    document.documentElement.style.setProperty(name, value);
+  }
+
+  moveTapeHead(dir) {
+    this.tapeHead.style.left = `${
+      parseInt(this.tapeHead.style.left) +
+      dir * (this.cellSize + 2 * this.cellMargin)
+    }px`;
+    console.log("Head moved");
+  }
+
+  moveTape(dir) {
+    this.shifts -= dir;
+    this.cells.forEach((cell) => {
+      if (cell == this.tapeHead) {
+        return;
+      }
+      cell.style.left = `${
+        parseInt(cell.style.left) + dir * (this.cellSize + 2 * this.cellMargin)
+      }px`;
+    });
+  }
+
+  moveHeadToStart() {
+    this.tapeHead.style.left =
+      this.cells[
+        this.cellCount / 2 - this.maxCellDisplay / 2 + this.shifts
+      ].style.left;
+  }
+
+  //change this
+  moveHeadToMiddle() {
+    this.tapeHead.style.left =
+      this.cells[Math.floor(this.cellCount / 2) + this.shifts].style.left;
+  }
+
+  moveTapeToStart() {
+    this.moveTape(this.cellCount / 2 - this.maxCellDisplay / 2 + this.shifts);
+    this.moveHeadToStart();
+  }
+
+  moveTapeToEnd() {
+    this.moveTape(-this.cellCount / 2 + this.maxCellDisplay / 2 + this.shifts);
+    this.moveHeadToStart();
+  }
+
+  moveTapeToMiddle() {
+    this.moveTape(this.shifts);
+    this.moveHeadToMiddle();
+  }
+
+  fillTape(symbol) {
+    this.cells.forEach((cell) => {
+      cell.childNodes[0].value = symbol;
+    });
+  }
+}
