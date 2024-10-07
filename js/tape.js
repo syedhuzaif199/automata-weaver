@@ -1,17 +1,20 @@
+import { BLANK } from "./constants.js";
+
 export default class Tape {
   constructor(cellCount, maxCellDisplay) {
     this.cellSize = 50;
     this.cellMargin = 4;
-
     this.setCSSVariable("--cell-size", `${this.cellSize}px`);
     this.setCSSVariable("--cell-margin", `${this.cellMargin}px`);
 
+    this.blank = "";
     this.tape = document.getElementById("tape");
     this.cellCount = (cellCount & 1) == 0 ? cellCount + 1 : cellCount;
     this.maxCellDisplay =
       (maxCellDisplay & 1) == 0 ? maxCellDisplay + 1 : maxCellDisplay;
     this.tape.style.width = `${
-      this.maxCellDisplay * (this.cellSize + 2 * this.cellMargin)
+      this.maxCellDisplay * (this.cellSize + 2 * this.cellMargin) +
+      this.cellMargin
     }px`;
     this.cells = [];
     for (let i = 0; i < this.cellCount; i++) {
@@ -26,15 +29,20 @@ export default class Tape {
       const inputField = document.createElement("input");
       inputField.type = "text";
       cell.appendChild(inputField);
+      inputField.addEventListener("change", (e) => {
+        if (e.target.value === "" || e.target.value === " ") {
+          e.target.value = this.blank;
+        }
+      });
     }
+
+    this.fillTape(this.blank);
 
     this.tapeHead = document.createElement("div");
     this.tapeHead.id = "tape-head";
     this.tape.appendChild(this.tapeHead);
 
     this.shifts = 0;
-
-    this.moveHeadToMiddle();
   }
 
   setCSSVariable(name, value) {
@@ -59,6 +67,22 @@ export default class Tape {
         parseInt(cell.style.left) + dir * (this.cellSize + 2 * this.cellMargin)
       }px`;
     });
+  }
+
+  writeAtHead(symbol) {
+    this.getInputFieldAtIndex(this.getHeadIndex()).value = symbol;
+  }
+
+  getSymbolAtHead() {
+    return this.getInputFieldAtIndex(this.getHeadIndex()).value;
+  }
+
+  getHeadIndex() {
+    return parseInt(this.cellCount / 2 + this.shifts);
+  }
+
+  getInputFieldAtIndex(index) {
+    return this.cells[index].childNodes[0];
   }
 
   moveHeadToStart() {
@@ -87,6 +111,10 @@ export default class Tape {
   moveTapeToMiddle() {
     this.moveTape(this.shifts);
     this.moveHeadToMiddle();
+  }
+
+  setTransitionDurationMS(durationMS) {
+    this.setCSSVariable("--duration", `${durationMS}ms`);
   }
 
   fillTape(symbol) {

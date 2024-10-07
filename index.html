@@ -10,6 +10,14 @@
       <div class="input-box">
         <label for="alphabet-text">Alphabet</label>
         <input type="text" id="alphabet-text" placeholder="Space separated" />
+        <div id="tape-alphabet-box">
+          <label for="tape-alphabet-text">Tape Alphabet</label>
+          <input
+            type="text"
+            id="tape-alphabet-text"
+            placeholder="Space separated"
+          />
+        </div>
       </div>
       <div class="left-bar">
         <div class="controls menu-btn">
@@ -112,24 +120,13 @@
           />
         </button>
       </div>
-      <div class="speed-bar">
-        <label for="speed">Speed</label>
-        <input
-          type="range"
-          id="speed"
-          name="speed"
-          min="1"
-          max="1000"
-          value="500"
-        />
-      </div>
       <div class="machine-controls-pane">
         <div class="machine-selector controls">
           <select id="machine-type">
             <option value="dfa">DFA</option>
             <option value="nfa">NFA</option>
             <option value="pda" disabled>PDA</option>
-            <option value="tm" disabled>Turing Machine</option>
+            <option value="tm">Turing Machine</option>
           </select>
           <button id="machine-options-btn">
             <img
@@ -141,6 +138,18 @@
           </button>
         </div>
         <div class="controls menu" id="machine-options-pane">
+          <div class="speed-bar">
+            <label for="speed">Speed</label>
+            <input
+              type="range"
+              id="speed"
+              name="speed"
+              min="1"
+              max="1000"
+              value="500"
+            />
+          </div>
+          <div class="separator hline" id="machine-options-separator"></div>
           <button id="gen-regex">
             <img src="./assets/regex.svg" /> Genereate From Regex
           </button>

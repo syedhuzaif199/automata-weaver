@@ -3,6 +3,7 @@ import { BLANK } from "./constants.js";
 import DFASimulator from "./dfaSimulator.js";
 import NFASimulator from "./nfaSimulator.js";
 import Tape from "./tape.js";
+import TmSimulator from "./tmSimulator.js";
 
 const svg = document.querySelector("svg");
 const svgHandler = new SVGHandler(svg, window.innerWidth, window.innerHeight);
@@ -144,12 +145,28 @@ minimizeDfaBtn.addEventListener("click", () =>
   simulationHandler.drawMinimizedDFA()
 );
 
+const generateFromRegexBtn = document.querySelector("#gen-regex");
+generateFromRegexBtn.addEventListener("click", () => {});
+
 function setMachineType(machineType) {
   console.log("Machine Type Changed", machineType);
+  const tapeAlphaBox = document.getElementById("tape-alphabet-box");
+  if (machineType === "tm") {
+    tapeAlphaBox.style.display = "block";
+  } else {
+    tapeAlphaBox.style.display = "none";
+  }
+  if (machineType === "tm" || machineType === "pda") {
+    document.getElementById("machine-options-separator").style.display = "none";
+  } else {
+    document.getElementById("machine-options-separator").style.display =
+      "block";
+  }
   switch (machineType) {
     case "dfa":
       conv2dfaBtn.style.display = "none";
       minimizeDfaBtn.style.display = "flex";
+      generateFromRegexBtn.style.display = "flex";
       simulationHandler = new DFASimulator(svgHandler, tape, onPauseCallback);
       tape.moveTapeToStart();
       tape.fillTape("");
@@ -157,6 +174,7 @@ function setMachineType(machineType) {
     case "nfa":
       conv2dfaBtn.style.display = "flex";
       minimizeDfaBtn.style.display = "none";
+      generateFromRegexBtn.style.display = "flex";
       simulationHandler = new NFASimulator(svgHandler, tape, onPauseCallback);
       tape.moveTapeToStart();
       tape.fillTape("");
@@ -164,10 +182,17 @@ function setMachineType(machineType) {
     case "pda":
       tape.moveTapeToStart();
       tape.fillTape("");
+      conv2dfaBtn.style.display = "none";
+      minimizeDfaBtn.style.display = "none";
+      generateFromRegexBtn.style.display = "none";
       break;
     case "tm":
+      simulationHandler = new TmSimulator(svgHandler, tape, onPauseCallback);
       tape.moveTapeToMiddle();
       tape.fillTape(BLANK);
+      conv2dfaBtn.style.display = "none";
+      minimizeDfaBtn.style.display = "none";
+      generateFromRegexBtn.style.display = "none";
       break;
 
     default:

@@ -10,21 +10,29 @@ export default class BasicSimulator {
     this.states = [];
     this.initialState = null;
     this.isPlaying = false;
+    this.hasStarted = false;
     this.isAnimating = false;
     this.onPauseCallback = onPauseCallback;
     this.inputNode = null;
   }
   getInput() {
     const input = [];
-    const tape = this.tape.tape;
-    for (let i = 0; i < tape.children.length; i++) {
-      if (tape.children[i].children[0].value === "") {
+    // const tape = this.tape.tape;
+    // for (let i = 0; i < tape.children.length; i++) {
+    //   if (tape.children[i].children[0].value === "") {
+    //     break;
+    //   }
+    //   input.push(tape.children[i].children[0].value);
+    // }
+
+    // console.log("Input: ", input);
+
+    for (let i = 0; i < this.tape.cellCount; i++) {
+      if (this.tape.cells[i].children[0].value === this.tape.blank) {
         break;
       }
-      input.push(tape.children[i].children[0].value);
+      input.push(this.tape.getInputFieldAtIndex(i).value);
     }
-
-    console.log("Input: ", input);
     return input;
   }
 
@@ -36,17 +44,41 @@ export default class BasicSimulator {
   resetSimulation() {
     this.stopSimulation();
     this.inputIndex = 0;
-    this.tape.moveTapeToStart();
+    this.resetTapePosition();
     this.machine.reset();
     this.svgHandler.unHighlightAllControlPoints();
     this.highlightCurrentStates();
     this.svgHandler.isEditingDisabled = false;
+    console.error("who called me?");
     // this.svgHandler.unHighlightAllTransitions();
     // this.svgHandler.highlightControlPoints([this.initialState]);
   }
 
+  /* the commented code below is from the original implementation
+
+    stopSimulation() {
+    this.isPlaying = false;
+    this.isAnimating = false;
+    this.svgHandler.isEditingDisabled = false;
+    this.onPauseCallback();
+  }
+
+  */
+
+  pauseSimulation() {}
+
+  resetTapePosition() {
+    this.tape.moveTapeToStart();
+  }
+
   handlePlayPause() {
-    this.isPlaying = !this.isPlaying;
+    if (this.isPlaying) {
+      this.pauseSimulation();
+    } else if (this.hasStarted) {
+      this.resumeSimulation();
+    } else {
+      this.startSimulation();
+    }
     if (this.isPlaying) {
       this.svgHandler.isEditingDisabled = true;
       if (this.inputIndex >= this.getInput().length) {
@@ -75,13 +107,6 @@ export default class BasicSimulator {
     return resolvedAlphabet;
   }
 
-  stopSimulation() {
-    this.isPlaying = false;
-    this.isAnimating = false;
-    this.svgHandler.isEditingDisabled = false;
-    this.onPauseCallback();
-  }
-
   handlePrevious() {
     if (this.inputIndex > 0) {
       this.inputIndex--;
@@ -101,6 +126,9 @@ export default class BasicSimulator {
 
   handleNext() {
     if (this.isPlaying || this.isAnimating) {
+      return;
+    } else if (this.hasEnded) {
+      this.resetSimulation();
       return;
     }
     console.log("next");

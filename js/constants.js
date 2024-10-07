@@ -20,3 +20,6 @@ export const TEXT_FONT = "monospace";
 export const EPSILON = "ε";
 export const ID_SYMBOL = "⊢";
 export const BLANK = "␣";
+export const SUBSCRIPT_ZERO_CODE = 8320;
+export const LEFT = -1;
+export const RIGHT = 1;
