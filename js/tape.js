@@ -36,11 +36,16 @@ export default class Tape {
       });
     }
 
-    this.fillTape(this.blank);
+    this.fillTapeWithBlanks();
 
     this.tapeHead = document.createElement("div");
     this.tapeHead.id = "tape-head";
     this.tape.appendChild(this.tapeHead);
+    this.tapeHead.style.left = `${
+      this.cells[this.getTapeMiddleIndex()].style.left
+    }`;
+
+    this.headIndex = this.getTapeMiddleIndex();
 
     this.shifts = 0;
   }
@@ -50,6 +55,7 @@ export default class Tape {
   }
 
   moveTapeHead(dir) {
+    this.headIndex += dir;
     this.tapeHead.style.left = `${
       parseInt(this.tapeHead.style.left) +
       dir * (this.cellSize + 2 * this.cellMargin)
@@ -59,6 +65,7 @@ export default class Tape {
 
   moveTape(dir) {
     this.shifts -= dir;
+    this.headIndex -= dir;
     this.cells.forEach((cell) => {
       if (cell == this.tapeHead) {
         return;
@@ -70,15 +77,13 @@ export default class Tape {
   }
 
   writeAtHead(symbol) {
-    this.getInputFieldAtIndex(this.getHeadIndex()).value = symbol;
+    this.getInputFieldAtIndex(this.headIndex).value = symbol;
   }
 
   getSymbolAtHead() {
-    return this.getInputFieldAtIndex(this.getHeadIndex()).value;
-  }
-
-  getHeadIndex() {
-    return parseInt(this.cellCount / 2 + this.shifts);
+    const sym = this.getInputFieldAtIndex(this.headIndex).value;
+    console.log("Symbol:", sym);
+    return sym;
   }
 
   getInputFieldAtIndex(index) {
@@ -90,12 +95,14 @@ export default class Tape {
       this.cells[
         this.cellCount / 2 - this.maxCellDisplay / 2 + this.shifts
       ].style.left;
+    this.headIndex = this.cellCount / 2 - this.maxCellDisplay / 2 + this.shifts;
   }
 
   //change this
   moveHeadToMiddle() {
     this.tapeHead.style.left =
-      this.cells[Math.floor(this.cellCount / 2) + this.shifts].style.left;
+      this.cells[this.getTapeMiddleIndex() + this.shifts].style.left;
+    this.headIndex = this.getTapeMiddleIndex() + this.shifts;
   }
 
   moveTapeToStart() {
@@ -113,13 +120,18 @@ export default class Tape {
     this.moveHeadToMiddle();
   }
 
+  getTapeMiddleIndex() {
+    return Math.floor(this.cellCount / 2);
+  }
+
   setTransitionDurationMS(durationMS) {
     this.setCSSVariable("--duration", `${durationMS}ms`);
   }
 
-  fillTape(symbol) {
+  fillTapeWithBlanks() {
     this.cells.forEach((cell) => {
-      cell.childNodes[0].value = symbol;
+      cell.childNodes[0].value = this.blank;
     });
+    console.error("Blank:", this.blank);
   }
 }
