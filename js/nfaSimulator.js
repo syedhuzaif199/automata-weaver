@@ -3,8 +3,8 @@ import { DANGER_COLOR, EPSILON } from "./constants.js";
 import NFA from "./nfa.js";
 
 export default class NFASimulator extends BasicSimulator {
-  constructor(svgHandler, tape, onPauseCallback = () => {}) {
-    super(svgHandler, tape, onPauseCallback);
+  constructor(svgHandler, tape, onNotPlayingCallback = () => {}) {
+    super(svgHandler, tape, onNotPlayingCallback);
     this.machine = new NFA();
   }
 
@@ -17,62 +17,16 @@ export default class NFASimulator extends BasicSimulator {
   }
 
   retrieveMachine() {
-    this.machine.transitions = {};
-    const controlPoints = this.svgHandler.controlPoints;
-    const transitions = this.svgHandler.transitions;
-
-    const numStates = controlPoints.length - 1;
-    this.machine.numStates = numStates;
+    super.retrieveMachine();
     const alphabet = this.getAlphabet();
-    this.machine.alphabet = alphabet;
-    const input = this.getInput();
-
-    // check if input symbols are in the alphabet
-    for (let symbol of input) {
-      if (!this.machine.alphabet.includes(symbol) && symbol !== "") {
-        alert(`Input symbol ${symbol} does not belong to the alphabet`);
-        return false;
-      }
-    }
-    const finalStates = [];
-    this.states = [];
     const inputNode = this.svgHandler.inputNode;
-    this.initialState = null;
-
-    // find the initial state
-    transitions.forEach((transition) => {
-      if (transition.startControlPoint === inputNode) {
-        this.initialState = transition.endControlPoint;
-      }
-    });
-    if (this.initialState === null) {
-      return false;
-    }
-
-    // add the initial state
-    this.states[0] = this.initialState;
-    if (this.initialState.isFinal()) {
-      finalStates.push(0);
-    }
-    let stateIndex = 1;
-
-    // add the rest of the states
-    controlPoints.forEach((controlPoint) => {
-      if (controlPoint !== this.initialState && controlPoint !== inputNode) {
-        this.states[stateIndex] = controlPoint;
-        if (controlPoint.isFinal()) {
-          finalStates.push(stateIndex);
-        }
-        stateIndex++;
-      }
-    });
 
     // add transitions
     let symbolsNotInAlpha = new Set();
     let alertMessage = "";
 
     this.states.forEach((state, i) => {
-      const transitionsFromState = transitions.filter(
+      const transitionsFromState = this.transitions.filter(
         (transition) => transition.startControlPoint === state
       );
 
@@ -105,7 +59,7 @@ export default class NFASimulator extends BasicSimulator {
     });
 
     //check if all the transition symbols belong to the alphabet
-    transitions.forEach((transition) => {
+    this.transitions.forEach((transition) => {
       if (transition.startControlPoint === inputNode) {
         return;
       }
@@ -127,26 +81,18 @@ export default class NFASimulator extends BasicSimulator {
       return false;
     }
 
-    this.machine.finalStates = finalStates;
+    this.machine.finalStates = this.finalStates;
     console.log("NFA:", this.machine);
     return true;
   }
 
   next() {
-    const input = this.getInput();
-    if (!this.retrieveMachine()) {
-      console.log("Error in retrieving NFA");
-      this.resetSimulation();
-      return;
+    const nextSymbol = this.tape.getSymbolAtHead();
+    console.log("Next symbol:", nextSymbol);
+
+    if (nextSymbol === this.tape.blank) {
+      return Promise.resolve(true);
     }
-    if (this.inputIndex >= input.length) {
-      this.checkSuccess();
-      this.stopSimulation();
-      console.log("No more input");
-      return;
-    }
-    console.log("Input:", input);
-    const nextSymbol = input[this.inputIndex];
 
     const currentStates = this.states.filter((state, i) =>
       this.machine.currentStates.includes(i)
@@ -172,61 +118,64 @@ export default class NFASimulator extends BasicSimulator {
 
     if (nextTransitions === undefined) {
       console.log("No transitions found");
-      this.resetSimulation();
-      return;
+      return Promise.reject();
     }
 
-    let deadStates = new Set(currentStates);
-    deadStates = deadStates.difference(new Set(nextStates));
+    //rework the whole dead state highlighting logic
 
-    //rework the whole thing
-    if (nextStates.length === 0) {
-      this.highlightDeadStates(currentStates);
-      this.machine.run(input.slice(0, this.inputIndex));
-      this.stopSimulation();
-      return;
-    }
+    // let deadStates = new Set(currentStates);
+    // deadStates = deadStates.difference(new Set(nextStates));
+
+    // if (nextStates.length === 0) {
+    //   this.highlightDeadStates(currentStates);
+    //   this.machine.run(input.slice(0, this.inputIndex));
+    //   return Promise.resolve(true);
+    // }
 
     this.svgHandler.highlightControlPoints([]);
     nextTransitions.forEach((transition) => {
       this.svgHandler.highlightTransition(transition);
     });
-    this.isAnimating = true;
-    setTimeout(() => {
-      nextTransitions.forEach((transition) => {
-        this.svgHandler.unHighlightTransition(transition);
-      });
-      this.inputIndex++;
-      this.tape.moveTapeHead(1);
-      this.checkSuccess();
-      this.highlightDeadStates(deadStates);
-      this.highlightCurrentStates();
-      this.isAnimating = false;
+
+    return new Promise((resolve) => {
       setTimeout(() => {
-        if (this.isPlaying) {
-          this.next();
+        nextTransitions.forEach((transition) => {
+          this.svgHandler.unHighlightTransition(transition);
+        });
+        this.inputIndex++;
+        this.tape.moveTapeHead(1);
+        // this.highlightDeadStates(deadStates);
+        this.highlightCurrentStates();
+        if (this.tape.getSymbolAtHead() === this.tape.blank) {
+          resolve(true);
+        } else {
+          resolve(false);
         }
       }, this.getAnimDelay());
-    }, this.getAnimDelay());
+    });
   }
 
-  highlightDeadStates(deadStates) {
-    this.svgHandler.setFailStates(deadStates);
+  highlightCurrentStates() {
+    const currentStates = this.states.filter((state, i) =>
+      this.machine.currentStates.includes(i)
+    );
+    this.svgHandler.highlightControlPoints(currentStates);
   }
 
   checkSuccess() {
-    const input = this.getInput();
-    if (this.inputIndex >= input.length) {
-      const currentStates = this.states.filter((state, i) =>
-        this.machine.currentStates.includes(i)
-      );
-      const sucessStates = [];
-      currentStates.forEach((currentState) => {
-        if (currentState.isFinal()) {
-          sucessStates.push(currentState);
-        }
-      });
-      this.svgHandler.setSuccessStates(sucessStates);
-    }
+    const currentStates = this.states.filter((state, i) =>
+      this.machine.currentStates.includes(i)
+    );
+    const sucessStates = [];
+    const failStates = [];
+    currentStates.forEach((currentState) => {
+      if (currentState.isFinal()) {
+        sucessStates.push(currentState);
+      } else {
+        failStates.push(currentState);
+      }
+    });
+    this.svgHandler.setSuccessStates(sucessStates);
+    this.svgHandler.setFailStates(failStates);
   }
 }
