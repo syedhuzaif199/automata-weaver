@@ -115,7 +115,7 @@ clearCanvasBtn.addEventListener("click", onClearCanvasBtnClick);
 const playPauseBtn = document.querySelector("#play-pause");
 playPauseBtn.addEventListener("click", onPlayPauseBtnClick);
 
-const onPauseCallback = () => {
+const onNotPlayingCallback = () => {
   playPauseBtn.children[0].src = "./assets/play.svg";
 };
 
@@ -148,6 +148,14 @@ minimizeDfaBtn.addEventListener("click", () =>
 const generateFromRegexBtn = document.querySelector("#gen-regex");
 generateFromRegexBtn.addEventListener("click", () => {});
 
+const speedSlider = document.querySelector("#speed");
+speedSlider.addEventListener("change", () => {
+  document.documentElement.style.setProperty(
+    "--cell-anim-duration",
+    `${1000 - speed.value + 10}ms`
+  );
+});
+
 function setMachineType(machineType) {
   console.log("Machine Type Changed", machineType);
   const tapeAlphaBox = document.getElementById("tape-alphabet-box");
@@ -167,36 +175,44 @@ function setMachineType(machineType) {
       conv2dfaBtn.style.display = "none";
       minimizeDfaBtn.style.display = "flex";
       generateFromRegexBtn.style.display = "flex";
-      simulationHandler = new DFASimulator(svgHandler, tape, onPauseCallback);
-      tape.moveTapeToStart();
-      tape.fillTape("");
+      simulationHandler = new DFASimulator(
+        svgHandler,
+        tape,
+        onNotPlayingCallback
+      );
       break;
     case "nfa":
       conv2dfaBtn.style.display = "flex";
       minimizeDfaBtn.style.display = "none";
       generateFromRegexBtn.style.display = "flex";
-      simulationHandler = new NFASimulator(svgHandler, tape, onPauseCallback);
-      tape.moveTapeToStart();
-      tape.fillTape("");
+      simulationHandler = new NFASimulator(
+        svgHandler,
+        tape,
+        onNotPlayingCallback
+      );
       break;
     case "pda":
-      tape.moveTapeToStart();
-      tape.fillTape("");
       conv2dfaBtn.style.display = "none";
       minimizeDfaBtn.style.display = "none";
       generateFromRegexBtn.style.display = "none";
       break;
     case "tm":
-      simulationHandler = new TmSimulator(svgHandler, tape, onPauseCallback);
-      tape.moveTapeToMiddle();
-      tape.fillTape(BLANK);
+      simulationHandler = new TmSimulator(
+        svgHandler,
+        tape,
+        onNotPlayingCallback
+      );
       conv2dfaBtn.style.display = "none";
       minimizeDfaBtn.style.display = "none";
       generateFromRegexBtn.style.display = "none";
       break;
 
     default:
-      simulationHandler = new DFASimulator(svgHandler, tape, onPauseCallback);
+      simulationHandler = new DFASimulator(
+        svgHandler,
+        tape,
+        onNotPlayingCallback
+      );
       break;
   }
 }
@@ -220,7 +236,10 @@ function onClearCanvasBtnClick() {
 
 function onPlayPauseBtnClick() {
   simulationHandler.handlePlayPause();
-  if (simulationHandler.isPlaying) {
+  if (
+    simulationHandler.simulationState ===
+    simulationHandler.simulationStates.PLAYING
+  ) {
     playPauseBtn.children[0].src = "./assets/pause.svg";
   } else {
     playPauseBtn.children[0].src = "./assets/play.svg";
@@ -341,6 +360,17 @@ document.addEventListener("DOMContentLoaded", () => {
   panes.forEach((pane) => (pane.style.display = "none"));
   const machineTypeSelect = document.querySelector("#machine-type");
   setMachineType(machineTypeSelect.value);
+  if (!darkMode) {
+    return;
+  }
+
+  //setup dark mode
+  document.querySelectorAll("img").forEach((img) => {
+    const arr = img.src.split("/");
+    img.src = "./assets/dark/" + arr[arr.length - 1];
+  });
+  document.documentElement.style.setProperty("--controls-bg", "#243642");
+  document.documentElement.style.setProperty("--primary-color", "#f5f5f5");
 });
 
 document.addEventListener("wheel", (e) => {
