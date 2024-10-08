@@ -9,8 +9,6 @@ export default class TM {
     this.transitions = {};
     this.currentState = 0;
     this.blank = blank;
-    this.tape = [];
-    this.tapeHead = 0;
   }
 
   addFinalStates(states) {
@@ -27,22 +25,8 @@ export default class TM {
     }
   }
 
-  writeInput(input) {
-    this.tape = [...input];
-  }
-
-  next() {
-    const symbol = this.tape[this.tapeHead];
-    let id = "";
-    for (let i = 0; i < this.tape.length; i++) {
-      if (i == this.tapeHead) {
-        id += `q${String.fromCharCode(
-          SUBSCRIPT_ZERO_CODE + this.currentState
-        )}`;
-      }
-      id += this.tape[i];
-    }
-    console.log("ID: ", id);
+  // returns true if the machine hasn't halted, else returns false
+  next(symbol) {
     if (this.transitions[[this.currentState, symbol]] === undefined) {
       console.log(
         "No transition found for state",
@@ -50,45 +34,19 @@ export default class TM {
         "and symbol",
         symbol
       );
-      console.log("Tape: ", this.tape);
-      console.log("TapeHead: ", this.tapeHead);
       return false;
     }
 
     const [endState, writeSymbol, move] =
       this.transitions[[this.currentState, symbol]];
-    // console.log("Tape:", this.tape);
-    // console.log("TapeHead:", this.tapeHead);
-    // console.log("Next state: ", endState);
     this.currentState = endState;
-    this.tape[this.tapeHead] = writeSymbol;
-    if (this.tapeHead + move < 0) {
-      this.tape.unshift(this.blank);
-    } else {
-      this.tapeHead += move;
-    }
-    if (this.tapeHead == this.tape.length) {
-      this.tape.push(this.blank);
-    }
     if (this.finalStates.includes(this.currentState)) {
       return false;
     }
     return true;
   }
 
-  run() {
-    this.currentState = 0;
-    while (this.next()) {}
-    if (this.finalStates.includes(this.currentState)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   reset() {
     this.currentState = 0;
-    this.tape = [];
-    this.tapeHead = 0;
   }
 }
