@@ -147,6 +147,12 @@ export default class SVGHandler {
       return newT;
     });
     this.inputNode = this.controlPoints[0];
+    const inputTransition = this.transitions.find(
+      (transition) => transition.startControlPoint === this.inputNode
+    );
+    if (inputTransition) {
+      this.highlightControlPoints([inputTransition.endControlPoint]);
+    }
     this.updateAllTransitions();
   }
 
@@ -233,7 +239,7 @@ export default class SVGHandler {
         this.controlPoints[1].y
       )
     );
-
+    this.highlightControlPoints([this.controlPoints[1]]);
     this.transitions.push(transition);
 
     this.updateAllTransitions();
@@ -611,7 +617,6 @@ export default class SVGHandler {
 
   onMouseLeave(e) {
     this.changeState(states.default);
-    console.log("left");
   }
 
   onMouseWheel(e) {
