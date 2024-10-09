@@ -158,12 +158,22 @@ export default class SVGHandler {
 
   saveToLocalStorage() {
     const data = this.saveToJSON();
-    localStorage.setItem("automatonData", data);
+    let name = prompt("Enter the name of the automaton");
+    localStorage.setItem(name, data);
   }
 
   loadFromLocalStorage() {
-    const data = localStorage.getItem("automatonData");
-    if (data) {
+    // const data = localStorage.getItem("automatonData");
+    let names = "";
+    for (let i = 0; i < localStorage.length; i++) {
+      names += `${localStorage.key(i)}\n`;
+    }
+    if (names === "") {
+      alert("No automaton saved!");
+      return;
+    }
+    const name = prompt("Enter the name of the automaton to load\n" + names);
+    if (name) {
       this.loadFromJSON(data);
     } else {
       console.error("No automaton data found!");
