@@ -174,6 +174,7 @@ export default class SVGHandler {
     }
     const name = prompt("Enter the name of the automaton to load\n" + names);
     if (name) {
+      const data = localStorage.getItem(name);
       this.loadFromJSON(data);
     } else {
       console.error("No automaton data found!");
