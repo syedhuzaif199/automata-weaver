@@ -360,17 +360,6 @@ document.addEventListener("DOMContentLoaded", () => {
   panes.forEach((pane) => (pane.style.display = "none"));
   const machineTypeSelect = document.querySelector("#machine-type");
   setMachineType(machineTypeSelect.value);
-  if (!darkMode) {
-    return;
-  }
-
-  //setup dark mode
-  document.querySelectorAll("img").forEach((img) => {
-    const arr = img.src.split("/");
-    img.src = "./assets/dark/" + arr[arr.length - 1];
-  });
-  document.documentElement.style.setProperty("--controls-bg", "#243642");
-  document.documentElement.style.setProperty("--primary-color", "#f5f5f5");
 });
 
 document.addEventListener("wheel", (e) => {

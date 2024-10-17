@@ -389,6 +389,10 @@ export default class SVGHandler {
   }
 
   setAction(action) {
+    if (this.startControlPoint && action !== actions.addTransition) {
+      this.arrow.remove();
+      this.startControlPoint = null;
+    }
     this.action = action;
     this.svg.style.cursor = actionToCursor[action];
     // deselect any selected elements if any button other than select is pressed

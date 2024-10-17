@@ -187,7 +187,9 @@ class Arrow {
   remove() {
     this.arrowBody.remove();
     this.arrowHead.remove();
-    this.boundingPoly.remove();
+    if (this.boundingPoly) {
+      this.boundingPoly.remove();
+    }
     this.text.remove();
   }
 

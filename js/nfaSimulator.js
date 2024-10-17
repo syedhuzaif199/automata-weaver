@@ -6,6 +6,7 @@ export default class NFASimulator extends BasicSimulator {
   constructor(svgHandler, tape, onNotPlayingCallback = () => {}) {
     super(svgHandler, tape, onNotPlayingCallback);
     this.machine = new NFA();
+    this.resetSimulation();
   }
 
   convertToDFA() {
@@ -143,7 +144,7 @@ export default class NFASimulator extends BasicSimulator {
           this.svgHandler.unHighlightTransition(transition);
         });
         this.inputIndex++;
-        this.tape.moveTapeHead(1);
+        this.tape.moveTape(-1);
         // this.highlightDeadStates(deadStates);
         this.highlightCurrentStates();
         if (this.tape.getSymbolAtHead() === this.tape.blank) {

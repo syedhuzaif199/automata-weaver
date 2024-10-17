@@ -6,7 +6,7 @@ export default class BasicSimulator {
     this.tape = tape;
     this.tape.blank = "";
     this.tape.fillTapeWithBlanks();
-    this.tape.moveTapeToStart();
+    this.tape.moveTapeToMiddle();
     this.alphabetTextField = document.querySelector("#alphabet-text");
     this.states = [];
     this.initialState = null;
@@ -48,7 +48,9 @@ export default class BasicSimulator {
     this.resetTape();
     this.svgHandler.setFailStates([]);
     this.svgHandler.setSuccessStates([]);
-    this.svgHandler.highlightControlPoints([this.initialState]);
+    if (this.initialState) {
+      this.svgHandler.highlightControlPoints([this.initialState]);
+    }
     this.svgHandler.unHighlightAllTransitions();
     this.machine.reset();
 
@@ -93,7 +95,7 @@ export default class BasicSimulator {
 
   // override for Turing machines
   resetTape() {
-    this.tape.moveTapeToStart();
+    this.tape.moveTapeToMiddle();
   }
 
   getAlphabet() {
@@ -307,18 +309,24 @@ export default class BasicSimulator {
       input.push(this.tape.getInputFieldAtIndex(i).value);
     }
     console.error("Input:", input);
-    this.machine.run(input);
-    this.tape.moveTapeHead(input.length);
+    input.forEach((symbol) => {
+      this.machine.next(symbol);
+    });
+    this.tape.moveTape(-input.length);
     this.endSimulation();
   }
 
   //override for Turing machines
   previous() {
-    if (this.tape.headIndex > 0) {
+    if (this.tape.headIndex > this.tape.getTapeMiddleIndex()) {
       this.machine.reset();
-      this.tape.moveTapeHead(-1);
+      this.tape.moveTape(1);
       const input = [];
-      for (let i = 0; i < this.tape.headIndex; i++) {
+      for (
+        let i = this.tape.getTapeMiddleIndex();
+        i < this.tape.headIndex;
+        i++
+      ) {
         input.push(this.tape.getInputFieldAtIndex(i).value);
       }
       console.log("Input:", input);

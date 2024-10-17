@@ -6,6 +6,7 @@ export default class DFASimulator extends BasicSimulator {
   constructor(svgHandler, tape, onNotPlayingCallback = () => {}) {
     super(svgHandler, tape, onNotPlayingCallback);
     this.machine = new DFA();
+    this.resetSimulation();
   }
   retrieveMachine() {
     super.retrieveMachine();
@@ -146,7 +147,7 @@ export default class DFASimulator extends BasicSimulator {
       setTimeout(() => {
         this.svgHandler.unHighlightTransition(transition);
         this.machine.next(nextSymbol);
-        this.tape.moveTapeHead(1);
+        this.tape.moveTape(-1);
         this.highlightCurrentStates();
 
         if (this.tape.getSymbolAtHead() === this.tape.blank) {
