@@ -132,6 +132,5 @@ export default class Tape {
     this.cells.forEach((cell) => {
       cell.childNodes[0].value = this.blank;
     });
-    console.error("Blank:", this.blank);
   }
 }
