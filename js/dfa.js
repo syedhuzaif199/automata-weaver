@@ -163,11 +163,12 @@ export default class DFA {
 
     finalStates = [];
     for (let i = 0; i < eq_classes.length; i++) {
-      const isFinal = this.finalStates.find((state) => {
-        return eq_classes[i].includes(state);
-      });
+      const isFinal = this.finalStates.find((state) =>
+        eq_classes[i].includes(state)
+      );
 
-      if (isFinal) {
+      if (isFinal !== undefined) {
+        console.log("Pushed final state", indexes[i]);
         finalStates.push(indexes[i]);
       }
     }
