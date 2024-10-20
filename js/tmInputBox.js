@@ -1,6 +1,6 @@
-import { BLANK } from "./constants.js";
+import { BLANK, TEXT_SIZE } from "./constants.js";
 
-const BASE_FONT_SIZE = 32;
+const TEXT_SIZE = 32;
 const BASE_BTN_SIZE = 40;
 const BASE_BTN_IMG_SIZE = 25;
 
@@ -11,7 +11,7 @@ export default class TMTextBox {
   spawn(x, y, scale, texts) {
     document.documentElement.style.setProperty(
       "--inputbox-font-size",
-      BASE_FONT_SIZE * scale + "px"
+      TEXT_SIZE * scale + "px"
     );
     document.documentElement.style.setProperty(
       "--inputbox-btn-size",
@@ -74,6 +74,23 @@ export default class TMTextBox {
 
   hide() {
     this.tmInputBox.style.display = "none";
+  }
+
+  updatePosition(x, y, scale) {
+    this.tmInputBox.style.left = x + "px";
+    this.tmInputBox.style.top = y + "px";
+    document.documentElement.style.setProperty(
+      "--inputbox-font-size",
+      TEXT_SIZE * scale + "px"
+    );
+    document.documentElement.style.setProperty(
+      "--inputbox-btn-size",
+      BASE_BTN_SIZE * scale + "px"
+    );
+    document.documentElement.style.setProperty(
+      "--inputbox-btn-img-size",
+      BASE_BTN_IMG_SIZE * scale + "px"
+    );
   }
 
   isVisible() {

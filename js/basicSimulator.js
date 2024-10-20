@@ -55,6 +55,7 @@ export default class BasicSimulator {
     this.machine.reset();
 
     this.svgHandler.isEditingDisabled = false;
+    this.highlightCurrentStates();
   }
   playSimulation() {
     this.simulationState = this.simulationStates.PLAYING;
@@ -89,7 +90,7 @@ export default class BasicSimulator {
   endSimulation() {
     this.simulationState = this.simulationStates.ENDED;
     this.svgHandler.isEditingDisabled = false;
-    console.log("Ended simulation");
+    console.error("Ended simulation");
     this.checkSuccess();
   }
 

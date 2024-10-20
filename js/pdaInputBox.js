@@ -75,6 +75,23 @@ export default class PDATextBox {
     this.pdaInputBox.style.display = "none";
   }
 
+  updatePosition(x, y, scale) {
+    this.pdaInputBox.style.left = x + "px";
+    this.pdaInputBox.style.top = y + "px";
+    document.documentElement.style.setProperty(
+      "--inputbox-font-size",
+      BASE_FONT_SIZE * scale + "px"
+    );
+    document.documentElement.style.setProperty(
+      "--inputbox-btn-size",
+      BASE_BTN_SIZE * scale + "px"
+    );
+    document.documentElement.style.setProperty(
+      "--inputbox-btn-img-size",
+      BASE_BTN_IMG_SIZE * scale + "px"
+    );
+  }
+
   isVisible() {
     return this.pdaInputBox.style.display !== "none";
   }
