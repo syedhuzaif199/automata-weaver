@@ -1,6 +1,5 @@
 import { BLANK, TEXT_SIZE } from "./constants.js";
 
-const TEXT_SIZE = 32;
 const BASE_BTN_SIZE = 40;
 const BASE_BTN_IMG_SIZE = 25;
 
