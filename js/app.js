@@ -106,12 +106,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document
-    .getElementById("close-load-machine-popup")
-    .addEventListener("click", () => {
-      document.getElementById("load-machine-popup").style.display = "none";
-    });
-
-  document
     .getElementById("close-signup-popup")
     .addEventListener("click", () => {
       document.getElementById("signup-popup").style.display = "none";

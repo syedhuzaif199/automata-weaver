@@ -362,6 +362,7 @@ header__left-dock-static {
     font-size: 20px;
     color: var(--primary-color);
     z-index: 1;
+    font-family: inherit;
 }
 
 #tape-head {

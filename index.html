@@ -126,7 +126,6 @@
         </button>
 
         <div class="menu" id="profile-pane">
-          </button>
           <button class="menu-button" id="login-btn">
             <i data-lucide="log-in"></i> Login
           </button>
@@ -371,19 +370,35 @@
             <i data-lucide="x"></i>
           </button>
         </div>
+        <div class="popup-body"></div>
+      </div>
+    </div>
+
+    <div id="save-machine-popup" class="popup">
+      <div class="popup-content">
+        <div class="popup-header">
+          <h2>Save Machine</h2>
+          <button
+            class="icon-button sm"
+            id="close-save-machine-popup"
+            title="Close Popup"
+          >
+            <i data-lucide="x"></i>
+          </button>
+        </div>
         <div class="popup-body">
-            <div class="input-box">
-              <div class="inner-input-box">
-                <button class="popup-button">Automaton 1</button>
-                <button class="icon-button sm" id="delete-machine">
-                  <i data-lucide="trash"></i>
-              </div>
-              <div class="inner-input-box">
-                <button class="popup-button">Automaton 2</button>
-                <button class="icon-button sm" id="delete-machine">
-                  <i data-lucide="trash"></i>
-              </div>
-            </div>
+          <div class="input-box">
+            <label for="machine-name">Machine Name</label>
+            <input
+              class="input-field"
+              type="text"
+              id="save-machine-name"
+              placeholder="Enter machine name"
+            />
+          </div>
+          <div class="input-box">
+            <button class="popup-button" id="save-machine-ok">Save</button>
+          </div>
         </div>
       </div>
     </div>
@@ -402,7 +417,7 @@
         </div>
         <div class="popup-body">
           <div class="input-box">
-            <p id="alert-text">The erroneous transitions are highlighted in red!</p>
+            <p id="alert-text"></p>
           </div>
           <div class="input-box">
             <button class="popup-button" id="alert-ok">OK</button>

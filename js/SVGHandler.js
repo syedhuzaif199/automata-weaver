@@ -19,6 +19,9 @@ import {
   TEXTBOX_BASE_WIDTH,
   EPSILON,
 } from "./constants.js";
+import { alertPopup } from "./AlertPopup.js";
+import { loadMachinePopup } from "./LoadMachinePopup.js";
+import { saveMachinePopup } from "./SaveMachinePopup.js";
 
 const states = Object.freeze({
   default: 0,
@@ -166,27 +169,38 @@ export default class SVGHandler {
 
   saveToLocalStorage() {
     const data = this.saveToJSON();
-    let name = prompt("Enter the name of the automaton");
-    localStorage.setItem(name, data);
+    saveMachinePopup((name) => {
+      localStorage.setItem(name, data);
+    });
   }
 
   loadFromLocalStorage() {
     // const data = localStorage.getItem("automatonData");
-    let names = "";
+    let names = [];
     for (let i = 0; i < localStorage.length; i++) {
-      names += `${localStorage.key(i)}\n`;
+      names.push(`${localStorage.key(i)}`);
     }
     if (names === "") {
-      alert("No automaton saved!");
+      alertPopup("No automaton saved!");
       return;
     }
-    const name = prompt("Enter the name of the automaton to load\n" + names);
-    if (name) {
-      const data = localStorage.getItem(name);
-      this.loadFromJSON(data);
-    } else {
-      console.error("No automaton data found!");
-    }
+    loadMachinePopup(
+      names,
+      (name) => {
+        const data = localStorage.getItem(name);
+        this.loadFromJSON(data);
+      },
+      (name) => {
+        localStorage.removeItem(name);
+      }
+    );
+    // const name = prompt("Enter the name of the automaton to load\n" + names);
+    // if (name) {
+    //   const data = localStorage.getItem(name);
+    //   this.loadFromJSON(data);
+    // } else {
+    //   console.error("No automaton data found!");
+    // }
   }
 
   drawDFA(dfa) {
