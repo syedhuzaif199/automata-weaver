@@ -30,7 +30,9 @@ export default class TmSimulator extends BasicSimulator {
 
     for (let symbol of alphabet) {
       if (!tapeAlphabet.includes(symbol)) {
-        alert(`Alphabet symbol ${symbol} does not belong to the tape alphabet`);
+        alertPopup(
+          `Alphabet symbol ${symbol} does not belong to the tape alphabet`
+        );
         return false;
       }
     }
@@ -138,7 +140,7 @@ export default class TmSimulator extends BasicSimulator {
 
     if (alertMessage !== "") {
       alertMessage += "The erroneous transitions are highlighted in red.";
-      alert(alertMessage);
+      alertPopup(alertMessage);
       return false;
     }
 
@@ -235,7 +237,7 @@ export default class TmSimulator extends BasicSimulator {
   checkSymbolsInAlphabet() {
     for (let symbol of this.input) {
       if (!this.machine.alphabet.includes(symbol) && symbol !== "") {
-        alert(`Input symbol ${symbol} does not belong to the alphabet`);
+        alertPopup(`Input symbol ${symbol} does not belong to the alphabet`);
         return false;
       }
     }

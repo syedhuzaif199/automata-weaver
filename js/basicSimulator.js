@@ -1,3 +1,4 @@
+import { alertPopup } from "./AlertPopup.js";
 import { lettersFromRange } from "./utils.js";
 
 export default class BasicSimulator {
@@ -241,7 +242,7 @@ export default class BasicSimulator {
     const input = this.getInput();
     for (let symbol of input) {
       if (!this.machine.alphabet.includes(symbol) && symbol !== "") {
-        alert(`Input symbol ${symbol} does not belong to the alphabet`);
+        alertPopup(`Input symbol ${symbol} does not belong to the alphabet`);
         return false;
       }
     }

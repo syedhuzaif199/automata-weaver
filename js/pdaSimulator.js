@@ -226,7 +226,7 @@ export default class PDASimulator extends BasicSimulator {
     }
 
     if (alertMessage !== "") {
-      alert(alertMessage);
+      alertPopup(alertMessage);
       return false;
     }
 

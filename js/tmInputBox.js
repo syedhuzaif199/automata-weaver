@@ -75,7 +75,7 @@ export default class TMTextBox {
     addBtn.addEventListener("click", () => this.onAddBtnClick(addBtn));
 
     const btnImg = document.createElement("img");
-    btnImg.src = "./assets/plus.svg";
+    btnImg.src = "./assets/dark/plus.svg";
     addBtn.appendChild(btnImg);
 
     innerBox.appendChild(addBtn);
@@ -154,7 +154,7 @@ export default class TMTextBox {
     lastChild.removeChild(addBtn);
     const remBtn = document.createElement("button");
     const btnImg = document.createElement("img");
-    btnImg.src = "./assets/minus.svg";
+    btnImg.src = "./assets/dark/minus.svg";
     remBtn.appendChild(btnImg);
     remBtn.addEventListener("click", (e) => {
       this.tmInputBox.removeChild(remBtn.parentElement);

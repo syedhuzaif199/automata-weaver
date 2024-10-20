@@ -1,3 +1,4 @@
+import { alertPopup } from "./AlertPopup.js";
 import BasicSimulator from "./basicSimulator.js";
 import { DANGER_COLOR } from "./constants.js";
 import DFA from "./dfa.js";
@@ -101,7 +102,7 @@ export default class DFASimulator extends BasicSimulator {
     }
 
     if (alertMessage !== "") {
-      alert(alertMessage);
+      alertPopup(alertMessage);
       return false;
     }
 

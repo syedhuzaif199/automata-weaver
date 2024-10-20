@@ -86,7 +86,7 @@ export default class NFASimulator extends BasicSimulator {
     }
 
     if (alertMessage !== "") {
-      alert(alertMessage);
+      alertPopup(alertMessage);
       return false;
     }
 
@@ -110,8 +110,10 @@ export default class NFASimulator extends BasicSimulator {
     console.log("Current states:", currentStates);
 
     const isNext = this.machine.move(
-      this.machine.nullClosure(this.machine.currentStates, nextSymbol)
+      this.machine.nullClosure(this.machine.currentStates),
+      nextSymbol
     );
+    console.log("Is next:", isNext);
     if (isNext.length === 0) {
       console.log(this.machine);
       console.log("No next states found");

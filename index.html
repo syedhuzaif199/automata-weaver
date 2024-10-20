@@ -121,9 +121,19 @@
           </button>
         </div>
         <span>|</span>
-        <button class="icon-button sm">
+        <button class="icon-button sm" id="profile-btn">
           <i data-lucide="circle-user"></i>
         </button>
+
+        <div class="menu" id="profile-pane">
+          </button>
+          <button class="menu-button" id="login-btn">
+            <i data-lucide="log-in"></i> Login
+          </button>
+          <button class="menu-button" id="signup-btn">
+            <i data-lucide="user-plus"></i> Sign Up
+          </button>
+        </div>
       </div>
     </header>
     <!-- Main -->
@@ -175,6 +185,9 @@
             />
           </div>
         </div>
+        <div class="overflow">
+          <div id="stack"></div>
+        </div>
         <div class="zoom-controls">
           <button class="icon-button" id="zoom-out">
             <i data-lucide="minus"></i>
@@ -199,6 +212,204 @@
         <div id="tm-input-box" class="mach-input-box"></div>
       </div>
     </main>
+
+    <div id="login-popup" class="popup">
+      <div class="popup-content">
+        <div class="popup-header">
+          <h2>Login</h2>
+          <button
+            class="icon-button sm"
+            id="close-login-popup"
+            title="Close Popup"
+          >
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="popup-body">
+          <form action="" method="post">
+            <div class="input-box">
+              <label for="username">Email or Username</label>
+              <input
+                class="input-field"
+                type="text"
+                id="usernameOrEmail"
+                placeholder="Enter your email or username"
+              />
+            </div>
+            <div class="input-box">
+              <label for="password">Password</label>
+              <input
+                class="input-field"
+                type="password"
+                id="password"
+                placeholder="Enter your password"
+              />
+            </div>
+            <div class="input-box">
+              <input
+                type="submit"
+                id="login-submit"
+                class="popup-button"
+                value="Login"
+              />
+            </div>
+          </form>
+          <div class="popup-separator"></div>
+          <div class="popup-social">
+            <div class="input-box">
+              <button class="popup-button" id="google-login">
+                <img
+                  src="https://img.icons8.com/color/48/000000/google-logo.png"
+                  alt="Google Logo"
+                />
+                Login with Google
+              </button>
+            </div>
+
+            <div class="popup-footer">
+              <div class="input-box">
+                <p><a href="">Forgot Password?</a></p>
+                <p>Don't have an account?</p>
+                <button class="popup-button" id="signup-btn">Sign Up</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="signup-popup" class="popup">
+      <div class="popup-content">
+        <div class="popup-header">
+          <h2>Sign Up</h2>
+          <button
+            class="icon-button sm"
+            id="close-signup-popup"
+            title="Close Popup"
+          >
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="popup-body">
+          <form action="" method="post">
+            <div class="input-box">
+              <label for="username">Username</label>
+              <input
+                class="input-field"
+                type="text"
+                id="username"
+                placeholder="Enter your username"
+              />
+            </div>
+            <div class="input-box">
+              <label for="email">Email</label>
+              <input
+                class="input-field"
+                type="text"
+                id="email"
+                placeholder="Enter your email"
+              />
+            </div>
+            <div class="input-box">
+              <label for="password">Password</label>
+              <input
+                class="input-field"
+                type="password"
+                id="password1"
+                placeholder="Enter your password"
+              />
+            </div>
+            <div class="input-box">
+              <label for="password">Confirm Password</label>
+              <input
+                class="input-field"
+                type="password"
+                id="password2"
+                placeholder="Confirm your password"
+              />
+            </div>
+            <div class="input-box">
+              <input
+                type="submit"
+                id="signup-submit"
+                class="popup-button"
+                value="Sign up"
+              />
+            </div>
+          </form>
+          <div class="popup-separator"></div>
+          <div class="popup-social">
+            <div class="input-box">
+              <button class="popup-button" id="google-login">
+                <img
+                  src="https://img.icons8.com/color/48/000000/google-logo.png"
+                  alt="Google Logo"
+                />
+                Sign up using Google
+              </button>
+            </div>
+
+            <div class="popup-footer">
+              <div class="input-box">
+                <p>Already have an account? <a href="">Login</a></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="load-machine-popup" class="popup">
+      <div class="popup-content">
+        <div class="popup-header">
+          <h2>Load Machine</h2>
+          <button
+            class="icon-button sm"
+            id="close-load-machine-popup"
+            title="Close Popup"
+          >
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="popup-body">
+            <div class="input-box">
+              <div class="inner-input-box">
+                <button class="popup-button">Automaton 1</button>
+                <button class="icon-button sm" id="delete-machine">
+                  <i data-lucide="trash"></i>
+              </div>
+              <div class="inner-input-box">
+                <button class="popup-button">Automaton 2</button>
+                <button class="icon-button sm" id="delete-machine">
+                  <i data-lucide="trash"></i>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="alert-popup" class="popup">
+      <div class="popup-content">
+        <div class="popup-header">
+          <h2>Alert</h2>
+          <button
+            class="icon-button sm"
+            id="close-alert-popup"
+            title="Close Popup"
+          >
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="popup-body">
+          <div class="input-box">
+            <p id="alert-text">The erroneous transitions are highlighted in red!</p>
+          </div>
+          <div class="input-box">
+            <button class="popup-button" id="alert-ok">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>

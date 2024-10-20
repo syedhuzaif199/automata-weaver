@@ -86,6 +86,59 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
+  document
+    .getElementById("profile-pane")
+    .querySelectorAll("button")
+    .forEach((child) => {
+      child.addEventListener("click", (e) => {
+        console.log("Profile Pane Clicked");
+        const pane = document.getElementById("profile-pane");
+        pane.style.display = "none";
+      });
+    });
+
+  document.getElementById("close-login-popup").addEventListener("click", () => {
+    document.getElementById("login-popup").style.display = "none";
+  });
+
+  document.getElementById("login-submit").addEventListener("click", () => {
+    document.getElementById("login-popup").style.display = "none";
+  });
+
+  document
+    .getElementById("close-load-machine-popup")
+    .addEventListener("click", () => {
+      document.getElementById("load-machine-popup").style.display = "none";
+    });
+
+  document
+    .getElementById("close-signup-popup")
+    .addEventListener("click", () => {
+      document.getElementById("signup-popup").style.display = "none";
+    });
+  document.getElementById("signup-submit").addEventListener("click", () => {
+    document.getElementById("signup-popup").style.display = "none";
+  });
+
+  const profileBtn = document.getElementById("profile-btn");
+  profileBtn.addEventListener("click", () => {
+    const profilePane = document.getElementById("profile-pane");
+    profilePane.style.display =
+      profilePane.style.display === "none" ? "flex" : "none";
+  });
+
+  const loginBtn = document.getElementById("login-btn");
+  loginBtn.addEventListener("click", () => {
+    const loginPopup = document.getElementById("login-popup");
+    loginPopup.style.display = "flex";
+  });
+
+  const signupBtn = document.getElementById("signup-btn");
+  signupBtn.addEventListener("click", () => {
+    const signupPopup = document.getElementById("signup-popup");
+    signupPopup.style.display = "flex";
+  });
+
   const homeBtn = document.querySelector("#home");
   homeBtn.addEventListener("click", onHomeClick);
 
@@ -137,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
   playPauseBtn.addEventListener("click", onPlayPauseBtnClick);
 
   const onNotPlayingCallback = () => {
-    playPauseBtn.children[0].src = "./assets/play.svg";
+    playPauseBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="play" id="play-icon" class="lucide lucide-play"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>`;
   };
 
   const previousBtn = document.querySelector("#previous");
@@ -198,14 +251,14 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       tapeAlphaBox.style.display = "none";
     }
-    // const stackDiv = document.getElementById("stack");
+    const stackDiv = document.getElementById("stack");
     if (machineType === "pda") {
-      // stackDiv.style.display = "flex";
-      // stackDiv.parentElement.style.display = "block";
+      stackDiv.style.display = "flex";
+      stackDiv.parentElement.style.display = "block";
       stackAlphaBox.style.display = "block";
     } else {
-      // stackDiv.style.display = "none";
-      // stackDiv.parentElement.style.display = "none";
+      stackDiv.style.display = "none";
+      stackDiv.parentElement.style.display = "none";
       stackAlphaBox.style.display = "none";
     }
     if (machineType === "tm" || machineType === "pda") {
@@ -428,6 +481,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("click", (e) => {
     const menupane = document.getElementById("menu-pane");
     const machineOptionsPane = document.getElementById("machine-options-pane");
+    const profilePane = document.getElementById("profile-pane");
     if (!menupane.contains(e.target) && !menuBtn.contains(e.target)) {
       menupane.style.display = "none";
     }
@@ -436,6 +490,9 @@ document.addEventListener("DOMContentLoaded", () => {
       !machineOptionsBtn.contains(e.target)
     ) {
       machineOptionsPane.style.display = "none";
+    }
+    if (!profilePane.contains(e.target) && !profileBtn.contains(e.target)) {
+      profilePane.style.display = "none";
     }
   });
 });
