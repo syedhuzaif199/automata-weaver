@@ -56,7 +56,7 @@ export default class TmSimulator extends BasicSimulator {
         (state) => state === transition.endControlPoint
       );
 
-      const symbolSets = transition.getText().replaceAll(" ", "").split(";");
+      const symbolSets = transition.getText();
 
       symbolSets.forEach((symbolSet) => {
         const [sym1, sym2, sym3] = symbolSet.split(",");
@@ -210,7 +210,7 @@ export default class TmSimulator extends BasicSimulator {
         }
       })
       .flat();
-    console.log("Tape alphabet after regex resolution:", resolvedAlphabet);
+    console.error("Tape alphabet after regex resolution:", resolvedAlphabet);
     return resolvedAlphabet;
   }
 
@@ -259,7 +259,6 @@ export default class TmSimulator extends BasicSimulator {
 
   runMachine() {
     let tapeShifts = 0;
-    console.log("The input we've got:", this.input);
     let symbol = this.tape.getSymbolAtHead();
     let i = this.tape.headIndex;
     while (true) {
@@ -267,10 +266,6 @@ export default class TmSimulator extends BasicSimulator {
         this.machine.transitions[[this.machine.currentState, symbol]] ===
         undefined
       ) {
-        console.log("Broke at iteration:", i - this.tape.headIndex);
-        console.log("Symbol:", symbol);
-        console.log("Current state:", this.machine.currentState);
-        console.log("Transitions:", this.machine.transitions);
         break;
       }
       const [nextState, outputSymbol, direction] =
