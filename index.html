@@ -18,6 +18,14 @@
             placeholder="Space separated"
           />
         </div>
+        <div id="stack-alphabet-box">
+          <label for="stack-alphabet-text">Stack Alphabet</label>
+          <input
+            type="text"
+            id="stack-alphabet-text"
+            placeholder="Space separated"
+          />
+        </div>
       </div>
       <div class="left-bar">
         <div class="controls menu-btn">
@@ -125,7 +133,7 @@
           <select id="machine-type">
             <option value="dfa">DFA</option>
             <option value="nfa">NFA</option>
-            <option value="pda" disabled>PDA</option>
+            <option value="pda">PDA</option>
             <option value="tm">Turing Machine</option>
           </select>
           <button id="machine-options-btn">
@@ -163,60 +171,66 @@
         </div>
       </div>
       <!-- -->
+
       <div class="right-panel">
-        <div class="controls right-bar">
-          <button id="add-state" title="Add State (A)">
-            <img
-              src="./assets/state.svg"
-              alt="State"
-              width="25px"
-              height="25px"
-            />
-          </button>
-          <button id="add-transition" title="Add Transition (T)">
-            <img
-              src="./assets/transition.svg"
-              alt="Transition"
-              width="25px"
-              height="25px"
-            />
-          </button>
-          <button id="select-button" title="Select Elements (S)">
-            <img
-              src="./assets/select.svg"
-              alt="Select"
-              width="25px"
-              height="25px"
-            />
-          </button>
-          <div class="separator hline"></div>
-          <button id="flag-final-button" title="Flag as Final (F)">
-            <img
-              src="./assets/flag-final.svg"
-              alt="Flag Final"
-              width="25px"
-              height="25px"
-            />
-          </button>
-          <div class="separator hline"></div>
-          <button id="delete-button" title="Delete Selected (D/Del)">
-            <img
-              src="./assets/delete.svg"
-              alt="Delete"
-              width="25px"
-              height="25px"
-            />
-          </button>
+        <div class="overflow">
+          <div id="stack"></div>
         </div>
-        <div class="controls right-bar">
-          <button id="home">
-            <img
-              src="./assets/home.svg"
-              alt="Home"
-              width="35px"
-              height="35px"
-            />
-          </button>
+        <div id="right-controls-panel">
+          <div class="controls right-bar">
+            <button id="add-state" title="Add State (A)">
+              <img
+                src="./assets/state.svg"
+                alt="State"
+                width="25px"
+                height="25px"
+              />
+            </button>
+            <button id="add-transition" title="Add Transition (T)">
+              <img
+                src="./assets/transition.svg"
+                alt="Transition"
+                width="25px"
+                height="25px"
+              />
+            </button>
+            <button id="select-button" title="Select Elements (S)">
+              <img
+                src="./assets/select.svg"
+                alt="Select"
+                width="25px"
+                height="25px"
+              />
+            </button>
+            <div class="separator hline"></div>
+            <button id="flag-final-button" title="Flag as Final (F)">
+              <img
+                src="./assets/flag-final.svg"
+                alt="Flag Final"
+                width="25px"
+                height="25px"
+              />
+            </button>
+            <div class="separator hline"></div>
+            <button id="delete-button" title="Delete Selected (D/Del)">
+              <img
+                src="./assets/delete.svg"
+                alt="Delete"
+                width="25px"
+                height="25px"
+              />
+            </button>
+          </div>
+          <div class="controls right-bar">
+            <button id="home">
+              <img
+                src="./assets/home.svg"
+                alt="Home"
+                width="35px"
+                height="35px"
+              />
+            </button>
+          </div>
         </div>
       </div>
       <div class="controls zoom-controls-bar">
@@ -243,6 +257,34 @@
       </div>
       <div id="svgcontainer">
         <svg id="svgdisplay"></svg>
+      </div>
+      <div id="fa-input-box" class="mach-input-box">
+        <div class="inner-input-box">
+          <input type="text" id="fa-input" placeholder="" />
+          <button id="add-fa-transition">
+            <img src="./assets/plus.svg" alt="Add" />
+          </button>
+        </div>
+      </div>
+      <div id="pda-input-box" class="mach-input-box">
+        <div class="inner-input-box">
+          <input type="text" id="pda-input" placeholder="" />
+          <input type="text" id="pda-pop-input" placeholder="" />
+          <input type="text" id="pda-push-input" placeholder="" />
+          <button id="add-pda-transition">
+            <img src="./assets/plus.svg" alt="Add" />
+          </button>
+        </div>
+      </div>
+      <div id="tm-input-box" class="mach-input-box">
+        <div class="inner-input-box">
+          <input type="text" id="tm-input" placeholder="" />
+          <input type="text" id="tm-tape-input" placeholder="" />
+          <input type="text" id="tm-direction-input" placeholder="" />
+          <button id="add-tm-transition">
+            <img src="./assets/plus.svg" alt="Add" />
+          </button>
+        </div>
       </div>
     </div>
 
