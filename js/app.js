@@ -1,19 +1,25 @@
 import SVGHandler from "./SVGHandler.js";
-import { BLANK } from "./constants.js";
 import DFASimulator from "./dfaSimulator.js";
+import DFATextBox from "./dfaInputBox.js";
 import NFASimulator from "./nfaSimulator.js";
 import Tape from "./tape.js";
 import TmSimulator from "./tmSimulator.js";
+import NFATextBox from "./nfaInputBox.js";
+import TMTextBox from "./tmInputBox.js";
+import PDATextBox from "./pdaInputBox.js";
+import PDASimulator from "./pdaSimulator.js";
+import Stack from "./stack.js";
 
 const svg = document.querySelector("svg");
 const svgHandler = new SVGHandler(svg, window.innerWidth, window.innerHeight);
 const tape = new Tape(1025, 21);
+const stack = new Stack();
 let simulationHandler;
 
 document.addEventListener("keydown", (e) => {
   svgHandler.setKeyDown(e.key);
   console.log("keyPressed", e.key);
-  if (svgHandler.textField.style.visibility === "visible") {
+  if (svgHandler.isTextFieldVisible() || svgHandler.isInputBoxVisible()) {
     return;
   }
   switch (e.key) {
@@ -156,13 +162,36 @@ speedSlider.addEventListener("change", () => {
   );
 });
 
+const faInputBox = document.getElementById("fa-input-box");
+const pdaInputBox = document.getElementById("pda-input-box");
+const tmInputBox = document.getElementById("tm-input-box");
+
+const dfaTextBox = new DFATextBox(faInputBox);
+const nfaTextBox = new NFATextBox(faInputBox);
+const pdaTextBox = new PDATextBox(pdaInputBox);
+const tmTextBox = new TMTextBox(tmInputBox);
+
 function setMachineType(machineType) {
+  if (svgHandler.inputBox) {
+    svgHandler.hideInputBox();
+  }
   console.log("Machine Type Changed", machineType);
   const tapeAlphaBox = document.getElementById("tape-alphabet-box");
+  const stackAlphaBox = document.getElementById("stack-alphabet-box");
   if (machineType === "tm") {
     tapeAlphaBox.style.display = "block";
   } else {
     tapeAlphaBox.style.display = "none";
+  }
+  const stackDiv = document.getElementById("stack");
+  if (machineType === "pda") {
+    stackDiv.style.display = "flex";
+    stackDiv.parentElement.style.display = "block";
+    stackAlphaBox.style.display = "block";
+  } else {
+    stackDiv.style.display = "none";
+    stackDiv.parentElement.style.display = "none";
+    stackAlphaBox.style.display = "none";
   }
   if (machineType === "tm" || machineType === "pda") {
     document.getElementById("machine-options-separator").style.display = "none";
@@ -180,6 +209,7 @@ function setMachineType(machineType) {
         tape,
         onNotPlayingCallback
       );
+      svgHandler.setInputBox(dfaTextBox);
       break;
     case "nfa":
       conv2dfaBtn.style.display = "flex";
@@ -190,8 +220,16 @@ function setMachineType(machineType) {
         tape,
         onNotPlayingCallback
       );
+      svgHandler.setInputBox(nfaTextBox);
       break;
     case "pda":
+      simulationHandler = new PDASimulator(
+        svgHandler,
+        tape,
+        stack,
+        onNotPlayingCallback
+      );
+      svgHandler.setInputBox(pdaTextBox);
       conv2dfaBtn.style.display = "none";
       minimizeDfaBtn.style.display = "none";
       generateFromRegexBtn.style.display = "none";
@@ -202,6 +240,7 @@ function setMachineType(machineType) {
         tape,
         onNotPlayingCallback
       );
+      svgHandler.setInputBox(tmTextBox);
       conv2dfaBtn.style.display = "none";
       minimizeDfaBtn.style.display = "none";
       generateFromRegexBtn.style.display = "none";
@@ -266,8 +305,6 @@ function onFastForwardBtnClick() {
 }
 
 let activeButton = addStateBtn;
-svgHandler.setAction(svgHandler.actions.addState);
-setActiveButton(activeButton);
 
 function setActiveButton(button) {
   console.log("Setting Active Button");
@@ -360,8 +397,24 @@ document.addEventListener("DOMContentLoaded", () => {
   panes.forEach((pane) => (pane.style.display = "none"));
   const machineTypeSelect = document.querySelector("#machine-type");
   setMachineType(machineTypeSelect.value);
+  svgHandler.setAction(svgHandler.actions.addState);
+  setActiveButton(activeButton);
 });
 
 document.addEventListener("wheel", (e) => {
   updateZoomResetBtn();
+});
+
+document.addEventListener("click", (e) => {
+  const menupane = document.getElementById("menu-pane");
+  const machineOptionsPane = document.getElementById("machine-options-pane");
+  if (!menupane.contains(e.target) && !menuBtn.contains(e.target)) {
+    menupane.style.display = "none";
+  }
+  if (
+    !machineOptionsPane.contains(e.target) &&
+    !machineOptionsBtn.contains(e.target)
+  ) {
+    machineOptionsPane.style.display = "none";
+  }
 });

@@ -70,6 +70,7 @@ export default class SVGHandler {
     this.states = states;
     this.actions = actions;
     this.textField = this.createTextField();
+    this.inputBox = null;
     this.inputNode = new ControlPoint(this.svg, width / 4, height / 2);
     this.inputNode.setText("Input");
     this.controlPoints.push(this.inputNode);
@@ -136,10 +137,10 @@ export default class SVGHandler {
         this.controlPoints[t.id2],
         new Arrow(
           this.svg,
-          t.startControlPoint.x,
-          t.startControlPoint.y,
-          t.endControlPoint.x,
-          t.endControlPoint.y
+          this.controlPoints[t.id1].x,
+          this.controlPoints[t.id1].y,
+          this.controlPoints[t.id2].x,
+          this.controlPoints[t.id2].y
         )
       );
 
@@ -217,7 +218,9 @@ export default class SVGHandler {
           t.endControlPoint === this.controlPoints[endState]
       );
       if (existingTransition) {
-        existingTransition.setText(existingTransition.getText() + "," + symbol);
+        existingTransition.setText([
+          existingTransition.getText() + "," + symbol,
+        ]);
         continue;
       }
       const transition = new Transition(
@@ -233,7 +236,7 @@ export default class SVGHandler {
         )
       );
 
-      transition.setText(symbol);
+      transition.setText([symbol]);
 
       this.transitions.push(transition);
     }
@@ -268,6 +271,14 @@ export default class SVGHandler {
     this.viewBox.width = width / this.scale;
     this.viewBox.height = height / this.scale;
     this.updateViewBox();
+  }
+
+  updateInputBoxTransforms() {
+    if (this.isInputBoxVisible()) {
+      const { x, y } = this.selectedElement.getCenter();
+      const { x: screenX, y: screenY } = this.SVGToScreen({ x, y });
+      this.inputBox.updatePosition(screenX, screenY, this.scale);
+    }
   }
 
   updateTextBoxTransforms() {
@@ -357,6 +368,7 @@ export default class SVGHandler {
   updateViewBox() {
     this.svg.setAttribute("viewBox", this.getViewBoxString());
     this.updateTextBoxTransforms();
+    this.updateInputBoxTransforms();
   }
 
   getViewBoxString() {
@@ -400,6 +412,7 @@ export default class SVGHandler {
       this.deselect();
     }
     this.hideTextField();
+    this.hideInputBox();
   }
 
   setKeyDown(key) {
@@ -476,6 +489,13 @@ export default class SVGHandler {
     this.successControlPoints = controlPoints;
   }
 
+  setInputBox(inputBox) {
+    this.inputBox = inputBox;
+    this.inputBox.onEnterPressed = () => {
+      this.hideInputBox();
+    };
+  }
+
   createTextField() {
     const textField = document.createElement("input");
     textField.setAttribute("type", "text");
@@ -499,6 +519,16 @@ export default class SVGHandler {
     return textField;
   }
 
+  spawnInputBox() {
+    if (this.isEditingDisabled) {
+      return;
+    }
+    console.log("Spawning Input Box");
+    const { x, y } = this.SVGToScreen(this.selectedElement.getCenter());
+    this.inputBox.spawn(x, y, this.scale, this.selectedElement.getText());
+    this.selectedElement.setTextVisible(false);
+  }
+
   spawnTextField() {
     if (this.isEditingDisabled) {
       return;
@@ -519,21 +549,34 @@ export default class SVGHandler {
     this.selectedElement.setTextVisible(false);
   }
 
+  isInputBoxVisible() {
+    return this.inputBox.isVisible();
+  }
+
   isTextFieldVisible() {
     return this.textField.style.visibility === "visible";
   }
 
+  hideInputBox() {
+    if (!this.isInputBoxVisible()) {
+      return;
+    }
+    this.inputBox.hide();
+    if (this.selectionType === selectionTypes.transition) {
+      this.selectedElement.setTextVisible(true);
+      this.setSelectedElementText(this.inputBox.getText());
+    }
+  }
+
   hideTextField() {
+    if (!this.isTextFieldVisible()) {
+      return;
+    }
     this.textField.style.visibility = "hidden";
-    if (this.selectedElement) {
+    if (this.selectionType === selectionTypes.controlPoint) {
       this.selectedElement.setTextVisible(true);
       if (this.textField.value.replaceAll(" ", "") !== "") {
         this.setSelectedElementText(this.textField.value);
-      } else if (
-        this.selectionType === selectionTypes.transition &&
-        this.selectedElement.startControlPoint != this.inputNode
-      ) {
-        this.setSelectedElementText(EPSILON);
       }
     }
     this.textField.value = "";
@@ -554,7 +597,7 @@ export default class SVGHandler {
       if (this.selectedElement.startControlPoint === this.inputNode) {
         return;
       }
-      this.spawnTextField();
+      this.spawnInputBox();
     } else if (
       this.selectionType === selectionTypes.controlPoint &&
       this.selectedElement !== this.inputNode
@@ -574,8 +617,13 @@ export default class SVGHandler {
       if (!this.isEditingDisabled) {
         this.unHighlightAllTransitions();
       }
-      if (this.textField.style.visibility === "visible") {
+      if (this.isTextFieldVisible()) {
         this.hideTextField();
+        this.deselect();
+        return;
+      }
+      if (this.isInputBoxVisible()) {
+        this.hideInputBox();
         this.deselect();
         return;
       }
@@ -586,7 +634,7 @@ export default class SVGHandler {
       }
       switch (this.action) {
         case actions.select:
-          this.selectElementAtPoint(e.offsetX, e.offsetY);
+          this.selectElementAtPoint(e.clientX, e.clientY);
           if (e.detail === 2) {
             this.handleDoubleClick(e);
           }
@@ -647,6 +695,8 @@ export default class SVGHandler {
 
   selectElementAtPoint(offsetX, offsetY) {
     const { x, y } = this.screenToSVG(offsetX, offsetY);
+    console.log("X:", x, "Y:", y);
+    console.log("OffsetX:", offsetX, "OffsetY:", offsetY);
     const transition = this.transitions.find((t) => t.contains(x, y));
     console.log("Selected Transition:", transition);
     const controlPoint = this.controlPoints.find((cp) => cp.contains(x, y));
@@ -831,7 +881,7 @@ export default class SVGHandler {
 
       //Cannot edit the text inside the input node
       if (this.startControlPoint !== this.inputNode) {
-        this.spawnTextField();
+        this.spawnInputBox();
       } else {
         // highlight the node that has just been connected to the input node
         this.highlightControlPoints([endControlPoint]);
