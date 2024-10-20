@@ -88,6 +88,17 @@ export default class SVGHandler {
     this.svg.setAttribute("viewBox", this.getViewBoxString());
     this.svg.style.cursor = actionToCursor[this.action];
     this.addEventListeners();
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        const { width, height } = entry.contentRect;
+        console.log(`Size changed: width=${width}, height=${height}`);
+        this.resizeSVG(width, height);
+      }
+    });
+
+    // Start observing the element
+    resizeObserver.observe(this.svg);
   }
 
   clear() {
@@ -95,11 +106,7 @@ export default class SVGHandler {
     this.transitions.forEach((t) => t.removeFromSVG());
     this.controlPoints = [];
     this.transitions = [];
-    this.inputNode = new ControlPoint(
-      this.svg,
-      this.width / 4,
-      this.height / 2
-    );
+    this.inputNode = new ControlPoint(this.svg, this.width, this.height);
     this.inputNode.setText("Input");
     this.controlPoints.push(this.inputNode);
   }
@@ -381,16 +388,20 @@ export default class SVGHandler {
   }
 
   screenToSVG(x, y) {
+    const offsetX = x - this.svg.getBoundingClientRect().left;
+    const offsetY = y - this.svg.getBoundingClientRect().top;
     return {
-      x: x / this.scale + this.viewBox.x,
-      y: y / this.scale + this.viewBox.y,
+      x: offsetX / this.scale + this.viewBox.x,
+      y: offsetY / this.scale + this.viewBox.y,
     };
   }
 
   SVGToScreen({ x, y }) {
+    const offsetX = (x - this.viewBox.x) * this.scale;
+    const offsetY = (y - this.viewBox.y) * this.scale;
     return {
-      x: (x - this.viewBox.x) * this.scale,
-      y: (y - this.viewBox.y) * this.scale,
+      x: this.svg.getBoundingClientRect().left + offsetX,
+      y: this.svg.getBoundingClientRect().top + offsetY,
     };
   }
 
@@ -403,6 +414,7 @@ export default class SVGHandler {
   setAction(action) {
     if (this.startControlPoint && action !== actions.addTransition) {
       this.arrow.remove();
+      console.log("REmoved");
       this.startControlPoint = null;
     }
     this.action = action;
@@ -640,17 +652,17 @@ export default class SVGHandler {
           }
           break;
         case actions.addState:
-          this.addState(e.offsetX, e.offsetY);
+          this.addState(e.clientX, e.clientY);
           break;
         case actions.addTransition:
-          this.startTransition(e.offsetX, e.offsetY);
+          this.startTransition(e.clientX, e.clientY);
           break;
       }
     }
   }
 
   onMouseMove(e) {
-    const { x, y } = this.screenToSVG(e.offsetX, e.offsetY);
+    const { x, y } = this.screenToSVG(e.clientX, e.clientY);
     if (this.state === states.panning) {
       this.pan(e.movementX, e.movementY);
       return;
@@ -665,7 +677,7 @@ export default class SVGHandler {
         break;
       case actions.addTransition:
         if (this.startControlPoint) {
-          this.updateTransition(e.offsetX, e.offsetY);
+          this.updateTransition(e.clientX, e.clientY);
         }
         break;
     }
@@ -674,7 +686,7 @@ export default class SVGHandler {
   onMouseUp(e) {
     this.changeState(states.default);
     if (this.action === actions.addTransition && this.startControlPoint) {
-      this.endTransition(e.offsetX, e.offsetY);
+      this.endTransition(e.clientX, e.clientY);
     }
   }
 
@@ -693,10 +705,9 @@ export default class SVGHandler {
     }
   }
 
-  selectElementAtPoint(offsetX, offsetY) {
-    const { x, y } = this.screenToSVG(offsetX, offsetY);
+  selectElementAtPoint(clientX, clientY) {
+    const { x, y } = this.screenToSVG(clientX, clientY);
     console.log("X:", x, "Y:", y);
-    console.log("OffsetX:", offsetX, "OffsetY:", offsetY);
     const transition = this.transitions.find((t) => t.contains(x, y));
     console.log("Selected Transition:", transition);
     const controlPoint = this.controlPoints.find((cp) => cp.contains(x, y));
@@ -790,25 +801,24 @@ export default class SVGHandler {
     }
   }
 
-  addState(offsetX, offsetY) {
+  addState(clientX, clientY) {
     if (this.isEditingDisabled) {
       return;
     }
-    const cp = new ControlPoint(
-      this.svg,
-      offsetX / this.scale + this.viewBox.x,
-      offsetY / this.scale + this.viewBox.y
-    );
+
+    const { x, y } = this.screenToSVG(clientX, clientY);
+
+    const cp = new ControlPoint(this.svg, x, y);
     this.controlPoints.push(cp);
     this.selectElement(cp, selectionTypes.controlPoint);
     this.spawnTextField();
   }
 
-  startTransition(offsetX, offsetY) {
+  startTransition(clientX, clientY) {
     if (this.isEditingDisabled) {
       return;
     }
-    const { x, y } = this.screenToSVG(offsetX, offsetY);
+    const { x, y } = this.screenToSVG(clientX, clientY);
     this.startControlPoint = this.controlPoints.find((cp) => cp.contains(x, y));
     if (!this.startControlPoint) {
       return;
@@ -822,8 +832,8 @@ export default class SVGHandler {
     );
   }
 
-  updateTransition(offsetX, offsetY) {
-    const { x, y } = this.screenToSVG(offsetX, offsetY);
+  updateTransition(clientX, clientY) {
+    const { x, y } = this.screenToSVG(clientX, clientY);
     this.arrow.update(
       this.startControlPoint.x,
       this.startControlPoint.y,
@@ -833,12 +843,14 @@ export default class SVGHandler {
     );
   }
 
-  endTransition(offsetX, offsetY) {
-    const { x, y } = this.screenToSVG(offsetX, offsetY);
+  endTransition(clientX, clientY) {
+    const { x, y } = this.screenToSVG(clientX, clientY);
 
     const endControlPoint = this.controlPoints.find((cp) => cp.contains(x, y));
     if (!endControlPoint) {
       this.arrow.remove();
+      console.error("Err x: ", x, " y: ", y);
+      console.error("Removed");
       return;
     }
 

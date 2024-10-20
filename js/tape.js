@@ -1,7 +1,7 @@
 import { BLANK } from "./constants.js";
 
 export default class Tape {
-  constructor(cellCount, maxCellDisplay) {
+  constructor(cellCount) {
     this.cellSize = 50;
     this.cellMargin = 4;
     this.setCSSVariable("--cell-size", `${this.cellSize}px`);
@@ -9,13 +9,22 @@ export default class Tape {
 
     this.blank = "";
     this.tape = document.getElementById("tape");
+    const resizeObserver = new ResizeObserver((entries) => {
+      this.onTapeResize(entries);
+    });
+
+    // Start observing the element
+    resizeObserver.observe(tape);
     this.cellCount = (cellCount & 1) == 0 ? cellCount + 1 : cellCount;
+    // this.maxCellDisplay =
+    //   (maxCellDisplay & 1) == 0 ? maxCellDisplay + 1 : maxCellDisplay;
+    // this.tape.style.width = `${
+    //   this.maxCellDisplay * (this.cellSize + 2 * this.cellMargin) +
+    //   this.cellMargin
+    // }px`;
+
     this.maxCellDisplay =
-      (maxCellDisplay & 1) == 0 ? maxCellDisplay + 1 : maxCellDisplay;
-    this.tape.style.width = `${
-      this.maxCellDisplay * (this.cellSize + 2 * this.cellMargin) +
-      this.cellMargin
-    }px`;
+      this.tape.clientWidth / (this.cellSize + 2 * this.cellMargin);
     this.cells = [];
     for (let i = 0; i < this.cellCount; i++) {
       const cell = document.createElement("div");
@@ -48,6 +57,23 @@ export default class Tape {
     this.headIndex = this.getTapeMiddleIndex();
 
     this.shifts = 0;
+  }
+
+  onTapeResize(entries) {
+    for (let entry of entries) {
+      const { width, height } = entry.contentRect;
+      this.maxCellDisplay = width / (this.cellSize + 2 * this.cellMargin);
+      for (let i = 0; i < this.cellCount; i++) {
+        const cell = this.cells[i];
+        cell.style.left = `${
+          (this.maxCellDisplay / 2 - this.cellCount / 2 + i) *
+          (this.cellSize + 2 * this.cellMargin)
+        }px`;
+      }
+      this.tapeHead.style.left = `${
+        this.cells[this.getTapeMiddleIndex()].style.left
+      }`;
+    }
   }
 
   setCSSVariable(name, value) {
