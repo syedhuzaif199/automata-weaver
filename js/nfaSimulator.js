@@ -13,7 +13,9 @@ export default class NFASimulator extends BasicSimulator {
     if (!this.retrieveMachine()) {
       return;
     }
+    console.log("Converting to DFA:", this.machine);
     const dfa = this.machine.generateDFA();
+    console.log("DFA:", dfa);
     this.svgHandler.drawDFA(dfa);
   }
 
@@ -33,7 +35,11 @@ export default class NFASimulator extends BasicSimulator {
 
       alphabet.forEach((symbol) => {
         const transitionsOnSymbol = transitionsFromState.filter((transition) =>
-          transition.getText().replaceAll(" ", "").split(",").includes(symbol)
+          transition
+            .getText()[0]
+            .replaceAll(" ", "")
+            .split(",")
+            .includes(symbol)
         );
         this.machine.addTransition(
           i,
@@ -45,10 +51,11 @@ export default class NFASimulator extends BasicSimulator {
       });
 
       // handling epsilon transitions
-      const epsilonTransitions = transitionsFromState.filter(
-        (transition) => transition.getText().replaceAll(" ", "") === EPSILON
+      const epsilonTransitions = transitionsFromState.filter((transition) =>
+        transition.getText()[0].replaceAll(" ", "").includes(EPSILON)
       );
       if (epsilonTransitions.length > 0) {
+        console.log("Epsilon transitions:", epsilonTransitions);
         this.machine.addTransition(
           i,
           null,
@@ -64,7 +71,8 @@ export default class NFASimulator extends BasicSimulator {
       if (transition.startControlPoint === inputNode) {
         return;
       }
-      const symbols = transition.getText().replaceAll(" ", "").split(",");
+      const symbols = transition.getText()[0].replaceAll(" ", "").split(",");
+      console.log("Received symbols:", symbols);
       symbols.forEach((symbol) => {
         if (!alphabet.includes(symbol) && symbol !== EPSILON) {
           symbolsNotInAlpha.add(symbol);
@@ -96,8 +104,19 @@ export default class NFASimulator extends BasicSimulator {
     }
 
     const currentStates = this.states.filter((state, i) =>
-      this.machine.currentStates.includes(i)
+      this.machine.nullClosure(this.machine.currentStates).includes(i)
     );
+
+    console.log("Current states:", currentStates);
+
+    const isNext = this.machine.move(
+      this.machine.nullClosure(this.machine.currentStates, nextSymbol)
+    );
+    if (isNext.length === 0) {
+      console.log(this.machine);
+      console.log("No next states found");
+      return Promise.resolve(true);
+    }
 
     this.machine.next(nextSymbol);
 
@@ -105,17 +124,24 @@ export default class NFASimulator extends BasicSimulator {
       this.machine.currentStates.includes(i)
     );
 
+    console.log("Next states:", nextStates);
     const nextTransitions = this.svgHandler.transitions.filter(
       (transition) =>
         currentStates.includes(transition.startControlPoint) &&
         nextStates.includes(transition.endControlPoint) &&
         (transition
-          .getText()
+          .getText()[0]
           .replaceAll(" ", "")
           .split(",")
           .includes(nextSymbol) ||
-          transition.getText().replaceAll(" ", "").split(",").includes(EPSILON))
+          transition
+            .getText()[0]
+            .replaceAll(" ", "")
+            .split(",")
+            .includes(EPSILON))
     );
+
+    console.log("Next transitions:", nextTransitions);
 
     if (nextTransitions === undefined) {
       console.log("No transitions found");
@@ -158,7 +184,7 @@ export default class NFASimulator extends BasicSimulator {
 
   highlightCurrentStates() {
     const currentStates = this.states.filter((state, i) =>
-      this.machine.currentStates.includes(i)
+      this.machine.nullClosure(this.machine.currentStates).includes(i)
     );
     this.svgHandler.highlightControlPoints(currentStates);
   }

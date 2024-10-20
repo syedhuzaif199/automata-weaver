@@ -31,7 +31,8 @@ export default class DFASimulator extends BasicSimulator {
         (state) => state === transition.endControlPoint
       );
 
-      const symbols = transition.getText().replaceAll(" ", "").split(",");
+      const symbols = transition.getText()[0].replace(" ", "").split(",");
+      console.log("Received symbols:", symbols);
 
       symbols.forEach((symbol) => {
         if (!alphabet.includes(symbol)) {
