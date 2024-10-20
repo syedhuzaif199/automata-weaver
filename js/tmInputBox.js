@@ -6,6 +6,7 @@ const BASE_BTN_IMG_SIZE = 25;
 export default class TMTextBox {
   constructor(tmInputBox) {
     this.tmInputBox = tmInputBox;
+    this.onEnterPressed = () => {};
   }
   spawn(x, y, scale, texts) {
     document.documentElement.style.setProperty(
@@ -53,6 +54,22 @@ export default class TMTextBox {
     inputEle3.setAttribute("placeholder", "L/R");
     inputEle3.value = innerTexts.length === 3 ? innerTexts[2] : innerTexts[1];
     innerBox.appendChild(inputEle3);
+
+    inputEle1.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.onEnterPressed();
+      }
+    });
+    inputEle2.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.onEnterPressed();
+      }
+    });
+    inputEle3.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.onEnterPressed();
+      }
+    });
 
     const addBtn = document.createElement("button");
     addBtn.addEventListener("click", () => this.onAddBtnClick(addBtn));
@@ -165,6 +182,22 @@ export default class TMTextBox {
     inputEle3.setAttribute("placeholder", "L/R");
     inputEle3.value = innerTexts.length === 3 ? innerTexts[2] : innerTexts[1];
     innerBox.appendChild(inputEle3);
+
+    inputEle1.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.onEnterPressed();
+      }
+    });
+    inputEle2.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.onEnterPressed();
+      }
+    });
+    inputEle3.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.onEnterPressed();
+      }
+    });
 
     innerBox.appendChild(addBtn);
     this.tmInputBox.appendChild(innerBox);

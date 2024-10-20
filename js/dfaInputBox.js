@@ -6,6 +6,7 @@ const BASE_BTN_IMG_SIZE = 25;
 export default class DFATextBox {
   constructor(faInputBox) {
     this.faInputBox = faInputBox;
+    this.onEnterPressed = () => {};
   }
   spawn(x, y, scale, text) {
     document.documentElement.style.setProperty(
@@ -40,6 +41,11 @@ export default class DFATextBox {
     const inputEle = document.createElement("input");
     inputEle.setAttribute("type", "text");
     inputEle.value = texts[0];
+    inputEle.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.onEnterPressed();
+      }
+    });
     innerBox.appendChild(inputEle);
     const addBtn = document.createElement("button");
     addBtn.addEventListener("click", () => this.onAddBtnClick(addBtn));
@@ -116,6 +122,11 @@ export default class DFATextBox {
     const inputEle = document.createElement("input");
     inputEle.setAttribute("type", "text");
     inputEle.value = text;
+    inputEle.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.onEnterPressed();
+      }
+    });
     innerBox.appendChild(inputEle);
     innerBox.appendChild(addBtn);
     this.faInputBox.appendChild(innerBox);

@@ -6,6 +6,7 @@ const BASE_BTN_IMG_SIZE = 25;
 export default class PDATextBox {
   constructor(pdaInputBox) {
     this.pdaInputBox = pdaInputBox;
+    this.onEnterPressed = () => {};
   }
   spawn(x, y, scale, texts) {
     document.documentElement.style.setProperty(
@@ -53,6 +54,21 @@ export default class PDATextBox {
     inputEle3.setAttribute("placeholder", "push");
     inputEle3.value = innerTexts[2];
     innerBox.appendChild(inputEle3);
+    inputEle1.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.onEnterPressed();
+      }
+    });
+    inputEle2.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.onEnterPressed();
+      }
+    });
+    inputEle3.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.onEnterPressed();
+      }
+    });
 
     const addBtn = document.createElement("button");
     addBtn.addEventListener("click", () => this.onAddBtnClick(addBtn));
@@ -80,7 +96,7 @@ export default class PDATextBox {
     this.pdaInputBox.style.top = y + "px";
     document.documentElement.style.setProperty(
       "--inputbox-font-size",
-      BASE_FONT_SIZE * scale + "px"
+      TEXT_SIZE * scale + "px"
     );
     document.documentElement.style.setProperty(
       "--inputbox-btn-size",
@@ -157,6 +173,22 @@ export default class PDATextBox {
     inputEle3.setAttribute("placeholder", "push");
     inputEle3.value = innerTexts[2];
     innerBox.appendChild(inputEle3);
+
+    inputEle1.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.onEnterPressed();
+      }
+    });
+    inputEle2.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.onEnterPressed();
+      }
+    });
+    inputEle3.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.onEnterPressed();
+      }
+    });
 
     innerBox.appendChild(addBtn);
     this.pdaInputBox.appendChild(innerBox);
