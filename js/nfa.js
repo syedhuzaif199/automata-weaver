@@ -112,17 +112,24 @@ export default class NFA {
     }
     this.currentStates = this.move(this.currentStates, symbol);
     this.currentStates = this.nullClosure(this.currentStates);
+    if (this.currentStates.length === 0) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   run(input) {
     this.currentStates = [0];
     for (let inSymbol of input) {
-      this.next(inSymbol);
+      if (!this.next(inSymbol)) {
+        return false;
+      }
     }
     return this.currentStates.some((state) => this.finalStates.includes(state));
   }
 
   reset() {
-    this.currentStates = [0];
+    this.currentStates = this.nullClosure([0]);
   }
 }
