@@ -41,8 +41,22 @@ class Arrow {
   setTextAlignment(align) {
     if (align === "top") {
       this.text.setAttributeNS(null, "dominant-baseline", "middle");
+      for (let i = 0; i < this.text.children.length; i++) {
+        this.text.children[i].setAttributeNS(
+          null,
+          "dy",
+          i === 0 ? 0 : -TEXT_SIZE
+        );
+      }
     } else if ((align = "bottom")) {
-      this.text.setAttributeNS(null, "dominant-baseline", "text-before-edge");
+      this.text.setAttributeNS(null, "dominant-baseline", "middle");
+      for (let i = 0; i < this.text.children.length; i++) {
+        this.text.children[i].setAttributeNS(
+          null,
+          "dy",
+          i === 0 ? 0 : TEXT_SIZE
+        );
+      }
     }
   }
 
@@ -83,12 +97,26 @@ class Arrow {
     this.text.setAttribute("fill", color);
   }
 
-  setText(text) {
-    this.text.textContent = text;
+  setText(texts) {
+    console.error("Received text:", texts);
+    this.text.textContent = "";
+    for (let i = 0; i < texts.length; i++) {
+      const tspan = document.createElementNS(SVG_NAMESPACE, "tspan");
+      tspan.textContent = texts[i];
+      tspan.setAttribute("x", this.text.getAttribute("x"));
+      tspan.setAttribute("dy", i === 0 ? 0 : -1.2 * TEXT_SIZE);
+      tspan.style.fontSize = TEXT_SIZE + "px";
+      this.text.appendChild(tspan);
+    }
+    return;
   }
 
   getText() {
-    return this.text.textContent;
+    const text = [];
+    for (let i = 0; i < this.text.children.length; i++) {
+      text.push(this.text.children[i].textContent);
+    }
+    return text;
   }
 
   setTextVisible(visible) {
@@ -173,6 +201,9 @@ class Arrow {
     const { x, y } = this.getCenter();
     this.text.setAttributeNS(null, "x", x);
     this.text.setAttributeNS(null, "y", y);
+    for (let i = 0; i < this.text.children.length; i++) {
+      this.text.children[i].setAttributeNS(null, "x", x);
+    }
   }
 
   calculateArrowMid(x1, y1, x2, y2, final = false) {
@@ -197,18 +228,27 @@ class Arrow {
     const point = this.svg.createSVGPoint();
     point.x = x;
     point.y = y;
+
     const isInside =
       this.boundingPoly == null
         ? this.arrowBody.isPointInFill(point)
         : this.boundingPoly.isPointInFill(point);
 
-    const textBBox = this.text.getBBox();
+    let isInText = false;
 
-    const isInText =
-      textBBox.x < x &&
-      textBBox.x + textBBox.width > x &&
-      textBBox.y < y &&
-      textBBox.y + textBBox.height > y;
+    if (true) {
+      const textBBox = this.text.getBBox();
+      if (
+        textBBox.x <= x &&
+        textBBox.x + textBBox.width >= x &&
+        textBBox.y <= y &&
+        textBBox.y + textBBox.height >= y
+      ) {
+        isInText = true;
+      }
+    }
+
+    console.error("Method not tested");
     return isInside || isInText;
   }
 
