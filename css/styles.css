@@ -12,14 +12,25 @@
     --highlight-bg: #ffc48d;
 
     /* tape variables */
-
     --cell-size: 50px;
     --cell-color: #266a89;
     --tape-bg: #c7c7c7;
     --cell-margin: 4px;
     --head-size: calc(var(--cell-size) + 2 * var(--cell-margin));
     --head-color: var(--highlight-color);
-    --cell-anim-duration: 500ms
+    --cell-anim-duration: 500ms;
+
+    /* stack variables */
+    --stack-cell-size: 50px;
+    --stack-cell-margin: 4px;
+
+
+    /* input box variables */
+        --inputbox-font-size: 40px;
+    --inputbox-width: calc(var(--inputbox-font-size) * 3);
+    --inputbox-height: calc(var(--inputbox-font-size) * 1.5);
+    --inputbox-btn-size: var(--inputbox-font-size);
+    --inputbox-btn-img-size: 25;
 }
 
 * {
@@ -144,6 +155,39 @@ input {
     padding: 0;
 }
 
+.stack-cell {
+    width: calc(2 * var(--stack-cell-size));
+    height: var(--stack-cell-size);
+    border-radius: 4px;
+    background-color: var(--secondary-color);
+    margin: var(--stack-cell-margin);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.overflow {
+    position: fixed;
+    /* background-color: blue; */
+    right: 100px;
+    bottom: 25%;
+    overflow: auto;
+    height: 50%;
+    border: 2px solid var(--cell-color);
+}
+
+
+#stack {
+    margin: 10px;
+    padding: 4px;
+    border-bottom: 2px solid var(--cell-color);
+    width: calc(2 * var(--cell-size) + 2 * var(--cell-margin));
+    display: flex;
+    flex-direction:column-reverse;
+    align-items: center;
+    justify-content: center;
+}   
+
 #home {
     margin: 0;
     padding: 0;
@@ -151,12 +195,13 @@ input {
     height: calc(var(--btn-height) + 8px);
 }
 
+
 .right-panel {
     position: fixed;
     right: 0;
     top: 0;
     display: flex;
-    flex-direction: column;
+    /* flex-direction: column; */
     width: max-content;
 }
 
@@ -350,8 +395,53 @@ input {
     display: none;
 }
 
+.mach-input-box img {
+    width: var(--inputbox-btn-img-size);
+    height: var(--inputbox-btn-img-size);
+}
 
+.mach-input-box button {
+    width: var(--inputbox-btn-size);
+    height: var(--inputbox-btn-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
 
+}
+
+.mach-input-box input {
+    width: var(--inputbox-width);
+    height: var(--inputbox-height);
+    font-size: var(--inputbox-font-size);
+    margin: 0 4px;
+    /* padding: calc(var(--inputbox-font-size) /2) 0; */
+    text-align: center;
+}
+
+.inner-input-box {
+    display: flex;
+    margin: 4px;
+    align-items: center;
+}
+
+.mach-input-box {
+    position: fixed;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: max-content;
+    height: max-content;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+    padding: calc(var(--inputbox-width) / 5);
+
+}
 
 .input-box label {
     margin: 5px;
