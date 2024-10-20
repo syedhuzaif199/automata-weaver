@@ -1,151 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>AutomataWeaver</title>
-    <link rel="stylesheet" href="css/styles.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Automata</title>
+    <!-- Favicon -->
+    <link rel="icon" href="" type="image/x-icon" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./css/colors.css" />
+    <link rel="stylesheet" href="./css/styles.css" />
   </head>
-
   <body>
-    <div class="outer">
-      <div class="input-box">
-        <label for="alphabet-text">Alphabet</label>
-        <input type="text" id="alphabet-text" placeholder="Space separated" />
-        <div id="tape-alphabet-box">
-          <label for="tape-alphabet-text">Tape Alphabet</label>
-          <input
-            type="text"
-            id="tape-alphabet-text"
-            placeholder="Space separated"
-          />
-        </div>
-        <div id="stack-alphabet-box">
-          <label for="stack-alphabet-text">Stack Alphabet</label>
-          <input
-            type="text"
-            id="stack-alphabet-text"
-            placeholder="Space separated"
-          />
-        </div>
-      </div>
-      <div class="left-bar">
-        <div class="controls menu-btn">
-          <button id="menu-btn">
-            <img
-              src="./assets/menu.svg"
-              alt="Menu"
-              width="25px"
-              height="25px"
-            />
+    <!-- Header -->
+    <header class="header">
+      <div class="header__left">
+        <button class="icon-button" id="menu-btn">
+          <i data-lucide="menu"></i>
+        </button>
+        <div class="header__left-dock">
+          <button
+            class="dock-button"
+            id="select-button"
+            title="Select Elements (S)"
+          >
+            <i data-lucide="mouse-pointer-2"></i>
           </button>
-        </div>
-        <div class="controls menu" id="menu-pane">
-          <button id="load-json">
-            <img
-              src="./assets/open.svg"
-              alt="Load from JSON"
-              width="25px"
-              height="25px"
-            />
-            Open
+          <button class="dock-button" id="add-state" title="Add State (A)">
+            <i data-lucide="circle"></i>
           </button>
-          <button id="save-json">
-            <img
-              src="./assets/download.svg"
-              alt="Save as JSON"
-              width="25px"
-              height="25px"
-            />
-            Save
+          <button
+            class="dock-button"
+            id="add-transition"
+            title="Add Transition (T)"
+          >
+            <i data-lucide="spline"></i>
           </button>
-          <button id="save-pdf">
-            <img
-              src="./assets/pdf.svg"
-              alt="Save as PDF"
-              width="25px"
-              height="25px"
-            />
-            Save as PDF
+          <span style="opacity: 0.3">|</span>
+          <button
+            class="dock-button"
+            id="flag-final-button"
+            title="Flag as Final (F)"
+          >
+            <i data-lucide="circle-dashed"></i>
           </button>
-          <button id="clear-btn">
-            <img
-              src="./assets/clear.svg"
-              alt="Clear"
-              width="25px"
-              height="25px"
-            />
-            Clear Canvas
+          <button
+            class="dock-button"
+            id="delete-button"
+            title="Delete Selected (D/Del)"
+          >
+            <i data-lucide="trash"></i>
           </button>
-          <div class="separator hline"></div>
-          <button id="login-btn">
-            <img
-              src="./assets/login.svg"
-              alt="Login"
-              width="25px"
-              height="25px"
-            />
-            Log in
-          </button>
-          <button id="signup-btn">
-            <img
-              src="./assets/signup.svg"
-              alt="Signup"
-              width="25px"
-              height="25px"
-            />
-            Sign up
+          <button class="dock-button" id="home" title="Home - reset zoom/pan">
+            <i data-lucide="home"></i>
           </button>
         </div>
       </div>
-      <div class="controls top-bar">
-        <button id="rewind">
-          <img src="./assets/rewind.svg" alt="" width="35px" height="35px" />
-        </button>
-        <button id="previous">
-          <img
-            src="./assets/previous.svg"
-            alt="Previous"
-            width="25px"
-            height="25px"
-          />
-        </button>
-        <button id="play-pause">
-          <img
-            src="./assets/play.svg"
-            alt="Play/Pause"
-            width="25px"
-            height="25px"
-          />
-        </button>
-        <button id="next">
-          <img src="./assets/next.svg" alt="Next" width="35px" height="35px" />
-        </button>
-        <button id="fast-forward">
-          <img
-            src="./assets/fast-forward.svg"
-            alt="Fast Forward"
-            width="25px"
-            height="25px"
-          />
-        </button>
-      </div>
-      <div class="machine-controls-pane">
-        <div class="machine-selector controls">
-          <select id="machine-type">
+      <div class="header__mid">
+        <div class="header__mid-select">
+          <select name="select" id="machine-type">
             <option value="dfa">DFA</option>
             <option value="nfa">NFA</option>
             <option value="pda">PDA</option>
             <option value="tm">Turing Machine</option>
           </select>
-          <button id="machine-options-btn">
-            <img
-              src="./assets/settings.svg"
-              alt="Settings"
-              width="25px"
-              height="25px"
-            />
-          </button>
+          <div>
+            <i data-lucide="chevrons-up-down"></i>
+          </div>
         </div>
-        <div class="controls menu" id="machine-options-pane">
+        <button class="icon-button xs" id="machine-options-btn">
+          <i data-lucide="chevron-down"></i>
+        </button>
+        <div class="menu" id="machine-options-pane">
           <div class="speed-bar">
             <label for="speed">Speed</label>
             <input
@@ -158,136 +90,119 @@
             />
           </div>
           <div class="separator hline" id="machine-options-separator"></div>
-          <button id="gen-regex">
-            <img src="./assets/regex.svg" /> Genereate From Regex
+          <button class="menu-button" id="gen-regex">
+            <i data-lucide="regex"></i> Genereate From Regex
           </button>
-          <button id="minimize-dfa">
-            <img src="./assets/minimize.svg" /> Minimize
+          <button class="menu-button" id="minimize-dfa">
+            <i data-lucide="chevrons-down"></i> Minimize
           </button>
-          <button id="convert-to-dfa">
-            <img src="./assets/dfa.svg" />
-            Convert to DFA
+          <button class="menu-button" id="convert-to-dfa">
+            <i data-lucide="chevrons-right"></i> Convert to DFA
           </button>
         </div>
       </div>
-      <!-- -->
-
-      <div class="right-panel">
-        <div class="overflow">
-          <div id="stack"></div>
+      <div class="header__right">
+        <div class="header__right-play">
+          <button class="icon-button sm" id="rewind">
+            <i data-lucide="rewind"></i>
+          </button>
+          <button class="icon-button sm" id="previous">
+            <i data-lucide="skip-back"></i>
+          </button>
+          <button class="icon-button sm" id="play-pause">
+            <i data-lucide="play" id="play-icon"></i>
+            <!-- <i data-lucide="pause" id="pause-icon"></i> -->
+          </button>
+          <button class="icon-button sm" id="next">
+            <i data-lucide="skip-forward"></i>
+          </button>
+          <button class="icon-button sm" id="fast-forward">
+            <i data-lucide="fast-forward"></i>
+          </button>
         </div>
-        <div id="right-controls-panel">
-          <div class="controls right-bar">
-            <button id="add-state" title="Add State (A)">
-              <img
-                src="./assets/state.svg"
-                alt="State"
-                width="25px"
-                height="25px"
-              />
-            </button>
-            <button id="add-transition" title="Add Transition (T)">
-              <img
-                src="./assets/transition.svg"
-                alt="Transition"
-                width="25px"
-                height="25px"
-              />
-            </button>
-            <button id="select-button" title="Select Elements (S)">
-              <img
-                src="./assets/select.svg"
-                alt="Select"
-                width="25px"
-                height="25px"
-              />
-            </button>
-            <div class="separator hline"></div>
-            <button id="flag-final-button" title="Flag as Final (F)">
-              <img
-                src="./assets/flag-final.svg"
-                alt="Flag Final"
-                width="25px"
-                height="25px"
-              />
-            </button>
-            <div class="separator hline"></div>
-            <button id="delete-button" title="Delete Selected (D/Del)">
-              <img
-                src="./assets/delete.svg"
-                alt="Delete"
-                width="25px"
-                height="25px"
-              />
-            </button>
-          </div>
-          <div class="controls right-bar">
-            <button id="home">
-              <img
-                src="./assets/home.svg"
-                alt="Home"
-                width="35px"
-                height="35px"
-              />
-            </button>
-          </div>
-        </div>
-      </div>
-      <div class="controls zoom-controls-bar">
-        <button id="zoom-out">
-          <img
-            src="./assets/zoom-out.svg"
-            alt="Zoom Out"
-            width="25px"
-            height="25px"
-          />
-        </button>
-        <button id="zoom-reset">100%</button>
-        <button id="zoom-in">
-          <img
-            src="./assets/zoom-in.svg"
-            alt="Zoom In"
-            width="25px"
-            height="25px"
-          />
+        <span>|</span>
+        <button class="icon-button sm">
+          <i data-lucide="circle-user"></i>
         </button>
       </div>
-      <div class="bottom-bar">
-        <div id="tape"></div>
+    </header>
+    <!-- Main -->
+    <main class="main">
+      <div class="panel in-view" id="left-pane">
+        <div class="menu" id="menu-pane">
+          <button class="menu-button" id="load-json">
+            <i data-lucide="folder"></i> Open
+          </button>
+          <button class="menu-button" id="save-json">
+            <i data-lucide="download"></i> Save
+          </button>
+          <button class="menu-button" id="save-pdf">
+            <i data-lucide="file"></i> Save as PDF
+          </button>
+          <button class="menu-button" id="clear-btn">
+            <i data-lucide="delete"></i> Clear Canvas
+          </button>
+        </div>
+        <!-- <button class="icon-button" id="panel-button">
+          <i data-lucide="panel-left"></i>
+        </button> -->
+        <div class="" id="machine-input-box">
+          <div class="input-box">
+            <label for="alphabet-text">Alphabet</label>
+            <input
+              class="input-field"
+              type="text"
+              id="alphabet-text"
+              placeholder="Space separated"
+            />
+          </div>
+          <div class="input-box" id="tape-alphabet-box">
+            <label for="tape-alphabet-text">Tape Alphabet</label>
+            <input
+              class="input-field"
+              type="text"
+              id="tape-alphabet-text"
+              placeholder="Space separated"
+            />
+          </div>
+          <div class="input-box" id="stack-alphabet-box">
+            <label for="stack-alphabet-text">Stack Alphabet</label>
+            <input
+              class="input-field"
+              type="text"
+              id="stack-alphabet-text"
+              placeholder="Space separated"
+            />
+          </div>
+        </div>
+        <div class="zoom-controls">
+          <button class="icon-button" id="zoom-out">
+            <i data-lucide="minus"></i>
+          </button>
+          <button class="icon-button" id="zoom-reset">100%</button>
+          <button class="icon-button" id="zoom-in">
+            <i data-lucide="plus"></i>
+          </button>
+        </div>
       </div>
-      <div id="svgcontainer">
+      <div class="playground">
+        <div class="panel-btn-wrapper">
+          <button class="icon-button" id="panel-button">
+            <i data-lucide="panel-left"></i>
+          </button>
+        </div>
         <svg id="svgdisplay"></svg>
-      </div>
-      <div id="fa-input-box" class="mach-input-box">
-        <div class="inner-input-box">
-          <input type="text" id="fa-input" placeholder="" />
-          <button id="add-fa-transition">
-            <img src="./assets/plus.svg" alt="Add" />
-          </button>
-        </div>
-      </div>
-      <div id="pda-input-box" class="mach-input-box">
-        <div class="inner-input-box">
-          <input type="text" id="pda-input" placeholder="" />
-          <input type="text" id="pda-pop-input" placeholder="" />
-          <input type="text" id="pda-push-input" placeholder="" />
-          <button id="add-pda-transition">
-            <img src="./assets/plus.svg" alt="Add" />
-          </button>
-        </div>
-      </div>
-      <div id="tm-input-box" class="mach-input-box">
-        <div class="inner-input-box">
-          <input type="text" id="tm-input" placeholder="" />
-          <input type="text" id="tm-tape-input" placeholder="" />
-          <input type="text" id="tm-direction-input" placeholder="" />
-          <button id="add-tm-transition">
-            <img src="./assets/plus.svg" alt="Add" />
-          </button>
-        </div>
-      </div>
-    </div>
+        <div id="tape"></div>
 
-    <script src="./js/app.js" type="module"></script>
+        <div id="fa-input-box" class="mach-input-box"></div>
+        <div id="pda-input-box" class="mach-input-box"></div>
+        <div id="tm-input-box" class="mach-input-box"></div>
+      </div>
+    </main>
   </body>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+  <script src="./js/app.js" type="module"></script>
 </html>
