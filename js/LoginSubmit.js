@@ -27,9 +27,10 @@ export function loginSubmit() {
         if (response.ok) {
           console.log("Login successful");
           document.getElementById("login-popup").style.display = "none";
-          alertPopup("Login successful:", result.message);
+          console.log("Login successful:", result.message);
         } else {
-          alertPopup("Login failed:", result.message);
+          console.error("result error:", result.error);
+          console.error("result message: ", result.message);
         }
       } catch (error) {
         console.error("Error: ", error);
