@@ -225,14 +225,15 @@
           </button>
         </div>
         <div class="popup-body">
-          <form action="" method="post">
+          <form id="login-form">
             <div class="input-box">
-              <label for="username">Email or Username</label>
+              <label for="login-field">Email or Username</label>
               <input
                 class="input-field"
                 type="text"
-                id="usernameOrEmail"
+                id="login-field"
                 placeholder="Enter your email or username"
+                name="login"
               />
             </div>
             <div class="input-box">
@@ -242,6 +243,7 @@
                 type="password"
                 id="password"
                 placeholder="Enter your password"
+                name="password"
               />
             </div>
             <div class="input-box">
@@ -267,9 +269,29 @@
 
             <div class="popup-footer">
               <div class="input-box">
-                <p><a href="">Forgot Password?</a></p>
-                <p>Don't have an account?</p>
-                <button class="popup-button" id="signup-btn">Sign Up</button>
+                <p>
+                  <button
+                    class="icon-button"
+                    style="
+                      display: inline;
+                      padding: 0;
+                      color: var(--color-dark-blue);
+                    "
+                    id="forgot-pwd-btn"
+                  >
+                    Forgot Password?
+                  </button>
+                </p>
+                <p>
+                  Don't have an account?
+                  <button
+                    class="icon-button"
+                    id="signup-alt-btn"
+                    style="display: inline; color: var(--color-dark-blue)"
+                  >
+                    Sign Up
+                  </button>
+                </p>
               </div>
             </div>
           </div>
@@ -290,7 +312,7 @@
           </button>
         </div>
         <div class="popup-body">
-          <form action="" method="post">
+          <form id="signup-form">
             <div class="input-box">
               <label for="username">Username</label>
               <input
@@ -304,13 +326,13 @@
               <label for="email">Email</label>
               <input
                 class="input-field"
-                type="text"
+                type="email"
                 id="email"
                 placeholder="Enter your email"
               />
             </div>
             <div class="input-box">
-              <label for="password">Password</label>
+              <label for="password1">Password</label>
               <input
                 class="input-field"
                 type="password"
@@ -319,7 +341,7 @@
               />
             </div>
             <div class="input-box">
-              <label for="password">Confirm Password</label>
+              <label for="password2">Confirm Password</label>
               <input
                 class="input-field"
                 type="password"
@@ -350,8 +372,68 @@
 
             <div class="popup-footer">
               <div class="input-box">
-                <p>Already have an account? <a href="">Login</a></p>
+                <p>
+                  Already have an account?
+                  <button
+                    class="icon-button"
+                    id="login-alt-btn"
+                    style="display: inline; color: var(--color-dark-blue)"
+                  >
+                    Login
+                  </button>
+                </p>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="forgot-pwd-popup" class="popup">
+      <div class="popup-content">
+        <div class="popup-header">
+          <h2>Forgot Password</h2>
+          <button
+            class="icon-button sm"
+            id="close-forgot-pwd-popup"
+            title="Close Popup"
+          >
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="popup-body">
+          <form action="" method="post">
+            <div class="input-box">
+              <label for="email">Email</label>
+              <input
+                class="input-field"
+                type="text"
+                id="email"
+                placeholder="Enter your email"
+              />
+            </div>
+            <div class="input-box">
+              <input
+                type="submit"
+                id="forgot-pwd-submit"
+                class="popup-button"
+                value="Reset Password"
+              />
+            </div>
+          </form>
+          <div class="popup-separator"></div>
+          <div class="popup-footer">
+            <div class="input-box">
+              <p>
+                Remembered your password?
+                <button
+                  class="icon-button"
+                  id="forgot-login-alt-btn"
+                  style="display: inline; color: var(--color-dark-blue)"
+                >
+                  Login
+                </button>
+              </p>
             </div>
           </div>
         </div>

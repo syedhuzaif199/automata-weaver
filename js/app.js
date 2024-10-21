@@ -9,6 +9,7 @@ import TMTextBox from "./tmInputBox.js";
 import PDATextBox from "./pdaInputBox.js";
 import PDASimulator from "./pdaSimulator.js";
 import Stack from "./stack.js";
+import { loginSubmit } from "./LoginSubmit.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const svg = document.getElementById("svgdisplay");
@@ -103,6 +104,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("login-submit").addEventListener("click", () => {
     document.getElementById("login-popup").style.display = "none";
+    loginSubmit();
+  });
+
+  document.getElementById("forgot-pwd-btn").addEventListener("click", () => {
+    document.getElementById("login-popup").style.display = "none";
+    document.getElementById("forgot-pwd-popup").style.display = "flex";
+  });
+
+  document.getElementById("signup-alt-btn").addEventListener("click", () => {
+    document.getElementById("login-popup").style.display = "none";
+    document.getElementById("signup-popup").style.display = "flex";
   });
 
   document
@@ -113,6 +125,24 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("signup-submit").addEventListener("click", () => {
     document.getElementById("signup-popup").style.display = "none";
   });
+
+  document.getElementById("login-alt-btn").addEventListener("click", () => {
+    document.getElementById("signup-popup").style.display = "none";
+    document.getElementById("login-popup").style.display = "flex";
+  });
+
+  document
+    .getElementById("close-forgot-pwd-popup")
+    .addEventListener("click", () => {
+      document.getElementById("forgot-pwd-popup").style.display = "none";
+    });
+
+  document
+    .getElementById("forgot-login-alt-btn")
+    .addEventListener("click", () => {
+      document.getElementById("forgot-pwd-popup").style.display = "none";
+      document.getElementById("login-popup").style.display = "flex";
+    });
 
   const profileBtn = document.getElementById("profile-btn");
   profileBtn.addEventListener("click", () => {

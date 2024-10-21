@@ -1,5 +1,5 @@
-export function alertPopup(text) {
-  const texts = text.split("\n");
+export function alertPopup(...text) {
+  const texts = text.join(" ").split("\n");
   const alertPopup = document.getElementById("alert-popup");
   alertPopup.style.display = "flex";
   document.getElementById("alert-text").innerHTML = texts.join("<br>");
