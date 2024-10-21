@@ -14,7 +14,7 @@ export function loginSubmit() {
           "https://automataweaver.onrender.com/login",
           {
             method: "POST",
-            body: JSON.stringify({ username, password }),
+            body: { username, password },
             credentials: "include", // Include credentials (cookies, sessions) if needed
             // add access-control-allow-origin header
             headers: {
@@ -33,7 +33,6 @@ export function loginSubmit() {
         }
       } catch (error) {
         console.error("Error: ", error);
-        console.log("origin:", window.location.origin);
         alertPopup("Login failed:", "An error occurred. Please try again.");
       }
     });
