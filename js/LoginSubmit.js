@@ -29,7 +29,7 @@ export function loginSubmit() {
           document.getElementById("login-popup").style.display = "none";
           alertPopup("Login successful:", result.message);
         } else {
-          alertPopup("Login failed:", result.error);
+          alertPopup("Login failed:", result.message);
         }
       } catch (error) {
         console.error("Error: ", error);
