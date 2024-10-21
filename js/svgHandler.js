@@ -20,8 +20,8 @@ import {
   EPSILON,
 } from "./constants.js";
 import { alertPopup } from "./AlertPopup.js";
-import { loadMachinePopup } from "./LoadMachinePopup.js";
-import { saveMachinePopup } from "./SaveMachinePopup.js";
+import { loadMachinePopup } from "./loadMachinePopup.js";
+import { saveMachinePopup } from "./saveMachinePopup.js";
 
 const states = Object.freeze({
   default: 0,

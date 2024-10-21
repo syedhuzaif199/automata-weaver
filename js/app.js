@@ -1,4 +1,4 @@
-import SVGHandler from "./SVGHandler.js";
+import SVGHandler from "./svgHandler.js";
 import DFASimulator from "./dfaSimulator.js";
 import DFATextBox from "./dfaInputBox.js";
 import NFASimulator from "./nfaSimulator.js";
@@ -9,7 +9,7 @@ import TMTextBox from "./tmInputBox.js";
 import PDATextBox from "./pdaInputBox.js";
 import PDASimulator from "./pdaSimulator.js";
 import Stack from "./stack.js";
-import { loginSubmit } from "./LoginSubmit.js";
+import { loginSubmit } from "./loginSubmit.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const svg = document.getElementById("svgdisplay");

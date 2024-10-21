@@ -1,17 +1,16 @@
-import { alertPopup } from "./AlertPopup.js";
-
-export function loginSubmit() {
+export function signupSubmit() {
   document
-    .getElementById("login-form")
+    .getElementById("signup-form")
     .addEventListener("submit", async function (event) {
       event.preventDefault();
-      const username = document.getElementById("login-field").value;
+      const username = document.getElementById("username").value;
+      const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
       console.log("Username: ", username);
       console.log("Password: ", password);
       try {
         const response = await fetch(
-          "https://automataweaver.onrender.com/login",
+          "https://automataweaver.onrender.com/signup",
           {
             method: "POST",
             body: { username, password },
@@ -25,16 +24,15 @@ export function loginSubmit() {
 
         const result = await response.json();
         if (response.ok) {
-          console.log("Login successful");
-          document.getElementById("login-popup").style.display = "none";
-          console.log("Login successful:", result.message);
+          console.log("Signup successful");
+          document.getElementById("signup-popup").style.display = "none";
+          alertPopup("Signup successful:", result.message);
         } else {
-          console.error("result error:", result.error);
-          console.error("result message: ", result.message);
+          alertPopup("Signup failed:", result.error);
         }
       } catch (error) {
         console.error("Error: ", error);
-        alertPopup("Login failed:", "An error occurred. Please try again.");
+        alertPopup("Signup failed:", "An error occurred. Please try again.");
       }
     });
 }
