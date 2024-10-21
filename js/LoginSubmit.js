@@ -15,6 +15,10 @@ export function loginSubmit() {
           {
             method: "POST",
             body: JSON.stringify({ username, password }),
+            credentials: "include", // Include credentials (cookies, sessions) if needed
+            headers: {
+              Accept: "application/json", // Expect a JSON response
+            },
           }
         );
 
