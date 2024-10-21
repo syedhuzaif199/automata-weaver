@@ -16,8 +16,9 @@ export function loginSubmit() {
             method: "POST",
             body: JSON.stringify({ username, password }),
             credentials: "include", // Include credentials (cookies, sessions) if needed
+            // add access-control-allow-origin header
             headers: {
-              Accept: "application/json", // Expect a JSON response
+              "Content-Type": "application/json",
             },
           }
         );
@@ -32,6 +33,7 @@ export function loginSubmit() {
         }
       } catch (error) {
         console.error("Error: ", error);
+        console.log("origin:", window.location.origin);
         alertPopup("Login failed:", "An error occurred. Please try again.");
       }
     });
