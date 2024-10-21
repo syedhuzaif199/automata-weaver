@@ -14,7 +14,7 @@ export function loginSubmit() {
           "https://automataweaver.onrender.com/login",
           {
             method: "POST",
-            body: { username, password },
+            body: JSON.stringify({ username, password }),
             credentials: "include", // Include credentials (cookies, sessions) if needed
             // add access-control-allow-origin header
             headers: {
