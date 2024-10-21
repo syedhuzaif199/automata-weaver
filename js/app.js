@@ -10,6 +10,7 @@ import PDATextBox from "./pdaInputBox.js";
 import PDASimulator from "./pdaSimulator.js";
 import Stack from "./stack.js";
 import { loginSubmit } from "./loginSubmit.js";
+import { signupSubmit } from "./signupSubmit.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const svg = document.getElementById("svgdisplay");
@@ -124,6 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   document.getElementById("signup-submit").addEventListener("click", () => {
     document.getElementById("signup-popup").style.display = "none";
+    signupSubmit();
   });
 
   document.getElementById("login-alt-btn").addEventListener("click", () => {

@@ -24,14 +24,13 @@ export function loginSubmit() {
         );
 
         const result = await response.json();
-        if (response.ok) {
+        if (result.success) {
           console.log("Login successful");
           document.getElementById("login-popup").style.display = "none";
           alertPopup("Login successful:", result.message);
-          console.log("Message: ", result.message);
         } else {
           alertPopup("Login failed:", result.error);
-          console.log("Error: ", result.error);
+          console.log("Error message: ", result.error);
           console.log("Message: ", result.message);
         }
       } catch (error) {
