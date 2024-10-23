@@ -9,10 +9,23 @@ import TMTextBox from "./tmInputBox.js";
 import PDATextBox from "./pdaInputBox.js";
 import PDASimulator from "./pdaSimulator.js";
 import Stack from "./stack.js";
-import { loginSubmit } from "./loginSubmit.js";
-import { signupSubmit } from "./signupSubmit.js";
+import {
+  login,
+  logout,
+  signup,
+  checkAuth,
+  deleteAccount,
+  changePassword,
+} from "./userProfile.js";
+import { alertPopup } from "./AlertPopup.js";
 
 document.addEventListener("DOMContentLoaded", () => {
+  // let loggedIn = checkAuth();
+  let loggedIn = false;
+  function setLoggedIn(value) {
+    loggedIn = value;
+  }
+
   const svg = document.getElementById("svgdisplay");
   svg.addEventListener("click", (e) => {
     console.log("SVG Clicked");
@@ -68,45 +81,53 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // hide menu pane when a child button is clicked
-  document.querySelector("#menu-pane").childNodes.forEach((child) => {
-    child.addEventListener("click", (e) => {
-      console.log("Menu Pane Clicked");
-      const pane = document.querySelector("#menu-pane");
-      pane.style.display = "none";
-    });
-  });
+  // document.querySelector("#menu-pane").childNodes.forEach((child) => {
+  //   child.addEventListener("click", (e) => {
+  //     console.log("Menu Pane Clicked");
+  //     const pane = document.querySelector("#menu-pane");
+  //     pane.style.display = "none";
+  //   });
+  // });
 
   // hide machine options pane when a child button is clicked
-  document
-    .querySelector("#machine-options-pane")
-    .querySelectorAll("button")
-    .forEach((child) => {
-      child.addEventListener("click", (e) => {
-        console.log("Machine Options Pane Clicked");
-        const pane = document.querySelector("#machine-options-pane");
-        pane.style.display = "none";
-      });
-    });
+  // document
+  //   .querySelector("#machine-options-pane")
+  //   .querySelectorAll("button")
+  //   .forEach((child) => {
+  //     child.addEventListener("click", (e) => {
+  //       console.log("Machine Options Pane Clicked");
+  //       const pane = document.querySelector("#machine-options-pane");
+  //       pane.style.display = "none";
+  //     });
+  //   });
 
-  document
-    .getElementById("profile-pane")
-    .querySelectorAll("button")
-    .forEach((child) => {
-      child.addEventListener("click", (e) => {
-        console.log("Profile Pane Clicked");
-        const pane = document.getElementById("profile-pane");
-        pane.style.display = "none";
+  // document
+  //   .getElementById("profile-pane")
+  //   .querySelectorAll("button")
+  //   .forEach((child) => {
+  //     child.addEventListener("click", (e) => {
+  //       console.log("Profile Pane Clicked");
+  //       const pane = document.getElementById("profile-pane");
+  //       pane.style.display = "none";
+  //     });
+  //   });
+
+  document.querySelectorAll(".menu").forEach((menu) => {
+    menu.querySelectorAll("button").forEach((button) => {
+      button.addEventListener("click", (e) => {
+        console.log("Menu Pane Clicked");
+        menu.style.display = "none";
       });
     });
+  });
 
   document.getElementById("close-login-popup").addEventListener("click", () => {
     document.getElementById("login-popup").style.display = "none";
   });
 
-  document.getElementById("login-submit").addEventListener("click", () => {
-    document.getElementById("login-popup").style.display = "none";
-    loginSubmit();
-  });
+  document
+    .getElementById("login-form")
+    .addEventListener("submit", (event) => login(event, setLoggedIn));
 
   document.getElementById("forgot-pwd-btn").addEventListener("click", () => {
     document.getElementById("login-popup").style.display = "none";
@@ -123,10 +144,9 @@ document.addEventListener("DOMContentLoaded", () => {
     .addEventListener("click", () => {
       document.getElementById("signup-popup").style.display = "none";
     });
-  document.getElementById("signup-submit").addEventListener("click", () => {
-    document.getElementById("signup-popup").style.display = "none";
-    signupSubmit();
-  });
+  document
+    .getElementById("signup-form")
+    .addEventListener("submit", (event) => signup(event, setLoggedIn));
 
   document.getElementById("login-alt-btn").addEventListener("click", () => {
     document.getElementById("signup-popup").style.display = "none";
@@ -140,17 +160,71 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
   document
+    .getElementById("close-change-pwd-popup")
+    .addEventListener("click", () => {
+      document.getElementById("change-pwd-popup").style.display = "none";
+    });
+
+  document
+    .getElementById("change-login-alt-btn")
+    .addEventListener("click", () => {
+      document.getElementById("change-pwd-popup").style.display = "none";
+      document.getElementById("login-popup").style.display = "flex";
+    });
+
+  document
     .getElementById("forgot-login-alt-btn")
     .addEventListener("click", () => {
       document.getElementById("forgot-pwd-popup").style.display = "none";
       document.getElementById("login-popup").style.display = "flex";
     });
 
+  document
+    .getElementById("change-pwd-btn")
+    .addEventListener("click", (event) => {
+      document.getElementById("change-pwd-popup").style.display = "flex";
+    });
+
+  document
+    .getElementById("change-pwd-form")
+    .addEventListener("submit", (event) => changePassword(event));
+
+  document
+    .getElementById("close-confirm-delete-popup")
+    .addEventListener("click", () => {
+      document.getElementById("confirm-delete-popup").style.display = "none";
+    });
+
+  document
+    .getElementById("confirm-delete-yes")
+    .addEventListener("click", (event) => {
+      deleteAccount(event, setLoggedIn);
+    });
+
+  document
+    .getElementById("confirm-delete-no")
+    .addEventListener("click", (event) => {
+      document.getElementById("confirm-delete-popup").style.display = "none";
+    });
+
   const profileBtn = document.getElementById("profile-btn");
   profileBtn.addEventListener("click", () => {
-    const profilePane = document.getElementById("profile-pane");
-    profilePane.style.display =
-      profilePane.style.display === "none" ? "flex" : "none";
+    const profileLoggedOutPane = document.getElementById(
+      "profile-logged-out-pane"
+    );
+    const profileLoggedInPane = document.getElementById(
+      "profile-logged-in-pane"
+    );
+
+    if (loggedIn) {
+      profileLoggedOutPane.style.display = "none";
+      profileLoggedInPane.style.display =
+        profileLoggedInPane.style.display === "none" ? "flex" : "none";
+    } else {
+      profileLoggedInPane.style.display = "none";
+      profileLoggedOutPane.style.display =
+        profileLoggedOutPane.style.display === "none" ? "flex" : "none";
+    }
   });
 
   const loginBtn = document.getElementById("login-btn");
@@ -163,6 +237,16 @@ document.addEventListener("DOMContentLoaded", () => {
   signupBtn.addEventListener("click", () => {
     const signupPopup = document.getElementById("signup-popup");
     signupPopup.style.display = "flex";
+  });
+
+  const logoutBtn = document.getElementById("logout-btn");
+  logoutBtn.addEventListener("click", (event) => {
+    logout(event, setLoggedIn);
+  });
+
+  const deleteAccBtn = document.getElementById("delete-acc-btn");
+  deleteAccBtn.addEventListener("click", (event) => {
+    document.getElementById("confirm-delete-popup").style.display = "flex";
   });
 
   const homeBtn = document.querySelector("#home");
@@ -245,8 +329,8 @@ document.addEventListener("DOMContentLoaded", () => {
     simulationHandler.drawMinimizedDFA()
   );
 
-  const generateFromRegexBtn = document.querySelector("#gen-regex");
-  generateFromRegexBtn.addEventListener("click", () => {});
+  // const generateFromRegexBtn = document.querySelector("#gen-regex");
+  // generateFromRegexBtn.addEventListener("click", () => {});
 
   const speedSlider = document.querySelector("#speed");
   speedSlider.addEventListener("change", () => {
@@ -298,7 +382,7 @@ document.addEventListener("DOMContentLoaded", () => {
       case "dfa":
         conv2dfaBtn.style.display = "none";
         minimizeDfaBtn.style.display = "flex";
-        generateFromRegexBtn.style.display = "flex";
+        // generateFromRegexBtn.style.display = "flex";
         simulationHandler = new DFASimulator(
           svgHandler,
           tape,
@@ -309,7 +393,7 @@ document.addEventListener("DOMContentLoaded", () => {
       case "nfa":
         conv2dfaBtn.style.display = "flex";
         minimizeDfaBtn.style.display = "none";
-        generateFromRegexBtn.style.display = "flex";
+        // generateFromRegexBtn.style.display = "flex";
         simulationHandler = new NFASimulator(
           svgHandler,
           tape,
@@ -327,7 +411,7 @@ document.addEventListener("DOMContentLoaded", () => {
         svgHandler.setInputBox(pdaTextBox);
         conv2dfaBtn.style.display = "none";
         minimizeDfaBtn.style.display = "none";
-        generateFromRegexBtn.style.display = "none";
+        // generateFromRegexBtn.style.display = "none";
         break;
       case "tm":
         simulationHandler = new TmSimulator(
@@ -338,7 +422,7 @@ document.addEventListener("DOMContentLoaded", () => {
         svgHandler.setInputBox(tmTextBox);
         conv2dfaBtn.style.display = "none";
         minimizeDfaBtn.style.display = "none";
-        generateFromRegexBtn.style.display = "none";
+        // generateFromRegexBtn.style.display = "none";
         break;
 
       default:
@@ -476,12 +560,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function onSaveJSONBtnClick(e) {
     console.log("Save JSON Button Clicked");
-    svgHandler.saveToLocalStorage();
+    if (loggedIn) {
+      svgHandler.saveToLocalStorage();
+    } else {
+      alertPopup("You are not logged in!");
+    }
   }
 
   function onLoadJSONBtnClick(e) {
     console.log("Load JSON Button Clicked");
-    svgHandler.loadFromLocalStorage();
+    if (loggedIn) {
+      svgHandler.loadFromLocalStorage();
+    } else {
+      alertPopup("You are not logged in!");
+    }
   }
 
   function onSavePdfBtnClick(e) {
@@ -507,7 +599,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("click", (e) => {
     const menupane = document.getElementById("menu-pane");
     const machineOptionsPane = document.getElementById("machine-options-pane");
-    const profilePane = document.getElementById("profile-pane");
+    const profilePanes = document.querySelectorAll(".profile-pane");
     if (!menupane.contains(e.target) && !menuBtn.contains(e.target)) {
       menupane.style.display = "none";
     }
@@ -517,8 +609,10 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
       machineOptionsPane.style.display = "none";
     }
-    if (!profilePane.contains(e.target) && !profileBtn.contains(e.target)) {
-      profilePane.style.display = "none";
-    }
+    profilePanes.forEach((profilePane) => {
+      if (!profilePane.contains(e.target) && !profileBtn.contains(e.target)) {
+        profilePane.style.display = "none";
+      }
+    });
   });
 });

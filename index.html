@@ -90,9 +90,9 @@
             />
           </div>
           <div class="separator hline" id="machine-options-separator"></div>
-          <button class="menu-button" id="gen-regex">
+          <!-- <button class="menu-button" id="gen-regex" disabled>
             <i data-lucide="regex"></i> Genereate From Regex
-          </button>
+          </button> -->
           <button class="menu-button" id="minimize-dfa">
             <i data-lucide="chevrons-down"></i> Minimize
           </button>
@@ -125,12 +125,23 @@
           <i data-lucide="circle-user"></i>
         </button>
 
-        <div class="menu" id="profile-pane">
+        <div class="menu profile-pane" id="profile-logged-out-pane">
           <button class="menu-button" id="login-btn">
             <i data-lucide="log-in"></i> Login
           </button>
           <button class="menu-button" id="signup-btn">
             <i data-lucide="user-plus"></i> Sign Up
+          </button>
+        </div>
+        <div class="menu profile-pane" id="profile-logged-in-pane">
+          <button class="menu-button" id="logout-btn">
+            <i data-lucide="log-out"></i> Logout
+          </button>
+          <button class="menu-button" id="change-pwd-btn">
+            <i data-lucide="key"></i> Change Password
+          </button>
+          <button class="menu-button" id="delete-acc-btn">
+            <i data-lucide="trash"></i> Delete Account
           </button>
         </div>
       </div>
@@ -320,6 +331,7 @@
                 type="text"
                 id="username"
                 placeholder="Enter your username"
+                name="username"
               />
             </div>
             <div class="input-box">
@@ -329,6 +341,7 @@
                 type="email"
                 id="email"
                 placeholder="Enter your email"
+                name="email"
               />
             </div>
             <div class="input-box">
@@ -338,6 +351,7 @@
                 type="password"
                 id="password1"
                 placeholder="Enter your password"
+                name="password1"
               />
             </div>
             <div class="input-box">
@@ -408,7 +422,7 @@
               <input
                 class="input-field"
                 type="text"
-                id="email"
+                id="reset-email"
                 placeholder="Enter your email"
               />
             </div>
@@ -503,6 +517,99 @@
           </div>
           <div class="input-box">
             <button class="popup-button" id="alert-ok">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="change-pwd-popup" class="popup">
+      <div class="popup-content">
+        <div class="popup-header">
+          <h2>Change Password</h2>
+          <button
+            class="icon-button sm"
+            id="close-change-pwd-popup"
+            title="Close Popup"
+          >
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="popup-body">
+          <form id="change-pwd-form" action="" method="post">
+            <div class="input-box">
+              <label for="old-password">Old Password</label>
+              <input
+                class="input-field"
+                type="password"
+                id="old-password"
+                placeholder="Enter your old password"
+              />
+            </div>
+            <div class="input-box">
+              <label for="new-password">New Password</label>
+              <input
+                class="input-field"
+                type="password"
+                id="new-password"
+                placeholder="Enter your new password"
+              />
+            </div>
+            <div class="input-box">
+              <label for="confirm-password">Confirm Password</label>
+              <input
+                class="input-field"
+                type="password"
+                id="confirm-password"
+                placeholder="Confirm your new password"
+              />
+            </div>
+            <div class="input-box">
+              <input
+                type="submit"
+                id="change-pwd-submit"
+                class="popup-button"
+                value="Change Password"
+              />
+            </div>
+          </form>
+          <div class="popup-separator"></div>
+          <div class="popup-footer">
+            <div class="input-box">
+              <p>
+                Remembered your password?
+                <button
+                  class="icon-button"
+                  id="change-login-alt-btn"
+                  style="display: inline; color: var(--color-dark-blue)"
+                >
+                  Login
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="confirm-delete-popup" class="popup">
+      <div class="popup-content">
+        <div class="popup-header">
+          <h2>Confirm Delete</h2>
+          <button
+            class="icon-button sm"
+            id="close-confirm-delete-popup"
+            title="Close Popup"
+          >
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="popup-body">
+          <div class="input-box">
+            <p>Are you sure you want to delete your account?</p>
+          </div>
+          <div class="input-box">
+            <button class="popup-button" id="confirm-delete-yes">Yes</button>
+            <button class="popup-button" id="confirm-delete-no">No</button>
           </div>
         </div>
       </div>

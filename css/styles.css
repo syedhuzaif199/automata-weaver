@@ -240,6 +240,7 @@ header__left-dock-static {
 #machine-options-pane {
   border-top: 1px solid var(--color-gray-800);
   width: 50%;
+  padding-bottom: 16px;
 }
 
 .speed-bar {
@@ -422,14 +423,14 @@ header__left-dock-static {
   display: none;
 }
 
-#profile-pane {
-  position: absolute;
+.profile-pane {
   right: 0;
   top: 48px;
   width: 50%;
   display: none;
   border-top: 1px solid var(--color-gray-800);
 }
+
 
 #machine-input-box {
   width: 100%;
@@ -630,8 +631,21 @@ header__left-dock-static {
   background-color: var(--active-color);
 }
 
+#change-pwd-submit {
+  background-color: var(--active-color);
+}
+
+#alert-popup {
+  z-index: 1000;
+}
+
 .popup-button:hover {
   background-color: var(--color-gray-700);
+}
+
+
+#confirm-delete-yes {
+  background-color: var(--color-red);
 }
 
 .popup-button img {
@@ -645,6 +659,7 @@ header__left-dock-static {
 .popup-footer a {
   color: var(--color-dark-blue)
 }
+
 
 .popup-separator {
   width: 100%;
