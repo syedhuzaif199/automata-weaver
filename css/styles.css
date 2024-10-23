@@ -373,7 +373,8 @@ header__left-dock-static {
     border: 2px dashed var(--head-color);
     background-color: var(--highlight-bg);
     transition: left var(--cell-anim-duration);
-    z-index: 0;
+    z-index: 9;
+    pointer-events: none;
 }
 
 /* end tape styles */
