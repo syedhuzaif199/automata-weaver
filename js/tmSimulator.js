@@ -2,6 +2,7 @@ import BasicSimulator from "./basicSimulator.js";
 import { BLANK, DANGER_COLOR } from "./constants.js";
 import { lettersFromRange } from "./utils.js";
 import TM from "./tm.js";
+import { alertPopup } from "./AlertPopup.js";
 export default class TmSimulator extends BasicSimulator {
   constructor(svgHandler, tape, onNotPlayingCallback = () => {}) {
     super(svgHandler, tape, onNotPlayingCallback);
